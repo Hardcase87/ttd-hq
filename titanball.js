@@ -29,7 +29,7 @@ const ART_FILES = {
   mutantLoops:'assets/images/titanball92/mutant-loops.PNG',
   turf:'assets/images/titanball92/turf.png',
   touchdown:'assets/images/titanball92/touchdown.PNG',
-  gameover:'assets/images/titanball92/gameover.png',
+  gameover:'assets/images/titanball92/gameover.PNG',
   lightning:'assets/images/titanball92/lightning.png'
 };
 for (const [key,src] of Object.entries(ART_FILES)){
