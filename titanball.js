@@ -175,7 +175,7 @@ function voltage(){
   if(state.voltage>=100 && state.voltageTime<=0){
     state.voltage=0;
     state.voltageTime=5;
-    state.banner='â¡ VOLTAGE MODE â¡';
+    state.banner='⚡ VOLTAGE MODE ⚡';
     state.bannerTime=1.2;
     state.flash=.35;
     state.shake=10;
@@ -476,7 +476,7 @@ function update(dt){
   statusEl.textContent=state.voltageTime>0?'VOLTAGE!':`DRIVE ${state.drive}`;
 
   voltBtn.classList.toggle('ready',state.voltage>=100);
-  voltBtn.textContent=state.voltage>=100? '⚡ VOLTAGE READY!':'⚡VOLTAGE ${Math.floor(state.voltage)}%`;
+  voltBtn.textContent = state.voltage >= 100 ? '⚡ VOLTAGE READY!' : `⚡ VOLTAGE ${Math.floor(state.voltage)}%`;
 }
 
 function pxRect(x,y,w,h,c){
@@ -648,7 +648,7 @@ function drawTitle(){
   shadowText('TAP SCREEN OR PRESS ENTER',W/2,320,29,'#ffe53b','center');
   text(`HIGH SCORE ${pad(high)}`,W/2,355,21,'#39d7ff','center');
 
-  text('Â© 1992 TITAN CITY ELECTRONICS // ABSOLUTELY UNLICENSED',W/2,492,15,'rgba(255,255,255,.48)','center');
+  text('© 1992 TITAN CITY ELECTRONICS // ABSOLUTELY UNLICENSED',W/2,492,15,'rgba(255,255,255,.48)','center');
 }
 
 function drawGameOver(){
@@ -704,6 +704,6 @@ function loop(now){
 scoreEl.textContent=pad(0);
 yardsEl.textContent='0 / 100';
 statusEl.textContent='READY';
-voltBtn.textContent='⚡️VOLTAGE 0%';
+voltBtn.textContent='⚡ VOLTAGE 0%';
 requestAnimationFrame(loop);
 })();
