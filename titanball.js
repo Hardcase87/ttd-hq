@@ -476,7 +476,7 @@ function update(dt){
   statusEl.textContent=state.voltageTime>0?'VOLTAGE!':`DRIVE ${state.drive}`;
 
   voltBtn.classList.toggle('ready',state.voltage>=100);
-  voltBtn.textContent=state.voltage>=100?'â¡ VOLTAGE READY!':`â¡ VOLTAGE ${Math.floor(state.voltage)}%`;
+  voltBtn.textContent=state.voltage>=100? '⚡ VOLTAGE READY!':'⚡VOLTAGE ${Math.floor(state.voltage)}%`;
 }
 
 function pxRect(x,y,w,h,c){
@@ -704,6 +704,6 @@ function loop(now){
 scoreEl.textContent=pad(0);
 yardsEl.textContent='0 / 100';
 statusEl.textContent='READY';
-voltBtn.textContent='â¡ VOLTAGE 0%';
+voltBtn.textContent='⚡️VOLTAGE 0%';
 requestAnimationFrame(loop);
 })();
