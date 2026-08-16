@@ -367,3 +367,41 @@
 .price-doctrine{padding:1.1rem;margin-top:1rem}
 .price-doctrine h2{margin:.1rem 0;color:var(--yellow);font-family:"Barlow Condensed",sans-serif;font-size:2.5rem}
 @media(max-width:760px){.comic-library-grid{grid-template-columns:1fr}.reader-toolbar{grid-template-columns:82px 1fr 82px}.reader-toolbar button{padding:.7rem .35rem;font-size:.8rem}.comic-support-strip{align-items:flex-start;flex-direction:column}}
+
+
+/* V9 commerce + storefront polish */
+.home-comic-link{color:inherit;text-decoration:none;min-width:0}
+.home-comic-link figure{position:relative;height:100%}
+.comic-cover-wrap{position:relative}
+.comic-status-badge{position:absolute;z-index:4;top:.7rem;right:.7rem;display:inline-flex;align-items:center;justify-content:center;padding:.34rem .58rem;border-radius:999px;font-family:"Barlow Condensed",sans-serif;font-weight:900;font-size:.72rem;letter-spacing:.08em;line-height:1;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.comic-status-badge.free{color:var(--green);background:rgba(5,15,7,.86);border:1px solid rgba(138,255,43,.55);box-shadow:0 0 18px rgba(138,255,43,.15)}
+.comic-status-badge.paid{color:var(--yellow);background:rgba(18,10,3,.9);border:1px solid rgba(255,229,59,.5)}
+.future-comic-card{cursor:default}
+.future-comic-cover{position:relative;aspect-ratio:2/3;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(255,45,149,.12),rgba(138,255,43,.05)),repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 2px,transparent 2px 13px),#06060a;border-bottom:1px solid rgba(255,255,255,.08)}
+.future-comic-cover:before{content:"";position:absolute;inset:9%;border:1px solid rgba(138,255,43,.18);border-radius:14px}
+.future-issue-mark{font-family:"Barlow Condensed",sans-serif;font-size:5rem;font-weight:900;color:rgba(255,255,255,.06);line-height:.8}
+.future-skull{font-size:3.2rem;filter:grayscale(1);opacity:.55}
+.future-comic-cover p{margin:.8rem 0 0;font-family:"Barlow Condensed",sans-serif;font-weight:900;letter-spacing:.12em;color:var(--green)}
+.future-price{color:var(--yellow)!important}
+.payment-card{position:relative;overflow:hidden}
+.payment-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.025),transparent 38%)}
+.payment-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.rail-pill{border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:.3rem .52rem;color:var(--muted);font-family:"Barlow Condensed",sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.08em}
+.payment-choice-btn{width:100%;margin-top:1.2rem;padding:1rem;border-radius:13px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.035);color:var(--text);font-family:"Barlow Condensed",sans-serif;font-size:1rem;font-weight:900;letter-spacing:.07em;cursor:pointer;transition:.2s ease}
+.payment-choice-btn:hover,.payment-choice-btn.active{transform:translateY(-1px);border-color:rgba(138,255,43,.42);box-shadow:0 0 24px rgba(138,255,43,.08)}
+.lightning-choice{color:var(--green)}
+.paypal-choice{color:var(--blue)}
+.payment-reveal{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.payment-reveal[hidden]{display:none!important}
+.payment-doctrine{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:center;padding:1.1rem;margin-top:1rem}
+.payment-doctrine-icon{width:66px;height:66px;border-radius:18px;display:grid;place-items:center;border:1px solid rgba(138,255,43,.28);background:rgba(138,255,43,.06);color:var(--green);font-family:"Barlow Condensed",sans-serif;font-size:2rem;font-weight:900}
+.payment-doctrine h2{margin:.1rem 0;font-family:"Barlow Condensed",sans-serif}
+.store-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:1rem}
+.store-feature{display:grid;grid-template-columns:minmax(180px,.7fr) 1fr;gap:1.2rem;align-items:center;padding:1rem}
+.store-feature img{width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08)}
+.store-feature h2,.store-commerce h2{font-family:"Barlow Condensed",sans-serif;font-size:2.4rem;margin:.1rem 0}
+.store-status{display:inline-flex;margin-top:.6rem;padding:.45rem .65rem;border-radius:999px;border:1px solid rgba(255,229,59,.24);color:var(--yellow);font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em}
+.store-commerce{padding:1.3rem;display:flex;flex-direction:column;justify-content:center}
+.store-actions{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;margin-top:1rem}
+.hq-payments-strip{background:linear-gradient(120deg,rgba(255,45,149,.05),rgba(138,255,43,.035))}
+@media(max-width:760px){.store-grid{grid-template-columns:1fr}.store-feature{grid-template-columns:1fr}.payment-doctrine{grid-template-columns:1fr}.payment-doctrine-icon{width:54px;height:54px}}
