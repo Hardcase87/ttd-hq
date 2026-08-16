@@ -26,7 +26,7 @@ const ART_FILES = {
   mutant:'assets/images/titanball92/mutant.PNG',
   bobby:'assets/images/titanball92/bobby.png',
   skullJuice:'assets/images/titanball92/skull-juice.png',
-  mutantLoops:'assets/images/titanball92/mutant-loops.PNG',
+  mutantLoops:'assets/images/titanball92/mutant-loops.png',
   touchdown:'assets/images/titanball92/touchdown.PNG',
   gameover:'assets/images/titanball92/gameover.png',
   lightning:'assets/images/titanball92/lightning.png'
@@ -508,20 +508,54 @@ function drawBackground(){
     ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
   }
 
-  // moving field guide lines over artwork
+  // moving turf layer instead of harsh white frame-lines
+  const turfTop = 346;
+  const turfBottom = H;
+  const turfH = turfBottom - turfTop;
+
+  // alternating turf bands scrolling under the player
+  const bandW = 72;
+  const bandOffset = state.fieldOffset % bandW;
+  for(let i=-2;i<Math.ceil(W / bandW) + 2;i++){
+    const x = i * bandW - bandOffset;
+    ctx.fillStyle = i % 2 === 0 ? 'rgba(72,145,78,.16)' : 'rgba(26,68,35,.18)';
+    ctx.fillRect(x, turfTop, bandW, turfH);
+  }
+
+  // subtle ten-yard guide lines
   ctx.save();
-  ctx.globalAlpha=.23;
+  ctx.globalAlpha = .14;
   for(let i=-1;i<10;i++){
-    const x=i*120-(state.fieldOffset%120);
-    ctx.fillStyle='#ffffff';
-    ctx.fillRect(x,345,3,H-345);
-    text(String((i*10+100)%100),x+14,402,15,'rgba(255,255,255,.75)');
+    const x = i*120-(state.fieldOffset%120);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(Math.round(x), turfTop, 2, turfH);
+    text(String((i*10+100)%100), x+16, 402, 14, 'rgba(255,255,255,.42)');
   }
   ctx.restore();
 
+  // scrolling hash marks
+  const hashOffset = state.fieldOffset % 48;
+  ctx.fillStyle = 'rgba(255,255,255,.28)';
+  for(let x=-50; x < W+60; x += 48){
+    const hx = Math.round(x - hashOffset);
+    // upper row of hashes
+    ctx.fillRect(hx, 420, 16, 3);
+    // lower row of hashes
+    ctx.fillRect(hx, 474, 16, 3);
+  }
+
+  // subtle midfield glow strip
+  const glow = ctx.createLinearGradient(0, 0, 0, turfH);
+  glow.addColorStop(0, 'rgba(138,255,43,.00)');
+  glow.addColorStop(.45, 'rgba(138,255,43,.04)');
+  glow.addColorStop(.55, 'rgba(57,215,255,.03)');
+  glow.addColorStop(1, 'rgba(255,45,149,.00)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, turfTop, W, turfH);
+
   // drive progress
   const progress=state.driveYards/100;
-  ctx.fillStyle='rgba(0,0,0,.62)';ctx.fillRect(24,25,300,18);
+  ctx.fillStyle='rgba(0,0,0,.66)';ctx.fillRect(24,25,300,18);
   ctx.fillStyle='#8aff2b';ctx.fillRect(27,28,294*progress,12);
   ctx.strokeStyle='rgba(255,255,255,.25)';ctx.strokeRect(24,25,300,18);
   text(`${Math.floor(state.driveYards)} YDS`,335,35,18,'#fff');
