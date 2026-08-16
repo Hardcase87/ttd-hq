@@ -19,13 +19,13 @@ const GROUND = 420;
 const ART = {};
 const ART_FILES = {
   stadium:'assets/images/titanball92/stadium.png',
-  dex:'assets/images/titanball92/dex.png',
-  dexRun:'assets/images/titanball92/dex-run.png',
-  brute:'assets/images/titanball92/brute.png',
-  mutant:'assets/images/titanball92/mutant.png',
+  dex:'assets/images/titanball92/Dex.PNG',
+  dexRun:'assets/images/titanball92/dex-run.PNG',
+  brute:'assets/images/titanball92/brute.PNG',
+  mutant:'assets/images/titanball92/mutant.PNG',
   bobby:'assets/images/titanball92/bobby.png',
   skullJuice:'assets/images/titanball92/skull-juice.png',
-  touchdown:'assets/images/titanball92/touchdown.png',
+  touchdown:'assets/images/titanball92/touchdown.PNG',
   gameover:'assets/images/titanball92/gameover.png',
   lightning:'assets/images/titanball92/lightning.png'
 };
@@ -166,7 +166,7 @@ function voltage(){
   if(state.voltage>=100 && state.voltageTime<=0){
     state.voltage=0;
     state.voltageTime=5;
-    state.banner='⚡ VOLTAGE MODE ⚡';
+    state.banner='â¡ VOLTAGE MODE â¡';
     state.bannerTime=1.2;
     state.flash=.35;
     state.shake=10;
@@ -439,7 +439,7 @@ function update(dt){
   statusEl.textContent=state.voltageTime>0?'VOLTAGE!':`DRIVE ${state.drive}`;
 
   voltBtn.classList.toggle('ready',state.voltage>=100);
-  voltBtn.textContent=state.voltage>=100?'⚡ VOLTAGE READY!':`⚡ VOLTAGE ${Math.floor(state.voltage)}%`;
+  voltBtn.textContent=state.voltage>=100?'â¡ VOLTAGE READY!':`â¡ VOLTAGE ${Math.floor(state.voltage)}%`;
 }
 
 function pxRect(x,y,w,h,c){
@@ -542,7 +542,7 @@ function drawPickup(p){
   ctx.shadowBlur=18;
   if(!drawArt('skullJuice',p.x-13,y-15,54,66)){
     pxRect(p.x,y,p.w,p.h,'#8aff2b');
-    text('☠',p.x+p.w/2,y+p.h/2+1,18,'#07120a','center');
+    text('â ',p.x+p.w/2,y+p.h/2+1,18,'#07120a','center');
   }
   ctx.restore();
 }
@@ -598,7 +598,7 @@ function drawTitle(){
   shadowText('TAP SCREEN OR PRESS ENTER',W/2,320,29,'#ffe53b','center');
   text(`HIGH SCORE ${pad(high)}`,W/2,355,21,'#39d7ff','center');
 
-  text('© 1992 TITAN CITY ELECTRONICS // ABSOLUTELY UNLICENSED',W/2,492,15,'rgba(255,255,255,.48)','center');
+  text('Â© 1992 TITAN CITY ELECTRONICS // ABSOLUTELY UNLICENSED',W/2,492,15,'rgba(255,255,255,.48)','center');
 }
 
 function drawGameOver(){
@@ -654,6 +654,6 @@ function loop(now){
 scoreEl.textContent=pad(0);
 yardsEl.textContent='0 / 100';
 statusEl.textContent='READY';
-voltBtn.textContent='⚡ VOLTAGE 0%';
+voltBtn.textContent='â¡ VOLTAGE 0%';
 requestAnimationFrame(loop);
 })();
