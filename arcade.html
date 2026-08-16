@@ -1,8 +1,244 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="theme-color" content="#08070d"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"><title>Titan Ball // TTD HQ</title></head>
-<body><div class="bg-grid"></div><div class="scanlines"></div><header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ"></a></header>
-<main class="app-shell page-shell"><section class="network-strip panel"><div><span class="pulse-dot"></span><span>ARCADE // TITAN BALL</span></div><div>SEASON GRID ONLINE</div></section>
-<section class="panel titanball-hero"><img src="assets/images/module-arcade.png" alt="Titan Ball arcade module"><div><p class="eyebrow">TITAN BALL // TTD SPORTS NETWORK</p><h1>TITAN BALL</h1><p>Mutant football belongs to Titan City now. Dex Volt, violent scoreboards, corrupt refereeing and absolutely no concept of sportsmanship.</p><div class="status-row"><span><b>LEAGUE</b> TITAN BALL</span><span><b>STATUS</b> PRESEASON</span><span><b>NETWORK</b> TBN SPORTS</span></div></div></section>
-<section class="titanball-grid"><article class="panel"><p class="eyebrow">PLAYER FILE</p><h2>DEX VOLT</h2><p>Mutant athlete // QB-1. Player profile module is armed for the next roster expansion.</p></article><article class="panel"><p class="eyebrow">OFFICIALS</p><h2>BOBBY BANK ROLL</h2><p>Referee. Financial integrity pending investigation.</p></article><article class="panel"><p class="eyebrow">NEXT SYSTEM</p><h2>SCOREBOARD</h2><p>Fixtures, results, season records and league-table mayhem will plug in here.</p></article></section>
-</main><nav class="bottom-nav"><a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a></nav><script src="app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#08070d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<title>Titan Ball '92 // TTD HQ</title>
+
+<style>
+/* V10 TITAN BALL '92 - self-contained arcade patch */
+.tb92-wrap{margin-top:1rem}
+.tb92-cabinet{
+  position:relative;
+  max-width:1050px;
+  margin:0 auto;
+  padding:14px;
+  border-radius:28px;
+  border:1px solid rgba(138,255,43,.30);
+  background:
+    linear-gradient(145deg,rgba(138,255,43,.05),rgba(255,45,149,.055)),
+    #06070a;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.025),
+    0 0 50px rgba(138,255,43,.08);
+}
+.tb92-marquee{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:10px 12px 13px;
+  font-family:"Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+}
+.tb92-marquee strong{
+  font-size:clamp(1.5rem,5vw,3rem);
+  line-height:.85;
+  letter-spacing:.04em;
+  color:#fff;
+  text-shadow:3px 3px 0 rgba(255,45,149,.45),0 0 18px rgba(138,255,43,.25);
+}
+.tb92-marquee span{
+  color:var(--green);
+  font-weight:900;letter-spacing:.1em;font-size:.82rem;
+}
+.tb92-screen-shell{
+  position:relative;
+  overflow:hidden;
+  border:2px solid rgba(255,255,255,.11);
+  border-radius:18px;
+  background:#050807;
+  box-shadow:inset 0 0 28px rgba(0,0,0,.9);
+}
+#titanBallCanvas{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:16/9;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+  touch-action:none;
+  background:#07110b;
+}
+.tb92-screen-shell:after{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;z-index:4;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 4px);
+  mix-blend-mode:screen;
+  opacity:.32;
+}
+.tb92-hudbar{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.tb92-hudchip{
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.025);
+  font-family:"Barlow Condensed",sans-serif;
+}
+.tb92-hudchip b{display:block;color:var(--muted);font-size:.68rem;letter-spacing:.08em}
+.tb92-hudchip span{font-size:1.05rem;font-weight:900;color:#fff}
+.tb92-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr .9fr;
+  gap:10px;
+  margin-top:12px;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.tb92-btn{
+  min-height:68px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+  color:#fff;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:1.05rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.28);
+  touch-action:manipulation;
+}
+.tb92-btn:active,.tb92-btn.active{transform:translateY(3px);box-shadow:inset 0 -2px 0 rgba(0,0,0,.3)}
+.tb92-btn.jump{border-color:rgba(57,215,255,.45);color:var(--blue)}
+.tb92-btn.smash{border-color:rgba(255,45,149,.55);color:var(--pink)}
+.tb92-btn.volt{border-color:rgba(255,229,59,.45);color:var(--yellow)}
+.tb92-btn.volt.ready{
+  animation:voltPulse .55s infinite alternate;
+  background:rgba(255,229,59,.11);
+}
+@keyframes voltPulse{to{box-shadow:0 0 24px rgba(255,229,59,.28),inset 0 -5px 0 rgba(0,0,0,.28)}}
+.tb92-help{
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  margin:10px 2px 0;
+  color:var(--muted);
+  font-size:.78rem;
+}
+.tb92-help strong{color:var(--green)}
+.tb92-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:1rem;
+  margin-top:1rem;
+}
+.tb92-grid article{padding:1rem}
+.tb92-grid h2{font-family:"Barlow Condensed",sans-serif;font-size:2rem;margin:.1rem 0}
+.tb92-pill{
+  display:inline-flex;padding:.35rem .55rem;border-radius:999px;
+  border:1px solid rgba(138,255,43,.25);
+  color:var(--green);font-size:.75rem;font-weight:800;letter-spacing:.07em;
+}
+@media(max-width:760px){
+  .tb92-cabinet{padding:9px;border-radius:20px}
+  .tb92-marquee{padding:8px 7px 10px}
+  .tb92-hudbar{grid-template-columns:1fr 1fr}
+  .tb92-controls{grid-template-columns:1fr 1fr}
+  .tb92-btn{min-height:62px;font-size:.98rem}
+  .tb92-btn.volt{grid-column:1/-1;min-height:54px}
+  .tb92-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="bg-grid"></div>
+<div class="scanlines"></div>
+
+<header class="hero-banner">
+  <a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ"></a>
+</header>
+
+<main class="app-shell page-shell">
+
+<section class="network-strip panel">
+  <div><span class="pulse-dot"></span><span>ARCADE // TITAN BALL</span></div>
+  <div>V10 // CABINET ONLINE</div>
+</section>
+
+<section class="panel titanball-hero">
+  <img src="assets/images/module-arcade.png" alt="Titan Ball arcade module">
+  <div>
+    <p class="eyebrow">TITAN BALL // LOST 1992 CABINET</p>
+    <h1>TITAN BALL '92</h1>
+    <p>Dex Volt has one job: run, smash, survive and reach the end zone before Bobby Bank Roll invents another penalty.</p>
+    <div class="status-row">
+      <span><b>PLAYER</b> DEX VOLT #7</span>
+      <span><b>MODE</b> ARCADE RUN</span>
+      <span><b>SPORTSMANSHIP</b> DENIED</span>
+    </div>
+  </div>
+</section>
+
+<section class="tb92-wrap">
+  <div class="tb92-cabinet">
+    <div class="tb92-marquee">
+      <strong>TITAN BALL '92</strong>
+      <span>INSERT MUTATION // PRESS START</span>
+    </div>
+
+    <div class="tb92-screen-shell">
+      <canvas id="titanBallCanvas" width="960" height="540" aria-label="Titan Ball '92 browser arcade game"></canvas>
+    </div>
+
+    <div class="tb92-hudbar">
+      <div class="tb92-hudchip"><b>SCORE</b><span id="tbScore">000000</span></div>
+      <div class="tb92-hudchip"><b>YARDS</b><span id="tbYards">0</span></div>
+      <div class="tb92-hudchip"><b>HIGH SCORE</b><span id="tbHigh">000000</span></div>
+      <div class="tb92-hudchip"><b>STATUS</b><span id="tbStatus">READY</span></div>
+    </div>
+
+    <div class="tb92-controls">
+      <button class="tb92-btn jump" id="tbJump" type="button">▲ JUMP</button>
+      <button class="tb92-btn smash" id="tbSmash" type="button">✹ SMASH</button>
+      <button class="tb92-btn volt" id="tbVolt" type="button">⚡ VOLTAGE MODE</button>
+    </div>
+
+    <div class="tb92-help">
+      <span><strong>iPAD:</strong> tap controls // swipe not required</span>
+      <span><strong>KEYBOARD:</strong> SPACE jump // X smash // V voltage // ENTER start</span>
+    </div>
+  </div>
+</section>
+
+<section class="tb92-grid">
+  <article class="panel">
+    <span class="tb92-pill">POWER-UP</span>
+    <h2>SKULL JUICE</h2>
+    <p>Grab the green cans to restore health and charge the Voltage meter.</p>
+  </article>
+  <article class="panel">
+    <span class="tb92-pill">OFFICIALS</span>
+    <h2>BOBBY BANK ROLL</h2>
+    <p>The corrupt ref can throw penalty flags directly into your run. Smash first. Appeal never.</p>
+  </article>
+  <article class="panel">
+    <span class="tb92-pill">OBJECTIVE</span>
+    <h2>100 YARDS</h2>
+    <p>Reach the end zone. Every touchdown makes the next drive faster and substantially less legal.</p>
+  </article>
+</section>
+
+</main>
+
+<nav class="bottom-nav">
+  <a href="index.html">HQ</a>
+  <a href="map.html">MAP</a>
+  <a href="comics.html">COMICS</a>
+  <a href="dossiers.html">CREW</a>
+  <a href="tbn.html">TBN</a>
+</nav>
+
+<script src="app.js"></script>
+<script src="titanball.js"></script>
+</body>
+</html>
