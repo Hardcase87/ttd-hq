@@ -101,3 +101,100 @@
 @media (max-width: 760px) {
   .district-card-grid,.dossier-grid,.comic-detail,.locked-page { grid-template-columns:1fr; }
 }
+
+/* V5 City Map expansion */
+.map-visual-hero { padding: 1rem; }
+.map-visual-hero h1,
+.district-file-hero h1 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(2.8rem, 7vw, 5.2rem);
+  line-height: .95;
+}
+.map-visual-hero img {
+  display:block;
+  width:100%;
+  margin-top:1rem;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.09);
+}
+.district-link-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.district-link-card {
+  display:block;
+  text-decoration:none;
+  color:var(--text);
+  padding:1.2rem;
+  min-height:220px;
+  position:relative;
+  overflow:hidden;
+  transition:transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.district-link-card::after {
+  content:"";
+  position:absolute;
+  inset:auto -20% -45% 25%;
+  height:160px;
+  background:radial-gradient(circle, rgba(138,255,43,.12), transparent 65%);
+  pointer-events:none;
+}
+.district-link-card:hover {
+  transform:translateY(-3px);
+  border-color:rgba(138,255,43,.55);
+  box-shadow:0 0 28px rgba(138,255,43,.08);
+}
+.district-link-card h2 {
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:2.3rem;
+  margin:.25rem 0;
+}
+.district-link-card strong { color:var(--green); }
+.district-link-card p { color:var(--muted); }
+.district-link-card em {
+  font-style:normal;
+  font-family:"Barlow Condensed",sans-serif;
+  letter-spacing:.06em;
+  color:var(--pink);
+}
+.district-num {
+  color:var(--blue);
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:1rem;
+}
+.district-file-hero { padding:1.4rem; }
+.district-file-hero > strong { color:var(--green); display:block; margin:.6rem 0; }
+.district-file-hero > p { color:var(--muted); max-width:70ch; }
+.district-actions {
+  margin-top:1rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.75rem;
+  align-items:center;
+}
+.action-link {
+  text-decoration:none;
+  color:var(--pink);
+  border:1px solid rgba(255,45,149,.35);
+  padding:.65rem .85rem;
+  border-radius:12px;
+  font-family:"Barlow Condensed",sans-serif;
+}
+.district-intel-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1rem;
+}
+.district-intel-grid article { padding:1rem; }
+.district-intel-grid h2 {
+  margin:.2rem 0;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:2rem;
+}
+.district-intel-grid p { color:var(--muted); }
+@media (max-width:760px) {
+  .district-link-grid,
+  .district-intel-grid { grid-template-columns:1fr; }
+}
