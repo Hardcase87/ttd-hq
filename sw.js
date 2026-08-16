@@ -1,6 +1,12 @@
-const CACHE = 'ttd-hq-v2';
+const CACHE = 'ttd-hq-v3';
 const ASSETS = [
   './', './index.html', './styles.css', './app.js', './manifest.json',
+      './assets/images/module-city-map.png',
+      './assets/images/module-comics.png',
+      './assets/images/module-dossiers.png',
+      './assets/images/module-tbn.png',
+      './assets/images/module-arcade.png',
+      './assets/images/module-store.png',
   './assets/images/ttd-banner.png',
   './assets/images/ttd-interface.png',
   './assets/images/ttd-logo-app.png',
