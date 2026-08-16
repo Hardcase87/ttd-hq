@@ -29,3 +29,10 @@ Deploys as static HTML/CSS/JS via GitHub Pages.
 - Classified roster hub
 - Six individual character dossier pages
 - Attribute bars and personnel status cards
+
+## V7
+- Titan Ball rename completed
+- Three full comic PDFs uploaded
+- Comic library + issue pages + browser PDF reader
+- Payment module scaffold for Lightning and conventional checkout
+- No live payment credentials committed
