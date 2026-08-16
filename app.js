@@ -71,6 +71,30 @@ document.querySelectorAll('[data-open-reader]').forEach(btn => {
   });
 });
 
+
+document.querySelectorAll('[data-reveal-payment]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.revealPayment;
+    const panel = document.querySelector(`[data-payment-panel="${key}"]`);
+    if (!panel) return;
+
+    const willOpen = panel.hasAttribute('hidden');
+
+    document.querySelectorAll('[data-payment-panel]').forEach(other => {
+      other.setAttribute('hidden', '');
+    });
+    document.querySelectorAll('[data-reveal-payment]').forEach(otherBtn => {
+      otherBtn.classList.remove('active');
+    });
+
+    if (willOpen) {
+      panel.removeAttribute('hidden');
+      btn.classList.add('active');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+});
+
 document.querySelectorAll('[data-copy]').forEach(btn => {
   btn.addEventListener('click', async () => {
     const value = btn.dataset.copy;
