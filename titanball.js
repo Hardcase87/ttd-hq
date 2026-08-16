@@ -26,7 +26,7 @@ const ART_FILES = {
   mutant:'assets/images/titanball92/mutant.PNG',
   bobby:'assets/images/titanball92/bobby.png',
   skullJuice:'assets/images/titanball92/skull-juice.png',
-  mutantLoops:'assets/images/titanball92/mutant-loops.png',
+  mutantLoops:'assets/images/titanball92/mutant-loops.PNG',
   touchdown:'assets/images/titanball92/touchdown.PNG',
   gameover:'assets/images/titanball92/gameover.png',
   lightning:'assets/images/titanball92/lightning.png'
