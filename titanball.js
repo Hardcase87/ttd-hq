@@ -4,6 +4,7 @@
 const canvas = document.getElementById('titanBallCanvas');
 if (!canvas) return;
 const ctx = canvas.getContext('2d', { alpha:false });
+ctx.imageSmoothingEnabled = false;
 
 const scoreEl = document.getElementById('tbScore');
 const yardsEl = document.getElementById('tbYards');
@@ -25,6 +26,7 @@ const ART_FILES = {
   mutant:'assets/images/titanball92/mutant.PNG',
   bobby:'assets/images/titanball92/bobby.png',
   skullJuice:'assets/images/titanball92/skull-juice.png',
+  mutantLoops:'assets/images/titanball92/mutant-loops.png',
   touchdown:'assets/images/titanball92/touchdown.PNG',
   gameover:'assets/images/titanball92/gameover.png',
   lightning:'assets/images/titanball92/lightning.png'
@@ -39,7 +41,11 @@ function drawArt(key,x,y,w,h,alpha=1){
   if(!artReady(key)) return false;
   ctx.save();
   ctx.globalAlpha=alpha;
-  ctx.drawImage(ART[key],x,y,w,h);
+  ctx.drawImage(
+    ART[key],
+    Math.round(x), Math.round(y),
+    Math.round(w), Math.round(h)
+  );
   ctx.restore();
   return true;
 }
@@ -77,6 +83,7 @@ const state = {
   hp:100,
   voltage:0,
   voltageTime:0,
+  loopsTime:0,
   spawnTimer:0,
   pickupTimer:1.5,
   shake:0,
@@ -120,6 +127,7 @@ function resetGame(){
   state.hp=100;
   state.voltage=0;
   state.voltageTime=0;
+  state.loopsTime=0;
   state.spawnTimer=.9;
   state.pickupTimer=2.4;
   state.shake=0;
@@ -226,9 +234,13 @@ function spawnEnemy(){
 
 function spawnPickup(){
   const airborne=Math.random()>.45;
+  const type=Math.random()<.35?'mutantLoops':'skullJuice';
   state.pickups.push({
+    type,
     x:W+60,y:airborne?GROUND-150:GROUND-45,
-    w:28,h:36,spin:0
+    w:type==='mutantLoops'?34:28,
+    h:type==='mutantLoops'?42:36,
+    spin:0
   });
 }
 
@@ -323,7 +335,17 @@ function update(dt){
     if(state.voltageTime<=0) state.banner='VOLTAGE OFFLINE';
   }
 
-  const speed = state.speed + (state.voltageTime>0 ? 105 : 0);
+  if(state.loopsTime>0){
+    state.loopsTime-=dt;
+    state.score+=45*dt;
+    if(state.loopsTime<=0){
+      state.loopsTime=0;
+      state.banner='LOOPS RUSH OFFLINE';
+      state.bannerTime=.55;
+    }
+  }
+
+  const speed = state.speed + (state.voltageTime>0 ? 105 : 0) + (state.loopsTime>0 ? 65 : 0);
   state.fieldOffset=(state.fieldOffset+speed*dt)%120;
   state.crowdOffset=(state.crowdOffset+speed*.15*dt)%30;
 
@@ -410,14 +432,28 @@ function update(dt){
     p.spin+=dt*8;
     if(rects(player,p)){
       p.x=-200;
-      state.hp=clamp(state.hp+22,0,100);
-      state.voltage=clamp(state.voltage+28,0,100);
-      state.score+=650;
-      state.banner='SKULL JUICE +';
-      state.bannerTime=.55;
-      tone(660,.06,'square',.028);
-      setTimeout(()=>tone(880,.08,'square',.025),60);
-      particles(player.x+30,player.y+10,'#8aff2b',14,1.15);
+      if(p.type==='mutantLoops'){
+        state.hp=clamp(state.hp+8,0,100);
+        state.voltage=clamp(state.voltage+45,0,100);
+        state.score+=1200;
+        state.loopsTime=Math.max(state.loopsTime,2.5);
+        state.banner='MUTANT LOOPS // RUSH!';
+        state.bannerTime=.85;
+        tone(440,.06,'square',.03);
+        setTimeout(()=>tone(660,.07,'square',.03),55);
+        setTimeout(()=>tone(990,.10,'square',.028),115);
+        particles(player.x+30,player.y+10,'#ff2d95',10,1.25);
+        particles(player.x+30,player.y+10,'#8aff2b',12,1.35);
+      }else{
+        state.hp=clamp(state.hp+22,0,100);
+        state.voltage=clamp(state.voltage+28,0,100);
+        state.score+=650;
+        state.banner='SKULL JUICE +';
+        state.bannerTime=.55;
+        tone(660,.06,'square',.028);
+        setTimeout(()=>tone(880,.08,'square',.025),60);
+        particles(player.x+30,player.y+10,'#8aff2b',14,1.15);
+      }
     }
   }
 
@@ -538,11 +574,17 @@ function drawPickup(p){
   const bob=Math.sin(p.spin)*5;
   const y=p.y+bob;
   ctx.save();
-  ctx.shadowColor='#8aff2b';
-  ctx.shadowBlur=18;
-  if(!drawArt('skullJuice',p.x-13,y-15,54,66)){
+  const loops=p.type==='mutantLoops';
+  ctx.shadowColor=loops?'#ff2d95':'#8aff2b';
+  ctx.shadowBlur=loops?22:18;
+  if(loops){
+    if(!drawArt('mutantLoops',p.x-20,y-22,74,78)){
+      pxRect(p.x,y,p.w,p.h,'#ff2d95');
+      text('ML',p.x+p.w/2,y+p.h/2+1,17,'#07120a','center');
+    }
+  }else if(!drawArt('skullJuice',p.x-13,y-15,54,66)){
     pxRect(p.x,y,p.w,p.h,'#8aff2b');
-    text('â ',p.x+p.w/2,y+p.h/2+1,18,'#07120a','center');
+    text('☠',p.x+p.w/2,y+p.h/2+1,18,'#07120a','center');
   }
   ctx.restore();
 }
@@ -615,8 +657,8 @@ function drawGameOver(){
   shadowText('INSERT MUTATION // TAP TO RETRY',W/2,421,24,'#ffe53b','center');
 }
 function render(){
-  const sx=state.shake>0?rand(-state.shake,state.shake):0;
-  const sy=state.shake>0?rand(-state.shake*.5,state.shake*.5):0;
+  const sx=state.shake>0?Math.round(rand(-state.shake,state.shake)):0;
+  const sy=state.shake>0?Math.round(rand(-state.shake*.5,state.shake*.5)):0;
   ctx.save();
   ctx.translate(sx,sy);
 
