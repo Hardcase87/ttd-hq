@@ -24,3 +24,8 @@ Deploys as static HTML/CSS/JS via GitHub Pages.
 - Titan Spire
 - Financial District
 - Military District
+
+## V6
+- Classified roster hub
+- Six individual character dossier pages
+- Attribute bars and personnel status cards
