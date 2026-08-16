@@ -3,180 +3,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0a12" />
-  <title>TTD HQ</title>
+  <meta name="theme-color" content="#08070d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TTD HQ" />
+  <title>TTD HQ // Titan City Network</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="bg-grid"></div>
+  <div class="scanlines"></div>
 
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">LIVE FEED // TITAN CITY // CH 87</p>
-      <h1>TTD HQ</h1>
-      <p class="subhead">The city is alive.</p>
-    </div>
-    <div class="status-pill">CORE CHARACTERS // ONLINE</div>
+  <header class="hero-banner" id="hq">
+    <img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network featuring Hardcase '87 and Nikki Nitro" />
+    <div class="hero-overlay"></div>
   </header>
 
   <main class="app-shell">
-    <section class="hero panel">
-      <div class="hero-copy">
-        <p class="tag">TITAN CITY NETWORK</p>
-        <h2>ENTER TITAN CITY</h2>
-        <p>
-          Comics, map, dossiers, TBN, arcade and store — all routed through one neon command console.
-        </p>
+    <section class="network-strip panel">
+      <div>
+        <span class="pulse-dot"></span>
+        <span>LIVE FEED // TITAN CITY // CH 87</span>
       </div>
+      <div>CORE CHARACTERS // ONLINE</div>
+    </section>
 
-      <div class="hero-stat-grid">
-        <div class="stat-box pink">
-          <span class="label">CORE MODE</span>
-          <strong>Classic TTD</strong>
+    <section class="intro-grid">
+      <article class="panel intro-copy">
+        <p class="eyebrow">TTD HQ // TITAN CITY NETWORK</p>
+        <h1>ENTER TITAN CITY</h1>
+        <p>Comics, districts, dossiers, TBN broadcasts, arcade insanity and mutant loot — routed through one neon command console.</p>
+        <div class="status-row">
+          <span><b>CORE MODE</b> Classic TTD</span>
+          <span><b>INTERFACE</b> Neon Network</span>
+          <span><b>STATUS</b> City Alive</span>
         </div>
-        <div class="stat-box green">
-          <span class="label">STYLE MODE</span>
-          <strong>2099 Interface</strong>
+      </article>
+
+      <article class="panel brand-card">
+        <img src="assets/images/ttd-logo-app.png" alt="TTD HQ cyber skull logo" />
+        <div>
+          <p class="eyebrow">NETWORK ID</p>
+          <h2>TTD HQ</h2>
+          <p>NO WITNESSES. ONLY LEGENDS.</p>
         </div>
-        <div class="stat-box blue">
-          <span class="label">NETWORK</span>
-          <strong>TBN ONLINE</strong>
-        </div>
-        <div class="stat-box yellow">
-          <span class="label">CITY STATUS</span>
-          <strong>NO WITNESSES</strong>
-        </div>
+      </article>
+    </section>
+
+    <section class="section-head">
+      <div>
+        <p class="eyebrow">COMMAND MODULES</p>
+        <h2>Choose your route</h2>
       </div>
+      <span class="status-pill">6 SYSTEMS ONLINE</span>
     </section>
 
     <section class="module-grid">
-      <article class="module-card pink">
-        <span class="module-kicker">01</span>
-        <h3>CITY MAP</h3>
-        <p>Explore VHS Quarter, Nutrition District, Titan Heights, Financial District and more.</p>
-        <button data-section="map">Open Module</button>
-      </article>
+      <button class="module-card map-card" data-section="map"><span>01</span><strong>CITY MAP</strong><small>District grid // live zones</small></button>
+      <button class="module-card comics-card" data-section="comics"><span>02</span><strong>COMICS</strong><small>Issues // stories // covers</small></button>
+      <button class="module-card dossiers-card" data-section="dossiers"><span>03</span><strong>DOSSIERS</strong><small>Crew // enemies // intel</small></button>
+      <button class="module-card tbn-card" data-section="tbn"><span>04</span><strong>TBN</strong><small>Broadcast // alerts // chaos</small></button>
+      <button class="module-card arcade-card" data-section="arcade"><span>05</span><strong>ARCADE</strong><small>Titan Ball // scores // games</small></button>
+      <button class="module-card store-card" data-section="store"><span>06</span><strong>STORE</strong><small>Drops // posters // loot</small></button>
+    </section>
 
-      <article class="module-card green">
-        <span class="module-kicker">02</span>
-        <h3>COMICS</h3>
-        <p>Issue shelf, covers, story arcs, teasers and the future of Titan City.</p>
-        <button data-section="comics">Open Module</button>
-      </article>
-
-      <article class="module-card blue">
-        <span class="module-kicker">03</span>
-        <h3>DOSSIERS</h3>
-        <p>Hardcase ’87, Nikki Nitro, Grim Ledger, Viper, Vexxa Blaze and the rest.</p>
-        <button data-section="dossiers">Open Module</button>
-      </article>
-
-      <article class="module-card red">
-        <span class="module-kicker">04</span>
-        <h3>TBN</h3>
-        <p>Titan Broadcasting Network alerts, crisis scrolls and nonsense from the city.</p>
-        <button data-section="tbn">Open Module</button>
-      </article>
-
-      <article class="module-card purple">
-        <span class="module-kicker">05</span>
-        <h3>ARCADE</h3>
-        <p>Dex Volt, mutant football, scoreboards and retro mayhem.</p>
-        <button data-section="arcade">Open Module</button>
-      </article>
-
-      <article class="module-card yellow">
-        <span class="module-kicker">06</span>
-        <h3>STORE</h3>
-        <p>Posters, cards, shirts, stickers and future mutant loot.</p>
-        <button data-section="store">Open Module</button>
-      </article>
+    <section class="panel interface-preview">
+      <div class="panel-head">
+        <div><p class="eyebrow">SYSTEM PREVIEW</p><h2>TTD Network Interface</h2></div>
+        <span>ONLINE</span>
+      </div>
+      <img src="assets/images/ttd-interface.png" alt="TTD HQ module interface artwork" />
     </section>
 
     <section class="dashboard-grid">
       <article class="panel feature-panel" id="map">
-        <div class="panel-head">
-          <p class="eyebrow">CITY MAP</p>
-          <span>LIVE</span>
+        <div class="panel-head"><div><p class="eyebrow">CITY MAP</p><h2>Titan City District Grid</h2></div><span>LIVE</span></div>
+        <div class="district-grid">
+          <div>VHS QUARTER<small>Analog neon // street chaos</small></div>
+          <div>NUTRITION DISTRICT<small>Skull Juice // Mutant Loops</small></div>
+          <div>TITAN HEIGHTS<small>High-rise mutant territory</small></div>
+          <div>TITAN SPIRE<small>Network command landmark</small></div>
+          <div>FINANCIAL DISTRICT<small>Grim Ledger territory</small></div>
+          <div>MILITARY DISTRICT<small>Hangars // TDI // DEFCON</small></div>
         </div>
-        <h3>Titan City District Grid</h3>
-        <ul class="district-list">
-          <li>VHS Quarter</li>
-          <li>Nutrition District</li>
-          <li>Titan Heights</li>
-          <li>Titan Spire</li>
-          <li>Financial District</li>
-          <li>Military District</li>
-        </ul>
+      </article>
+
+      <article class="panel comics-panel" id="comics">
+        <div class="panel-head"><div><p class="eyebrow">COMICS SHELF</p><h2>Titan City Issues</h2></div><span>3 FILES</span></div>
+        <div class="comic-grid">
+          <figure><img src="assets/images/titan-city-issue-1-cover.png" alt="Titan City issue 1 cover"><figcaption><b>ISSUE #1</b><span>Disaster in the Skies</span></figcaption></figure>
+          <figure><img src="assets/images/titan-city-issue-2-cover.png" alt="Titan City issue 2 cover"><figcaption><b>ISSUE #2</b><span>Titan City file</span></figcaption></figure>
+          <figure><img src="assets/images/titan-city-issue-3-cover.png" alt="Titan City issue 3 cover"><figcaption><b>ISSUE #3</b><span>Off-world mayhem</span></figcaption></figure>
+        </div>
       </article>
 
       <article class="panel feature-panel" id="dossiers">
-        <div class="panel-head">
-          <p class="eyebrow">CORE DOSSIERS</p>
-          <span>87</span>
-        </div>
-        <h3>Roster Online</h3>
+        <div class="panel-head"><div><p class="eyebrow">CORE DOSSIERS</p><h2>Roster Online</h2></div><span>87</span></div>
         <div class="roster-list">
-          <div><strong>Hardcase ’87</strong><span>Enforcer // TTD-87</span></div>
-          <div><strong>Nikki Nitro</strong><span>Speed Demon // TTD-NN</span></div>
-          <div><strong>Vexxa Blaze</strong><span>Firebrand // Heavy Ordnance</span></div>
-          <div><strong>Captain Calorie</strong><span>Nutrition War Commander</span></div>
+          <div><strong>HARDCASE ’87</strong><span>Enforcer // TTD-87</span></div>
+          <div><strong>NIKKI NITRO</strong><span>Speed Demon // TTD-NN</span></div>
+          <div><strong>VEXXA BLAZE</strong><span>Firebrand // Heavy Ordnance</span></div>
+          <div><strong>GRIM LEDGER</strong><span>Finance Warlord // TDI</span></div>
+          <div><strong>VIPER</strong><span>Toxic Assassin</span></div>
+          <div><strong>CAPTAIN CALORIE</strong><span>Nutrition War Commander</span></div>
         </div>
       </article>
 
       <article class="panel feed-panel" id="tbn">
-        <div class="panel-head">
-          <p class="eyebrow">TBN NEWS FEED</p>
-          <span>LIVE</span>
-        </div>
+        <div class="panel-head"><div><p class="eyebrow">TBN NEWS FEED</p><h2>Broadcast Queue</h2></div><span>ON AIR</span></div>
         <ul class="feed-list">
-          <li><b>Emergency Broadcast</b><span>Power surge in VHS Quarter</span></li>
-          <li><b>Titan Spire Alert</b><span>Security protocol delta</span></li>
-          <li><b>Nutrition District Update</b><span>Skull Juice shipment complete</span></li>
-          <li><b>Mutant Horde Report</b><span>No witnesses. Only legends.</span></li>
+          <li><b>EMERGENCY BROADCAST</b><span>Power surge detected in VHS Quarter.</span></li>
+          <li><b>TITAN SPIRE ALERT</b><span>Security protocol DELTA activated.</span></li>
+          <li><b>NUTRITION DISTRICT</b><span>Skull Juice shipment complete. Casualties unknown.</span></li>
+          <li><b>TITAN BALL</b><span>Dex Volt cleared for excessive contact.</span></li>
         </ul>
       </article>
 
-      <article class="panel feature-panel" id="comics">
-        <div class="panel-head">
-          <p class="eyebrow">COMICS SHELF</p>
-          <span>#1</span>
-        </div>
-        <h3>Titan City #1</h3>
-        <p>Disaster in the Skies // blimp crash // mutagen leak // citywide mayhem.</p>
-        <button class="secondary">Read Now</button>
-      </article>
-
       <article class="panel feature-panel" id="arcade">
-        <div class="panel-head">
-          <p class="eyebrow">ARCADE</p>
-          <span>INSERT COIN</span>
-        </div>
-        <h3>Mutant Football League</h3>
-        <p>Dex Volt, Bobby Bank Roll and full Titan Ball insanity.</p>
+        <div class="panel-head"><div><p class="eyebrow">ARCADE</p><h2>Mutant Football League</h2></div><span>INSERT COIN</span></div>
+        <p>Dex Volt, Bobby Bank Roll, Titan Ball scoreboards and future retro-game experiments live here.</p>
+        <button class="coming-soon">SYSTEM LOCKED // COMING SOON</button>
       </article>
 
       <article class="panel feature-panel" id="store">
-        <div class="panel-head">
-          <p class="eyebrow">STORE</p>
-          <span>NEW DROP</span>
-        </div>
-        <h3>Merch Vault</h3>
-        <p>Sticker packs, posters, roster cards, action figure boxes and beach towel chaos.</p>
+        <div class="panel-head"><div><p class="eyebrow">STORE</p><h2>Mutant Loot Vault</h2></div><span>NEW DROP</span></div>
+        <p>Posters, sticker packs, roster cards, action-figure boxes and other questionable Titan City merchandise.</p>
+        <button class="coming-soon">VAULT LOCKED // COMING SOON</button>
       </article>
     </section>
   </main>
 
-  <nav class="bottom-nav">
-    <button class="active">HQ</button>
-    <button>Map</button>
-    <button>Board</button>
-    <button>Crew</button>
-    <button>Profile</button>
+  <nav class="bottom-nav" aria-label="TTD HQ navigation">
+    <button class="active" data-target="hq">HQ</button>
+    <button data-target="map">MAP</button>
+    <button data-target="comics">COMICS</button>
+    <button data-target="dossiers">CREW</button>
+    <button data-target="tbn">TBN</button>
   </nav>
 
   <script src="app.js"></script>

@@ -1,33 +1,24 @@
 const navButtons = document.querySelectorAll('.bottom-nav button');
-const moduleButtons = document.querySelectorAll('.module-card button');
+const moduleButtons = document.querySelectorAll('.module-card');
 
-navButtons.forEach((button, index) => {
+function goTo(target) {
+  const section = document.getElementById(target);
+  if (!section) return;
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+navButtons.forEach(button => {
   button.addEventListener('click', () => {
     navButtons.forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
-
-    const targets = ['top', 'map', 'comics', 'dossiers', 'tbn'];
-    const target = targets[index];
-
-    if (target === 'top') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    const section = document.getElementById(target);
-    section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    goTo(button.dataset.target);
   });
 });
 
 moduleButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    const section = document.getElementById(button.dataset.section);
-    section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  button.addEventListener('click', () => goTo(button.dataset.section));
 });
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
