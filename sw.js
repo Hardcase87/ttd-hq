@@ -1,24 +1,24 @@
-const CACHE='ttd-hq-v7';
-const CORE=[
+const CACHE = 'ttd-hq-v8';
+const CORE = [
   './',
-  './index.html',
-  './map.html',
-  './comics.html',
-  './issue-1.html',
-  './issue-2.html',
-  './issue-3.html',
-  './dossiers.html',
-  './tbn.html',
   './arcade.html',
-  './store.html',
-  './payments.html',
   './captain-calorie.html',
+  './comics.html',
+  './dossiers.html',
   './financial-district.html',
   './grim-ledger.html',
   './hardcase-87.html',
+  './index.html',
+  './issue-1.html',
+  './issue-2.html',
+  './issue-3.html',
+  './map.html',
   './military-district.html',
   './nikki-nitro.html',
   './nutrition-district.html',
+  './payments.html',
+  './store.html',
+  './tbn.html',
   './titan-heights.html',
   './titan-spire.html',
   './vexxa-blaze.html',
@@ -28,10 +28,7 @@ const CORE=[
   './app.js',
   './manifest.json',
   './assets/images/ttd-banner.png',
-  './assets/images/ttd-logo-app.png',
-  './assets/comics/titan-city-issue-1.pdf',
-  './assets/comics/titan-city-issue-2.pdf',
-  './assets/comics/titan-city-issue-3.pdf'
+  './assets/images/ttd-logo-app.png'
 ];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));

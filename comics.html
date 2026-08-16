@@ -1,57 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#08070d" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="TTD HQ" />
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#08070d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TTD HQ">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" />
-<title>Comics // TTD HQ</title>
-</head>
+<link rel="stylesheet" href="styles.css">
+<title>Comics // TTD HQ</title></head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
 <header class="hero-banner">
-  <a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network" /></a>
-  <div class="hero-overlay"></div>
+<a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a>
 </header>
 <main class="app-shell page-shell">
 <section class="network-strip panel">
   <div><span class="pulse-dot"></span><span>COMICS // ARCHIVE</span></div>
-  <div>3 ISSUES LOADED</div>
+  <div>3 ISSUES ONLINE</div>
 </section>
 <section class="panel page-hero">
-  <p class="eyebrow">TDI COMICS // TITAN CITY ARCHIVE</p>
-  <h1>READ TITAN CITY</h1>
-  <p>Three complete issues are now loaded into TTD HQ. Open an issue file or launch the full comic in the browser reader.</p>
+  <p class="eyebrow">TDI COMICS // TITAN CITY</p>
+  <h1>COMIC LIBRARY</h1>
+  <p>Tap an issue to launch the native TTD reader.</p>
 </section>
 <section class="comic-library-grid">
-  <a class="panel comic-library-card" href="issue-1.html">
-    <img src="assets/images/titan-city-issue-1-cover.png" alt="Titan City Issue 1 cover" />
-    <div><p class="eyebrow">ISSUE #1 // 11 PDF PAGES</p><h2>DISASTER IN THE SKIES</h2><p>The Con Casino blimp disaster tears across Titan City and leaves something worse behind.</p><span>OPEN ISSUE →</span></div>
-  </a>
-  <a class="panel comic-library-card" href="issue-2.html">
-    <img src="assets/images/titan-city-issue-2-cover.png" alt="Titan City Issue 2 cover" />
-    <div><p class="eyebrow">ISSUE #2 // 8 PDF PAGES</p><h2>THE OOZE BELOW</h2><p>The city survived the crash. The harbor did not. Something is active under the surface.</p><span>OPEN ISSUE →</span></div>
-  </a>
-  <a class="panel comic-library-card" href="issue-3.html">
-    <img src="assets/images/titan-city-issue-3-cover.png" alt="Titan City Issue 3 cover" />
-    <div><p class="eyebrow">ISSUE #3 // 5 PDF SPREADS</p><h2>JUNGLE DEATH COMMAND</h2><p>A rescue mission becomes a hunt. Vexxa Blaze and the jungle squad discover they are not alone.</p><span>OPEN ISSUE →</span></div>
-  </a>
+
+    <a class="panel comic-library-card" href="issue-1.html">
+      <img src="assets/images/titan-city-issue-1-cover.png" alt="Titan City Issue 1 cover">
+      <div>
+        <p class="eyebrow">ISSUE #1</p>
+        <h2>DISASTER IN THE SKIES</h2>
+        <span>READ NOW →</span>
+      </div>
+    </a>
+    <a class="panel comic-library-card" href="issue-2.html">
+      <img src="assets/images/titan-city-issue-2-cover.png" alt="Titan City Issue 2 cover">
+      <div>
+        <p class="eyebrow">ISSUE #2</p>
+        <h2>THE OOZE BELOW</h2>
+        <span>READ NOW →</span>
+      </div>
+    </a>
+    <a class="panel comic-library-card" href="issue-3.html">
+      <img src="assets/images/titan-city-issue-3-cover.png" alt="Titan City Issue 3 cover">
+      <div>
+        <p class="eyebrow">ISSUE #3</p>
+        <h2>JUNGLE DEATH COMMAND</h2>
+        <span>READ NOW →</span>
+      </div>
+    </a>
 </section>
-<section class="panel support-teaser">
-  <div><p class="eyebrow">TTD SUPPORT GRID</p><h2>PAYMENTS ARE NEXT</h2><p>Bitcoin / Lightning and standard payment rails are scaffolded for the next build. No payment address is live yet.</p></div>
-  <a href="payments.html" class="action-link">VIEW PAYMENT MODULE →</a>
+<section class="panel comic-support-strip">
+  <div><p class="eyebrow">TTD COMMERCE</p><h2>SUPPORT / FUTURE PAID DROPS</h2></div>
+  <a class="read-comic-btn" href="payments.html">OPEN PAYMENTS →</a>
 </section>
 </main>
-<nav class="bottom-nav" aria-label="TTD HQ navigation">
-  <a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a>
+<nav class="bottom-nav">
+<a href="index.html">HQ</a>
+<a href="map.html">MAP</a>
+<a href="comics.html">COMICS</a>
+<a href="dossiers.html">CREW</a>
+<a href="tbn.html">TBN</a>
 </nav>
 <script src="app.js"></script>
 </body>
