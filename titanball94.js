@@ -25,7 +25,7 @@ const UI = {
 
 const W=canvas.width,H=canvas.height;
 const FIELD={left:90,right:890,top:118,bottom:485};
-const SAVE='ttd-titanball94-v4';
+const SAVE='ttd-titanball94-v4.1';
 const TWO_PI=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -43,6 +43,7 @@ const ROSTER=[
 const ASSETS={};
 const ASSET_FILES={
   stadium:'assets/images/titanball94/stadium-v2.PNG',
+  gameplayArena:'assets/images/titanball94/stadium3.PNG',
   turf:'assets/images/titanball94/Infiniteturf94.PNG',
   dexSheet:'assets/images/titanball94/dex-sheet.PNG',
   nikkiSheet:'assets/images/titanball94/nikki-sheet.PNG',
@@ -54,7 +55,7 @@ const ASSET_FILES={
   touchdownSplash:'assets/images/titanball94/touchdown94.PNG',
   firstDownSplash:'assets/images/titanball94/firstdown94.PNG',
   gameOverSplash:'assets/images/titanball94/Gameover94.PNG',
-  impactFX:'assets/images/titanball94/Impact.PNG'
+  impactFX:'assets/images/titanball94/effex.PNG'
 };
 for(const [k,src] of Object.entries(ASSET_FILES)){
   const img=new Image(); img.src=src; ASSETS[k]=img;
@@ -167,7 +168,7 @@ function gameOver(msg='DRIVE TERMINATED'){
 }
 function newDown(reason='DOWN'){
   if(state.downResetTime>0||state.touchdownTime>0) return;
-  state.downResetTime=1.05;state.banner=reason;state.bannerTime=.8;state.defenders.length=0;state.pickups.length=0;
+  state.downResetTime=1.05;state.banner=reason;state.bannerTime=.8;state.defenders.length=0;state.pickups.length=0;state.impactSprites.length=0;
 }
 function finishDown(){
   state.downResetTime=0;
@@ -183,7 +184,7 @@ function finishDown(){
   resetPlayer();
 }
 function touchdown(){
-  state.touchdownTime=2;state.banner='TOUCHDOWN // +7500';state.bannerTime=1.8;state.score+=7500*state.multiplier;showSplash('touchdown',1.25);
+  state.impactSprites.length=0;state.touchdownTime=2;state.banner='TOUCHDOWN // +7500';state.bannerTime=1.8;state.score+=7500*state.multiplier;showSplash('touchdown',1.25);
   state.meter=clamp(state.meter+40,0,100);state.shake=13;state.flash=.4;burst(760,270,PALETTE.yellow,40,1.4);
   tone(523,.09);setTimeout(()=>tone(659,.09),90);setTimeout(()=>tone(784,.18),180);
 }
@@ -202,7 +203,7 @@ function showSplash(type,time=.9){
   state.splashTimer=time;
 }
 function impactSprite(x,y,kind=0,size=105){
-  state.impactSprites.push({x,y,kind:kind%4,size,life:.28,max:.28});
+  state.impactSprites.push({x,y,kind:kind%4,size,life:.20,max:.20});
 }
 
 function smash(){
@@ -455,46 +456,57 @@ function txt(t,x,y,s=22,c='#fff',a='left'){ctx.fillStyle=c;ctx.font=`900 ${s}px 
 function shadow(t,x,y,s,c,a='left'){txt(t,x+3,y+3,s,'rgba(0,0,0,.75)',a);txt(t,x,y,s,c,a)}
 
 function drawField(){
-  // Stadium shell / crowd parallax.
-  if(ready('stadium')){
-    const px=Math.sin(state.time*.45)*3-(state.worldScroll*.018);
-    ctx.drawImage(ASSETS.stadium,-7+px,-3,W+14,H+6);
-    ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(0,0,W,H);
+  // V4.1: dedicated gameplay arena fills the whole canvas.
+  if(ready('gameplayArena')){
+    ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
+  }else if(ready('stadium')){
+    ctx.drawImage(ASSETS.stadium,0,0,W,H);
   }else{
-    const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#080511');g.addColorStop(.24,'#171124');g.addColorStop(.25,'#102d18');g.addColorStop(1,'#0b3c1b');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    rect(0,0,W,H,'#07140b');
   }
 
-  // Infinite 16-bit turf strip clipped to the playable field.
+  // Full-window scrolling Mega Drive turf layer.
+  // It now fills almost the entire gameplay viewport instead of sitting in a small inner box.
   ctx.save();
-  ctx.beginPath();ctx.rect(FIELD.left,FIELD.top,FIELD.right-FIELD.left,FIELD.bottom-FIELD.top);ctx.clip();
-  if(ready('turf')){
-    const th=FIELD.bottom-FIELD.top;
-    const tw=th*(ASSETS.turf.naturalWidth/ASSETS.turf.naturalHeight);
-    const off=((state.worldScroll*3.15)%tw+tw)%tw;
-    for(let x=FIELD.left-off-tw;x<FIELD.right+tw;x+=tw){
-      ctx.drawImage(ASSETS.turf,x,FIELD.top,tw,th);
-    }
-    ctx.fillStyle='rgba(0,0,0,.10)';ctx.fillRect(FIELD.left,FIELD.top,FIELD.right-FIELD.left,th);
-  }else{
-    rect(FIELD.left,FIELD.top,FIELD.right-FIELD.left,FIELD.bottom-FIELD.top,'rgba(18,92,38,.82)');
-  }
+  const turfX=18,turfY=62,turfW=W-36,turfH=H-84;
+  ctx.beginPath();ctx.rect(turfX,turfY,turfW,turfH);ctx.clip();
 
-  // Subtle lane guides only; old heavy white frame is gone.
-  for(let i=1;i<5;i++)rect(FIELD.left,FIELD.top+i*(FIELD.bottom-FIELD.top)/5,FIELD.right-FIELD.left,1,'rgba(255,255,255,.045)');
+  if(ready('turf')){
+    const ratio=ASSETS.turf.naturalWidth/ASSETS.turf.naturalHeight;
+    const tileH=turfH;
+    const tileW=tileH*ratio;
+    const off=((state.worldScroll*3.35)%tileW+tileW)%tileW;
+    for(let x=turfX-off-tileW;x<turfX+turfW+tileW;x+=tileW){
+      ctx.drawImage(ASSETS.turf,x,turfY,tileW,tileH);
+    }
+    // Keep character readability without flattening the turf art.
+    ctx.fillStyle='rgba(0,0,0,.055)';
+    ctx.fillRect(turfX,turfY,turfW,turfH);
+  }
   ctx.restore();
 
-  // Gameplay markers sit ABOVE turf.
-  const firstX=clamp(FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,FIELD.left,FIELD.right);
-  rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.76)');
-  rect(FIELD.right-6,FIELD.top,6,FIELD.bottom-FIELD.top,'rgba(255,45,149,.62)');
+  // Reapply a light stadium3 frame/trim above the moving turf.
+  if(ready('gameplayArena')){
+    ctx.save();
+    ctx.globalAlpha=.34;
+    ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
+    ctx.restore();
+  }
 
-  // Speed streaks sell forward motion without hiding the player.
+  // Play-space markers only; no heavy white rectangle.
+  const firstX=clamp(FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,FIELD.left,FIELD.right);
+  rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.72)');
+  rect(FIELD.right-4,FIELD.top,4,FIELD.bottom-FIELD.top,'rgba(255,45,149,.52)');
+
   if(state.mode==='playing'&&(player.dash>0||Math.abs(player.vx)>current().speed*.8)){
-    ctx.save();ctx.globalAlpha=player.dash>0?.30:.13;ctx.strokeStyle=current().color;ctx.lineWidth=2;
-    for(let i=0;i<12;i++){
-      const yy=FIELD.top+18+((i*41+state.time*180)%((FIELD.bottom-FIELD.top)-36));
-      const xx=FIELD.left+90+((i*103+state.worldScroll*7)%(FIELD.right-FIELD.left-180));
-      ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx-55-(player.dash>0?45:0),yy);ctx.stroke();
+    ctx.save();
+    ctx.globalAlpha=player.dash>0?.26:.10;
+    ctx.strokeStyle=current().color;
+    ctx.lineWidth=2;
+    for(let i=0;i<10;i++){
+      const yy=FIELD.top+18+((i*43+state.time*175)%((FIELD.bottom-FIELD.top)-36));
+      const xx=FIELD.left+80+((i*101+state.worldScroll*7)%(FIELD.right-FIELD.left-160));
+      ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx-48-(player.dash>0?38:0),yy);ctx.stroke();
     }
     ctx.restore();
   }
@@ -549,19 +561,36 @@ function drawPickup(p){
 }
 function drawEffects(){
   for(const s of state.shockwaves){
-    ctx.globalAlpha=clamp(s.life/.5,0,1);ctx.strokeStyle=s.color;ctx.lineWidth=s.flag?3:5;
-    if(s.flag){rect(s.x-9,s.y-6,18,12,s.color)}else{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,TWO_PI);ctx.stroke()}
-  }ctx.globalAlpha=1;
+    ctx.globalAlpha=clamp(s.life/.5,0,1);
+    ctx.strokeStyle=s.color;ctx.lineWidth=s.flag?3:5;
+    if(s.flag){rect(s.x-9,s.y-6,18,12,s.color)}
+    else{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,TWO_PI);ctx.stroke()}
+  }
+  ctx.globalAlpha=1;
 
-  for(const p of state.particles){ctx.globalAlpha=clamp(p.life/p.max,0,1);rect(p.x,p.y,p.size,p.size,p.color)}ctx.globalAlpha=1;
+  for(const p of state.particles){
+    ctx.globalAlpha=clamp(p.life/p.max,0,1);
+    rect(p.x,p.y,p.size,p.size,p.color);
+  }
+  ctx.globalAlpha=1;
 
+  // effex.PNG is a clean 2x2 sheet: each hit is one quadrant only.
   if(ready('impactFX')){
+    const sw=ASSETS.impactFX.naturalWidth/2;
+    const sh=ASSETS.impactFX.naturalHeight/2;
     for(const f of state.impactSprites){
-      const a=clamp(f.life/f.max,0,1),s=f.size*(1+(1-a)*.25);
+      const t=clamp(f.life/f.max,0,1);
+      if(t<=0) continue;
       const col=f.kind%2,row=Math.floor(f.kind/2)%2;
-      const sw=ASSETS.impactFX.naturalWidth/2,sh=ASSETS.impactFX.naturalHeight/2;
-      ctx.save();ctx.globalAlpha=a;
-      ctx.drawImage(ASSETS.impactFX,col*sw,row*sh,sw,sh,f.x-s/2,f.y-s/2,s,s);
+      const grow=1+(1-t)*.18;
+      const s=f.size*grow;
+      ctx.save();
+      ctx.globalAlpha=t*t; // fast fade: bright pop, then gone
+      ctx.drawImage(
+        ASSETS.impactFX,
+        col*sw,row*sh,sw,sh,
+        f.x-s/2,f.y-s/2,s,s
+      );
       ctx.restore();
     }
   }
