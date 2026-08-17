@@ -25,7 +25,7 @@ const UI = {
 
 const W=canvas.width,H=canvas.height;
 const FIELD={left:90,right:890,top:118,bottom:485};
-const SAVE='ttd-titanball94-v4.2';
+const SAVE='ttd-titanball94-v4.3';
 const TWO_PI=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -44,7 +44,8 @@ const ASSETS={};
 const ASSET_FILES={
   stadium:'assets/images/titanball94/stadium-v2.PNG',
   gameplayArena:'assets/images/titanball94/stadium3.PNG',
-  turf:'assets/images/titanball94/Infiniteturf94.PNG',
+  grass:'assets/images/titanball94/tb94-grass.PNG',
+  fieldOverlay:'assets/images/titanball94/tb94-field-overlay.PNG',
   dexSheet:'assets/images/titanball94/dex-sheet.PNG',
   nikkiSheet:'assets/images/titanball94/nikki-sheet.PNG',
   bruiserSheet:'assets/images/titanball94/bruiser-sheet.PNG',
@@ -175,7 +176,7 @@ function finishDown(){
   const gained=Math.max(0,state.fieldYards-state.seriesStart);
   state.toGo=Math.max(0,20-gained);
   if(state.toGo<=0){
-    state.down=1;state.seriesStart=state.fieldYards;state.toGo=20;state.score+=1200;state.banner='FIRST DOWN // +1200';state.bannerTime=1;showSplash('firstDown',.85);
+    state.down=1;state.seriesStart=state.fieldYards;state.toGo=20;state.score+=1200;state.banner='FIRST DOWN // +1200';state.bannerTime=1;showSplash('firstDown',1.20);
   }else{
     state.down++;
     if(state.down>4){gameOver('TURNOVER ON DOWNS');return;}
@@ -184,7 +185,7 @@ function finishDown(){
   resetPlayer();
 }
 function touchdown(){
-  state.impactSprites.length=0;state.touchdownTime=2;state.banner='TOUCHDOWN // +7500';state.bannerTime=1.8;state.score+=7500*state.multiplier;showSplash('touchdown',1.25);
+  state.impactSprites.length=0;state.touchdownTime=2;state.banner='TOUCHDOWN // +7500';state.bannerTime=1.8;state.score+=7500*state.multiplier;showSplash('touchdown',1.45);
   state.meter=clamp(state.meter+40,0,100);state.shake=13;state.flash=.4;burst(760,270,PALETTE.yellow,40,1.4);
   tone(523,.09);setTimeout(()=>tone(659,.09),90);setTimeout(()=>tone(784,.18),180);
 }
@@ -456,73 +457,60 @@ function txt(t,x,y,s=22,c='#fff',a='left'){ctx.fillStyle=c;ctx.font=`900 ${s}px 
 function shadow(t,x,y,s,c,a='left'){txt(t,x+3,y+3,s,'rgba(0,0,0,.75)',a);txt(t,x,y,s,c,a)}
 
 function drawField(){
-  // Dedicated full-screen gameplay arena.
+  // OPTION A / V4.3
+  // Layer 1: arena shell.
   if(ready('gameplayArena')) ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
   else if(ready('stadium')) ctx.drawImage(ASSETS.stadium,0,0,W,H);
   else rect(0,0,W,H,'#07140b');
 
-  const turfX=18,turfY=62,turfW=W-36,turfH=H-84;
-
-  // V4.2: scroll ONLY a clean grass-texture crop from Infiniteturf94.
-  // The baked-in yard lines/numbers no longer move across the screen.
+  // Layer 2: clean scrolling GRASS ONLY.
+  // No lines, numbers or logos are allowed to move.
+  const gx=18,gy=62,gw=W-36,gh=H-84;
   ctx.save();
-  ctx.beginPath();ctx.rect(turfX,turfY,turfW,turfH);ctx.clip();
+  ctx.beginPath();ctx.rect(gx,gy,gw,gh);ctx.clip();
 
-  if(ready('turf')){
-    const nw=ASSETS.turf.naturalWidth, nh=ASSETS.turf.naturalHeight;
+  if(ready('grass')){
+    const tileW=360;
+    const tileH=gh;
+    const off=((state.worldScroll*2.25)%tileW+tileW)%tileW;
 
-    // Grass-only source patch: intentionally avoids the original field lines/numbers.
-    const sx=Math.floor(nw*.185);
-    const sy=Math.floor(nh*.205);
-    const sw=Math.floor(nw*.055);
-    const sh=Math.floor(nh*.185);
-
-    const tileW=150;
-    const off=((state.worldScroll*2.4)%tileW+tileW)%tileW;
-
-    for(let x=turfX-off-tileW;x<turfX+turfW+tileW;x+=tileW){
-      ctx.drawImage(ASSETS.turf,sx,sy,sw,sh,x,turfY,tileW,turfH);
+    for(let x=gx-off-tileW;x<gx+gw+tileW;x+=tileW){
+      ctx.drawImage(ASSETS.grass,x,gy,tileW,tileH);
     }
 
-    // Slight tint keeps the field rich and readable.
-    ctx.fillStyle='rgba(8,70,22,.16)';
-    ctx.fillRect(turfX,turfY,turfW,turfH);
+    // Keep the Mega Drive turf rich without muddying sprites.
+    ctx.fillStyle='rgba(4,50,12,.08)';
+    ctx.fillRect(gx,gy,gw,gh);
   }else{
-    rect(turfX,turfY,turfW,turfH,'#0c4b20');
+    rect(gx,gy,gw,gh,'#0c4b20');
   }
   ctx.restore();
 
-  // Stadium3 trim sits above the moving texture.
-  if(ready('gameplayArena')){
+  // Layer 3: STATIC transparent field overlay.
+  // Yard lines, numbers, midfield skull and TITAN BALL '94 side art stay locked.
+  if(ready('fieldOverlay')){
     ctx.save();
-    ctx.globalAlpha=.34;
-    ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
+    ctx.globalAlpha=.88;
+    ctx.drawImage(ASSETS.fieldOverlay,0,48,W,H-64);
+    ctx.restore();
+  }else{
+    // Fallback static markings only if overlay fails.
+    ctx.save();
+    ctx.globalAlpha=.5;
+    for(let i=1;i<10;i++){
+      const x=FIELD.left+(FIELD.right-FIELD.left)*(i/10);
+      rect(x-1,FIELD.top,2,FIELD.bottom-FIELD.top,'#baff56');
+    }
     ctx.restore();
   }
 
-  // STATIC field markings. These never move.
-  ctx.save();
-  ctx.globalAlpha=.44;
-  const lineTop=FIELD.top, lineBottom=FIELD.bottom;
-  const lineH=lineBottom-lineTop;
-  for(let i=1;i<10;i++){
-    const x=FIELD.left+(FIELD.right-FIELD.left)*(i/10);
-    rect(x-1,lineTop,2,lineH,'#baff56');
-  }
-  // sideline hashes
-  for(let i=0;i<36;i++){
-    const x=FIELD.left+(FIELD.right-FIELD.left)*(i/35);
-    rect(x,lineTop+7,1,6,'rgba(210,255,120,.6)');
-    rect(x,lineBottom-13,1,6,'rgba(210,255,120,.6)');
-  }
-  ctx.restore();
-
-  // First-down and end-zone markers remain static relative to gameplay.
-  const firstX=clamp(FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,FIELD.left,FIELD.right);
-  rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.72)');
-  rect(FIELD.right-4,FIELD.top,4,FIELD.bottom-FIELD.top,'rgba(255,45,149,.52)');
-
-  // No synthetic speed-line overlay in V4.2.
+  // Layer 4: live gameplay markers only.
+  const firstX=clamp(
+    FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,
+    FIELD.left,FIELD.right
+  );
+  rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.78)');
+  rect(FIELD.right-4,FIELD.top,4,FIELD.bottom-FIELD.top,'rgba(255,45,149,.55)');
 }
 
 function drawPlayer(){
