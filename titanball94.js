@@ -25,7 +25,7 @@ const UI = {
 
 const W=canvas.width,H=canvas.height;
 const FIELD={left:90,right:890,top:118,bottom:485};
-const SAVE='ttd-titanball94-v1';
+const SAVE='ttd-titanball94-v2';
 const TWO_PI=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -42,16 +42,11 @@ const ROSTER=[
 
 const ASSETS={};
 const ASSET_FILES={
-  stadium:'assets/images/titanball94/stadium.png',
-  dex:'assets/images/titanball94/dex.png',
-  nikki:'assets/images/titanball94/nikki.png',
-  mack:'assets/images/titanball94/mack.png',
-  defender:'assets/images/titanball94/defender.png',
-  speedster:'assets/images/titanball94/speedster.png',
-  ref:'assets/images/titanball94/bobby.png',
-  skullJuice:'assets/images/titanball94/skull-juice.png',
-  mutantLoops:'assets/images/titanball94/mutant-loops.png',
-  title:'assets/images/titanball94/title.png'
+  stadium:'assets/images/titanball94/stadium-v2.PNG',
+  dexSheet:'assets/images/titanball94/dex-sheet.PNG',
+  nikkiSheet:'assets/images/titanball94/nikki-sheet.PNG',
+  bruiserSheet:'assets/images/titanball94/bruiser-sheet.PNG',
+  itemsSheet:'assets/images/titanball94/items-sheet.PNG'
 };
 for(const [k,src] of Object.entries(ASSET_FILES)){
   const img=new Image(); img.src=src; ASSETS[k]=img;
@@ -61,6 +56,31 @@ function art(k,x,y,w,h,a=1){
   if(!ready(k)) return false;
   ctx.save();ctx.globalAlpha=a;ctx.drawImage(ASSETS[k],Math.round(x),Math.round(y),Math.round(w),Math.round(h));ctx.restore();return true;
 }
+
+function sheetArt(k,sx,sy,sw,sh,x,y,w,h,a=1,flip=false){
+  if(!ready(k)) return false;
+  ctx.save();
+  ctx.globalAlpha=a;
+  if(flip){
+    ctx.translate(Math.round(x+w),Math.round(y));
+    ctx.scale(-1,1);
+    ctx.drawImage(ASSETS[k],sx,sy,sw,sh,0,0,Math.round(w),Math.round(h));
+  }else{
+    ctx.drawImage(ASSETS[k],sx,sy,sw,sh,Math.round(x),Math.round(y),Math.round(w),Math.round(h));
+  }
+  ctx.restore();
+  return true;
+}
+
+// Hand-picked action poses from the uploaded Phase 1 sprite sheets.
+// Sheets are 1536x1024; these crops deliberately avoid logos/portrait art.
+const SHEET_POSES = {
+  dex:{run:[1000,48,500,410],idle:[438,22,235,455]},
+  nikki:{run:[1000,48,485,420],idle:[425,20,235,460]},
+  mack:{run:[920,22,555,400],idle:[520,15,350,500]},
+  defender:{run:[920,22,555,400]},
+  speedster:{run:[920,22,555,400]}
+};
 
 let audio=null;
 function tone(f=220,d=.06,type='square',g=.02){
@@ -340,13 +360,15 @@ function txt(t,x,y,s=22,c='#fff',a='left'){ctx.fillStyle=c;ctx.font=`900 ${s}px 
 function shadow(t,x,y,s,c,a='left'){txt(t,x+3,y+3,s,'rgba(0,0,0,.75)',a);txt(t,x,y,s,c,a)}
 
 function drawField(){
-  if(ready('stadium'))ctx.drawImage(ASSETS.stadium,0,0,W,H);
-  else{
+  if(ready('stadium')){
+    ctx.drawImage(ASSETS.stadium,0,0,W,H);
+    // Slight dark veil keeps gameplay sprites readable without killing the stadium art.
+    ctx.fillStyle='rgba(0,0,0,.10)';ctx.fillRect(0,0,W,H);
+  }else{
     const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#080511');g.addColorStop(.24,'#171124');g.addColorStop(.25,'#102d18');g.addColorStop(1,'#0b3c1b');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
     for(let i=0;i<40;i++){const x=(i*83+state.crowd)%W;rect(x,55+(i%5)*8,3,3,i%3===0?PALETTE.pink:i%3===1?PALETTE.green:PALETTE.blue)}
+    rect(FIELD.left,FIELD.top,FIELD.right-FIELD.left,FIELD.bottom-FIELD.top,'rgba(18,92,38,.72)');
   }
-  ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(0,0,W,H);
-  rect(FIELD.left,FIELD.top,FIELD.right-FIELD.left,FIELD.bottom-FIELD.top,'rgba(18,92,38,.72)');
   for(let i=-2;i<14;i++){
     const x=FIELD.left+i*80-(state.worldScroll%80);
     rect(x,FIELD.top,2,FIELD.bottom-FIELD.top,'rgba(255,255,255,.32)');
@@ -365,20 +387,41 @@ function drawPlayer(){
   if(player.invuln>0&&Math.floor(state.time*14)%2===0)return;
   for(const t of player.trail){ctx.globalAlpha=clamp(t.life/.28,0,.35);rect(t.x-8,t.y-8,16,16,t.color);t.life-=.016}ctx.globalAlpha=1;
   if(player.specialTime>0){ctx.save();ctx.shadowColor=c.color;ctx.shadowBlur=30;ctx.strokeStyle=c.color;ctx.lineWidth=4;ctx.beginPath();ctx.arc(player.x,player.y,player.r+12+Math.sin(state.time*16)*4,0,TWO_PI);ctx.stroke();ctx.restore()}
-  const key=c.id;
-  const w=c.id==='mack'?92:78,h=c.id==='mack'?100:90;
-  if(!art(key,player.x-w/2,player.y-h/2,w,h)){
+
+  const moving=Math.hypot(player.vx,player.vy)>22 || player.dash>0;
+  const pose=SHEET_POSES[c.id][moving?'run':'idle'];
+  const sheetKey=c.id==='dex'?'dexSheet':c.id==='nikki'?'nikkiSheet':'bruiserSheet';
+  const scale=c.id==='mack'?1.12:1;
+  const drawW=(moving?112:82)*scale;
+  const drawH=(moving?100:118)*scale;
+  const flip=player.vx< -8;
+
+  if(!sheetArt(sheetKey,...pose,player.x-drawW/2,player.y-drawH/2,drawW,drawH,1,flip)){
     ctx.save();ctx.translate(player.x,player.y);ctx.fillStyle=c.color;ctx.beginPath();ctx.arc(0,0,player.r,0,TWO_PI);ctx.fill();
     rect(-player.r,-8,player.r*2,16,'#0a0a0c');txt(String(c.no),0,1,22,c.accent,'center');ctx.restore();
   }
+
   if(player.smash>0){ctx.strokeStyle=PALETTE.pink;ctx.lineWidth=5;ctx.beginPath();ctx.arc(player.x+player.r,player.y,24,0,TWO_PI);ctx.stroke()}
 }
 function drawDefender(d){
-  const k=d.type==='ref'?'ref':d.type==='speedster'?'speedster':'defender';
-  if(art(k,d.x-d.r*1.4,d.y-d.r*1.7,d.r*2.8,d.r*3.4))return;
-  const c=d.type==='ref'?PALETTE.yellow:d.type==='speedster'?PALETTE.blue:PALETTE.pink;
+  // Ref remains a clean fallback marker until Bobby gets his own TB94 sheet.
+  if(d.type==='ref'){
+    ctx.fillStyle=PALETTE.yellow;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,TWO_PI);ctx.fill();
+    txt('$',d.x,d.y,17,'#050609','center');return;
+  }
+
+  const pose=SHEET_POSES.defender.run;
+  const speedster=d.type==='speedster';
+  const w=speedster?78:100,h=speedster?82:104;
+  ctx.save();
+  if(speedster){ctx.globalAlpha=.92;ctx.filter='brightness(1.15) saturate(1.15)'}
+  const ok=sheetArt('bruiserSheet',...pose,d.x-w/2,d.y-h/2,w,h,1,true);
+  ctx.restore();
+  if(ok)return;
+
+  const c=speedster?PALETTE.blue:PALETTE.pink;
   ctx.fillStyle=c;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,TWO_PI);ctx.fill();
-  txt(d.type==='ref'?'$':'99',d.x,d.y,17,'#050609','center');
+  txt('99',d.x,d.y,17,'#050609','center');
 }
 function drawPickup(p){
   const y=p.y+Math.sin(p.spin)*5,k=p.type==='juice'?'skullJuice':'mutantLoops';
