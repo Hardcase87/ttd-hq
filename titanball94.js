@@ -25,7 +25,7 @@ const UI = {
 
 const W=canvas.width,H=canvas.height;
 const FIELD={left:90,right:890,top:118,bottom:485};
-const SAVE='ttd-titanball94-v4.1';
+const SAVE='ttd-titanball94-v4.2';
 const TWO_PI=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -456,36 +456,43 @@ function txt(t,x,y,s=22,c='#fff',a='left'){ctx.fillStyle=c;ctx.font=`900 ${s}px 
 function shadow(t,x,y,s,c,a='left'){txt(t,x+3,y+3,s,'rgba(0,0,0,.75)',a);txt(t,x,y,s,c,a)}
 
 function drawField(){
-  // V4.1: dedicated gameplay arena fills the whole canvas.
-  if(ready('gameplayArena')){
-    ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
-  }else if(ready('stadium')){
-    ctx.drawImage(ASSETS.stadium,0,0,W,H);
-  }else{
-    rect(0,0,W,H,'#07140b');
-  }
+  // Dedicated full-screen gameplay arena.
+  if(ready('gameplayArena')) ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
+  else if(ready('stadium')) ctx.drawImage(ASSETS.stadium,0,0,W,H);
+  else rect(0,0,W,H,'#07140b');
 
-  // Full-window scrolling Mega Drive turf layer.
-  // It now fills almost the entire gameplay viewport instead of sitting in a small inner box.
-  ctx.save();
   const turfX=18,turfY=62,turfW=W-36,turfH=H-84;
+
+  // V4.2: scroll ONLY a clean grass-texture crop from Infiniteturf94.
+  // The baked-in yard lines/numbers no longer move across the screen.
+  ctx.save();
   ctx.beginPath();ctx.rect(turfX,turfY,turfW,turfH);ctx.clip();
 
   if(ready('turf')){
-    const ratio=ASSETS.turf.naturalWidth/ASSETS.turf.naturalHeight;
-    const tileH=turfH;
-    const tileW=tileH*ratio;
-    const off=((state.worldScroll*3.35)%tileW+tileW)%tileW;
+    const nw=ASSETS.turf.naturalWidth, nh=ASSETS.turf.naturalHeight;
+
+    // Grass-only source patch: intentionally avoids the original field lines/numbers.
+    const sx=Math.floor(nw*.185);
+    const sy=Math.floor(nh*.205);
+    const sw=Math.floor(nw*.055);
+    const sh=Math.floor(nh*.185);
+
+    const tileW=150;
+    const off=((state.worldScroll*2.4)%tileW+tileW)%tileW;
+
     for(let x=turfX-off-tileW;x<turfX+turfW+tileW;x+=tileW){
-      ctx.drawImage(ASSETS.turf,x,turfY,tileW,tileH);
+      ctx.drawImage(ASSETS.turf,sx,sy,sw,sh,x,turfY,tileW,turfH);
     }
-    // Keep character readability without flattening the turf art.
-    ctx.fillStyle='rgba(0,0,0,.055)';
+
+    // Slight tint keeps the field rich and readable.
+    ctx.fillStyle='rgba(8,70,22,.16)';
     ctx.fillRect(turfX,turfY,turfW,turfH);
+  }else{
+    rect(turfX,turfY,turfW,turfH,'#0c4b20');
   }
   ctx.restore();
 
-  // Reapply a light stadium3 frame/trim above the moving turf.
+  // Stadium3 trim sits above the moving texture.
   if(ready('gameplayArena')){
     ctx.save();
     ctx.globalAlpha=.34;
@@ -493,23 +500,29 @@ function drawField(){
     ctx.restore();
   }
 
-  // Play-space markers only; no heavy white rectangle.
+  // STATIC field markings. These never move.
+  ctx.save();
+  ctx.globalAlpha=.44;
+  const lineTop=FIELD.top, lineBottom=FIELD.bottom;
+  const lineH=lineBottom-lineTop;
+  for(let i=1;i<10;i++){
+    const x=FIELD.left+(FIELD.right-FIELD.left)*(i/10);
+    rect(x-1,lineTop,2,lineH,'#baff56');
+  }
+  // sideline hashes
+  for(let i=0;i<36;i++){
+    const x=FIELD.left+(FIELD.right-FIELD.left)*(i/35);
+    rect(x,lineTop+7,1,6,'rgba(210,255,120,.6)');
+    rect(x,lineBottom-13,1,6,'rgba(210,255,120,.6)');
+  }
+  ctx.restore();
+
+  // First-down and end-zone markers remain static relative to gameplay.
   const firstX=clamp(FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,FIELD.left,FIELD.right);
   rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.72)');
   rect(FIELD.right-4,FIELD.top,4,FIELD.bottom-FIELD.top,'rgba(255,45,149,.52)');
 
-  if(state.mode==='playing'&&(player.dash>0||Math.abs(player.vx)>current().speed*.8)){
-    ctx.save();
-    ctx.globalAlpha=player.dash>0?.26:.10;
-    ctx.strokeStyle=current().color;
-    ctx.lineWidth=2;
-    for(let i=0;i<10;i++){
-      const yy=FIELD.top+18+((i*43+state.time*175)%((FIELD.bottom-FIELD.top)-36));
-      const xx=FIELD.left+80+((i*101+state.worldScroll*7)%(FIELD.right-FIELD.left-160));
-      ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx-48-(player.dash>0?38:0),yy);ctx.stroke();
-    }
-    ctx.restore();
-  }
+  // No synthetic speed-line overlay in V4.2.
 }
 
 function drawPlayer(){
