@@ -25,7 +25,7 @@ const UI = {
 
 const W=canvas.width,H=canvas.height;
 const FIELD={left:90,right:890,top:118,bottom:485};
-const SAVE='ttd-titanball94-v2';
+const SAVE='ttd-titanball94-v3';
 const TWO_PI=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -75,11 +75,18 @@ function sheetArt(k,sx,sy,sw,sh,x,y,w,h,a=1,flip=false){
 // Hand-picked action poses from the uploaded Phase 1 sprite sheets.
 // Sheets are 1536x1024; these crops deliberately avoid logos/portrait art.
 const SHEET_POSES = {
-  dex:{run:[1000,48,500,410],idle:[438,22,235,455]},
-  nikki:{run:[1000,48,485,420],idle:[425,20,235,460]},
-  mack:{run:[920,22,555,400],idle:[520,15,350,500]},
+  dex:{run:[1000,48,500,410],idle:[438,22,235,455],portrait:[0,0,410,500]},
+  nikki:{run:[1000,48,485,420],idle:[425,20,235,460],portrait:[0,0,410,500]},
+  mack:{run:[920,22,555,400],idle:[520,15,350,500],portrait:[0,0,470,510]},
   defender:{run:[920,22,555,400]},
   speedster:{run:[920,22,555,400]}
+};
+
+const PRESENTATION = {
+  bootBlink:0,
+  introTimer:0,
+  selectPulse:0,
+  confirmFlash:0
 };
 
 let audio=null;
@@ -100,7 +107,7 @@ const persist=()=>localStorage.setItem(SAVE,JSON.stringify(save));
 
 const input={up:false,down:false,left:false,right:false,smash:false,dash:false,special:false};
 const state={
-  mode:'title',paused:false,select:0,time:0,last:performance.now(),score:0,fieldYards:0,totalYards:0,
+  mode:'boot',paused:false,select:0,time:0,last:performance.now(),score:0,fieldYards:0,totalYards:0,
   down:1,toGo:20,seriesStart:0,drive:1,hp:100,meter:0,banner:'',bannerTime:0,shake:0,flash:0,
   possessionTime:0,spawnTimer:1,pickupTimer:4,defenders:[],pickups:[],particles:[],shockwaves:[],
   crowd:0,worldScroll:0,multiplier:1,comboTime:0,gamepadLock:false,touchdownTime:0,firstDownTime:0,
@@ -121,7 +128,29 @@ function resetGame(){
   state.particles.length=0;state.shockwaves.length=0;state.multiplier=1;state.comboTime=0;state.touchdownTime=0;state.firstDownTime=0;state.downResetTime=0;
   resetPlayer();tone(196,.08);setTimeout(()=>tone(294,.08),70);setTimeout(()=>tone(392,.12),140);
 }
-function start(){if(state.mode==='title'||state.mode==='gameover') resetGame()}
+function enterSelect(){
+  state.mode='select';
+  PRESENTATION.selectPulse=0;
+  PRESENTATION.confirmFlash=0;
+  tone(220,.05,'square',.018);
+}
+function confirmCharacter(){
+  if(state.mode!=='select') return;
+  PRESENTATION.confirmFlash=.35;
+  state.mode='intro';
+  PRESENTATION.introTimer=1.75;
+  tone(392,.07,'square',.026);
+  setTimeout(()=>tone(523,.08,'square',.026),80);
+}
+function cycleCharacter(dir){
+  state.select=(state.select+dir+ROSTER.length)%ROSTER.length;
+  tone(280+state.select*70,.045,'square',.018);
+}
+function start(){
+  if(state.mode==='boot') enterSelect();
+  else if(state.mode==='select') confirmCharacter();
+  else if(state.mode==='gameover') enterSelect();
+}
 function gameOver(msg='DRIVE TERMINATED'){
   state.mode='gameover';state.banner=msg;state.bannerTime=99;
   if(state.score>save.high) save.high=Math.floor(state.score);
@@ -193,19 +222,47 @@ for(const el of [UI.smash,UI.dash,UI.special]) for(const ev of ['pointerup','poi
 
 canvas.addEventListener('pointerdown',e=>{
   e.preventDefault();
-  if(state.mode==='title'){
-    const rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width*W,y=(e.clientY-rect.top)/rect.height*H;
-    if(y>300&&y<430){
-      const i=Math.floor((x-135)/230);
-      if(i>=0&&i<3){state.select=i;tone(330+80*i,.05)}
-      else start();
-    }else start();
-  }else if(state.mode==='gameover') start();
+  const r=canvas.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
+
+  if(state.mode==='boot'){ enterSelect(); return; }
+
+  if(state.mode==='select'){
+    // Three large character cards.
+    const cardY=210, cardH=245, startX=72, cardW=250, gap=33;
+    for(let i=0;i<3;i++){
+      const cx=startX+i*(cardW+gap);
+      if(x>=cx&&x<=cx+cardW&&y>=cardY&&y<=cardY+cardH){
+        if(state.select===i) confirmCharacter();
+        else { state.select=i; tone(300+i*70,.05,'square',.02); }
+        return;
+      }
+    }
+    // Tapping lower confirmation strip starts selected player.
+    if(y>465) confirmCharacter();
+    return;
+  }
+
+  if(state.mode==='gameover') enterSelect();
 });
 
 window.addEventListener('keydown',e=>{
   const k=e.code;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(k))e.preventDefault();
+
+  if(state.mode==='boot'){
+    if(k==='Enter'||k==='Space'||k==='KeyX'||k==='KeyC'||k==='KeyV') enterSelect();
+    return;
+  }
+
+  if(state.mode==='select'){
+    if(k==='ArrowLeft'||k==='KeyA') cycleCharacter(-1);
+    else if(k==='ArrowRight'||k==='KeyD') cycleCharacter(1);
+    else if(k==='Digit1'||k==='Digit2'||k==='Digit3'){state.select=Number(k.slice(-1))-1;tone(300+state.select*70,.05)}
+    else if(k==='Enter'||k==='Space'||k==='KeyX'||k==='KeyC') confirmCharacter();
+    return;
+  }
+
   if(k==='ArrowUp'||k==='KeyW')input.up=true;
   if(k==='ArrowDown'||k==='KeyS')input.down=true;
   if(k==='ArrowLeft'||k==='KeyA')input.left=true;
@@ -215,7 +272,6 @@ window.addEventListener('keydown',e=>{
   if(k==='KeyV')special();
   if(k==='Enter')start();
   if(k==='KeyP'&&state.mode==='playing')state.paused=!state.paused;
-  if(state.mode==='title'&&(k==='Digit1'||k==='Digit2'||k==='Digit3'))state.select=Number(k.slice(-1))-1;
 });
 window.addEventListener('keyup',e=>{
   const k=e.code;
@@ -226,9 +282,24 @@ window.addEventListener('keyup',e=>{
 function pollGamepad(){
   const gp=navigator.getGamepads?.()[0];if(!gp)return;
   const ax=gp.axes[0]||0,ay=gp.axes[1]||0;
-  input.left=ax<-.3||gp.buttons[14]?.pressed;input.right=ax>.3||gp.buttons[15]?.pressed;
-  input.up=ay<-.3||gp.buttons[12]?.pressed;input.down=ay>.3||gp.buttons[13]?.pressed;
   const pressed=gp.buttons;
+  const frontPressed=pressed.some((b,i)=>[0,9,14,15].includes(i)&&b.pressed);
+
+  if(state.mode==='boot'){
+    if((pressed[0]?.pressed||pressed[9]?.pressed)&&!state.gamepadLock) enterSelect();
+    state.gamepadLock=frontPressed; return;
+  }
+  if(state.mode==='select'){
+    if(!state.gamepadLock){
+      if(ax<-.5||pressed[14]?.pressed) cycleCharacter(-1);
+      else if(ax>.5||pressed[15]?.pressed) cycleCharacter(1);
+      else if(pressed[0]?.pressed||pressed[9]?.pressed) confirmCharacter();
+    }
+    state.gamepadLock=frontPressed; return;
+  }
+
+  input.left=ax<-.3||pressed[14]?.pressed;input.right=ax>.3||pressed[15]?.pressed;
+  input.up=ay<-.3||pressed[12]?.pressed;input.down=ay>.3||pressed[13]?.pressed;
   if(pressed[0]?.pressed&&!state.gamepadLock)dash();
   if(pressed[2]?.pressed&&!state.gamepadLock)smash();
   if(pressed[3]?.pressed&&!state.gamepadLock)special();
@@ -270,6 +341,14 @@ function tackle(d){
 function update(dt){
   pollGamepad();
   state.time+=dt;state.flash=Math.max(0,state.flash-dt);state.shake=Math.max(0,state.shake-45*dt);state.bannerTime=Math.max(0,state.bannerTime-dt);
+  PRESENTATION.bootBlink+=dt;PRESENTATION.selectPulse+=dt;PRESENTATION.confirmFlash=Math.max(0,PRESENTATION.confirmFlash-dt);
+
+  if(state.mode==='intro'){
+    PRESENTATION.introTimer-=dt;
+    if(PRESENTATION.introTimer<=0) resetGame();
+    return;
+  }
+
   if(state.mode!=='playing'||state.paused)return;
   if(state.touchdownTime>0){state.touchdownTime-=dt;if(state.touchdownTime<=0)nextDrive();return}
   if(state.downResetTime>0){state.downResetTime-=dt;if(state.downResetTime<=0)finishDown();return}
@@ -445,19 +524,80 @@ function drawHUD(){
   if(state.multiplier>1)txt(`COMBO x${state.multiplier.toFixed(1)}`,W/2,101,18,PALETTE.pink,'center');
   if(state.bannerTime>0){rect(W/2-230,100,460,52,'rgba(0,0,0,.7)');shadow(state.banner,W/2,127,28,state.banner.includes('MUTATION')||state.banner.includes('VOLTAGE')?PALETTE.yellow:'#fff','center')}
 }
-function drawTitle(){
-  drawField();rect(0,0,W,H,'rgba(0,0,0,.63)');
-  if(!art('title',135,35,690,170))shadow("TITAN BALL '94",W/2,122,74,PALETTE.pink,'center');
-  shadow('BIGGER HITS // MORE MUTATIONS // ZERO RULES',W/2,202,23,PALETTE.green,'center');
-  txt('CHOOSE YOUR MUTANT',W/2,252,22,'#fff','center');
-  ROSTER.forEach((c,i)=>{
-    const x=135+i*230,w=200,y=285,h=128;
-    rect(x,y,w,h,i===state.select?'rgba(138,255,43,.14)':'rgba(0,0,0,.68)');
-    ctx.strokeStyle=i===state.select?c.color:'rgba(255,255,255,.16)';ctx.lineWidth=i===state.select?3:1;ctx.strokeRect(x,y,w,h);
-    txt(`${i+1}`,x+16,y+18,14,c.accent);txt(c.name,x+w/2,y+42,25,c.color,'center');txt(`#${c.no}`,x+w/2,y+72,33,'#fff','center');txt(c.desc,x+w/2,y+104,14,'#aaa','center');
-  });
-  shadow('TAP / ENTER TO START',W/2,458,27,PALETTE.yellow,'center');txt(`HIGH ${pad(save.high)} // BEST DRIVE ${save.bestDrive}`,W/2,493,17,PALETTE.blue,'center');
+function drawBoot(){
+  drawField();
+  rect(0,0,W,H,'rgba(0,0,0,.56)');
+  rect(0,0,W,92,'rgba(0,0,0,.62)');
+  shadow("TITAN BALL '94",W/2,142,78,PALETTE.pink,'center');
+  shadow('16-BIT MUTATION ENGINE',W/2,206,23,PALETTE.green,'center');
+
+  // Animated Mega Drive-era chrome bands.
+  for(let i=0;i<7;i++){
+    const yy=260+i*8;
+    rect(W/2-250,yy,500,3,i%2?PALETTE.blue:PALETTE.pink);
+  }
+  txt('TITAN CITY SPORTS DIVISION',W/2,335,18,'#fff','center');
+  txt('BIGGER HITS // MORE MUTATIONS // ZERO RULES',W/2,371,20,PALETTE.green,'center');
+
+  const blink=Math.floor(PRESENTATION.bootBlink*2.2)%2===0;
+  if(blink) shadow('PRESS START // INSERT MUTATION',W/2,435,29,PALETTE.yellow,'center');
+  txt(`© 1994 TITAN CITY GAMES // HIGH ${pad(save.high)}`,W/2,495,15,'rgba(255,255,255,.68)','center');
 }
+
+function statBar(label,val,x,y,color){
+  txt(label,x,y,13,'#aaa');
+  rect(x+62,y-7,115,10,'rgba(255,255,255,.12)');
+  rect(x+64,y-5,111*clamp(val,0,1),6,color);
+}
+
+function drawSelect(){
+  drawField();rect(0,0,W,H,'rgba(0,0,0,.66)');
+  shadow('CHOOSE YOUR MUTANT',W/2,54,46,'#fff','center');
+  txt('SELECT PLAYER // TAP AGAIN TO CONFIRM',W/2,91,17,PALETTE.green,'center');
+
+  const startX=72,cardW=250,gap=33,y=112,h=350;
+  ROSTER.forEach((c,i)=>{
+    const x=startX+i*(cardW+gap),sel=i===state.select;
+    rect(x,y,cardW,h,sel?'rgba(10,22,15,.94)':'rgba(3,4,7,.82)');
+    ctx.strokeStyle=sel?c.color:'rgba(255,255,255,.16)';
+    ctx.lineWidth=sel?4:1;ctx.strokeRect(x,y,cardW,h);
+
+    if(sel){
+      ctx.save();ctx.globalAlpha=.14+.08*Math.sin(PRESENTATION.selectPulse*7);
+      rect(x+4,y+4,cardW-8,h-8,c.color);ctx.restore();
+    }
+
+    const key=c.id==='dex'?'dexSheet':c.id==='nikki'?'nikkiSheet':'bruiserSheet';
+    const pose=SHEET_POSES[c.id].portrait;
+    sheetArt(key,...pose,x+34,y+18,182,150,1,false);
+
+    shadow(c.name,x+cardW/2,y+188,25,c.color,'center');
+    txt(`#${c.no}`,x+cardW/2,y+217,27,'#fff','center');
+    txt(c.desc,x+cardW/2,y+242,13,'#bbb','center');
+
+    statBar('SPEED',c.speed/300,x+30,y+270,PALETTE.blue);
+    statBar('POWER',c.power/1.6,x+30,y+296,PALETTE.pink);
+    statBar('HP',c.hp/140,x+30,y+322,PALETTE.green);
+
+    txt(c.special,x+cardW/2,y+345,15,PALETTE.yellow,'center');
+  });
+
+  const c=current();
+  shadow(`SELECTED // ${c.name} #${c.no}`,W/2,486,22,c.color,'center');
+  txt('◀  MOVE  ▶     A / ENTER CONFIRM',W/2,515,15,'#aaa','center');
+}
+
+function drawIntro(){
+  drawField();rect(0,0,W,H,'rgba(0,0,0,.62)');
+  const c=current(),key=c.id==='dex'?'dexSheet':c.id==='nikki'?'nikkiSheet':'bruiserSheet';
+  const pose=SHEET_POSES[c.id].run;
+  sheetArt(key,...pose,W/2-118,118,236,200,1,false);
+  shadow(`${c.name} #${c.no}`,W/2,350,52,c.color,'center');
+  txt(c.special,W/2,395,22,PALETTE.yellow,'center');
+  shadow('ENTERS TITAN CITY STADIUM',W/2,434,24,'#fff','center');
+  txt('DRIVE 1 // NO REFUNDS // NO MERCY',W/2,475,18,PALETTE.green,'center');
+}
+
 function drawGameOver(){
   drawField();rect(0,0,W,H,'rgba(0,0,0,.76)');shadow('GAME OVER',W/2,165,72,PALETTE.pink,'center');
   shadow(`SCORE ${pad(state.score)}`,W/2,245,31,'#fff','center');txt(`DRIVE ${state.drive} // ${Math.floor(state.totalYards)} TOTAL YARDS`,W/2,286,21,PALETTE.green,'center');
@@ -467,7 +607,9 @@ function drawGameOver(){
 function render(){
   const sx=state.shake>0?Math.round(rand(-state.shake,state.shake)):0,sy=state.shake>0?Math.round(rand(-state.shake*.5,state.shake*.5)):0;
   ctx.save();ctx.translate(sx,sy);
-  if(state.mode==='title')drawTitle();
+  if(state.mode==='boot')drawBoot();
+  else if(state.mode==='select')drawSelect();
+  else if(state.mode==='intro')drawIntro();
   else if(state.mode==='gameover')drawGameOver();
   else{
     drawField();for(const p of state.pickups)drawPickup(p);for(const d of state.defenders)drawDefender(d);drawPlayer();drawEffects();drawHUD();
