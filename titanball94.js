@@ -5,6 +5,8 @@ const canvas = document.getElementById('tb94Canvas');
 if(!canvas) return;
 const ctx = canvas.getContext('2d',{alpha:false});
 ctx.imageSmoothingEnabled = false;
+canvas.style.touchAction='none';
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
 
 const UI = {
   score:document.getElementById('tb94Score'),
@@ -25,7 +27,7 @@ const UI = {
 
 const W=canvas.width,H=canvas.height;
 const FIELD={left:90,right:890,top:118,bottom:485};
-const SAVE='ttd-titanball94-v4.3';
+const SAVE='ttd-titanball94-v5.0';
 const TWO_PI=Math.PI*2;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -109,7 +111,8 @@ function tone(f=220,d=.06,type='square',g=.02){
     o.connect(gain);gain.connect(audio.destination);o.start();o.stop(audio.currentTime+d);
   }catch(e){}
 }
-const hitSound=()=>{tone(76,.08,'sawtooth',.03);setTimeout(()=>tone(48,.09,'square',.02),25)};
+const hitSound=()=>{tone(76,.08,'sawtooth',.03);setTimeout(()=>tone(48,.09,'square',.02),25);try{navigator.vibrate?.(22)}catch(e){}};
+const buzz=(ms=12)=>{try{navigator.vibrate?.(ms)}catch(e){}};
 
 let save={high:0,bestDrive:0};
 try{save={...save,...JSON.parse(localStorage.getItem(SAVE)||'{}')}}catch(e){}
@@ -121,7 +124,7 @@ const state={
   down:1,toGo:20,seriesStart:0,drive:1,hp:100,meter:0,banner:'',bannerTime:0,shake:0,flash:0,
   possessionTime:0,spawnTimer:1,pickupTimer:4,defenders:[],pickups:[],particles:[],shockwaves:[],
   crowd:0,worldScroll:0,multiplier:1,comboTime:0,gamepadLock:false,touchdownTime:0,firstDownTime:0,
-  tackleFreeze:0,downResetTime:0,splash:'',splashTimer:0,impactSprites:[]
+  tackleFreeze:0,downResetTime:0,splash:'',splashTimer:0,impactSprites:[],rain:[],crowdFlash:0,driveGlow:0
 };
 
 const player={x:210,y:300,vx:0,vy:0,r:25,smash:0,dash:0,invuln:0,specialTime:0,trail:[]};
@@ -210,33 +213,62 @@ function impactSprite(x,y,kind=0,size=105){
 function smash(){
   if(state.mode!=='playing'){start();return}
   if(state.paused||player.smash>0) return;
-  player.smash=.28;input.smash=true;state.shake=Math.max(state.shake,4);tone(92,.06,'square',.03);
+  player.smash=.28;state.shake=Math.max(state.shake,4);state.crowdFlash=.22;buzz(18);tone(92,.06,'square',.03);
 }
 function dash(){
   if(state.mode!=='playing'){start();return}
   if(state.paused||player.dash>0) return;
-  player.dash=.32;player.invuln=Math.max(player.invuln,.16);input.dash=true;state.shake=Math.max(state.shake,2.5);tone(285,.045,'square',.018);
+  player.dash=.32;player.invuln=Math.max(player.invuln,.16);state.shake=Math.max(state.shake,2.5);state.driveGlow=.18;buzz(10);tone(285,.045,'square',.018);
 }
 function special(){
   if(state.mode!=='playing'){start();return}
   if(state.paused||state.meter<100||player.specialTime>0) return;
   state.meter=0;player.specialTime=current().id==='nikki'?4.5:4;player.invuln=Math.max(player.invuln,1);
-  state.banner=current().special;state.bannerTime=1.2;state.flash=.3;state.shake=9;
+  state.banner=current().special;state.bannerTime=1.2;state.flash=.3;state.shake=9;state.crowdFlash=.5;state.driveGlow=.55;buzz(35);
   if(current().id==='mack'){shockwave(player.x,player.y,PALETTE.yellow,190);for(const d of state.defenders)d.stun=1.2}
   tone(420,.12,'sawtooth',.032);setTimeout(()=>tone(680,.13,'square',.03),100);setTimeout(()=>tone(900,.16,'square',.026),210);
 }
 
 function bindHold(el,key){
   if(!el)return;
-  el.addEventListener('pointerdown',e=>{e.preventDefault();input[key]=true;el.classList.add('active')});
-  for(const ev of ['pointerup','pointercancel','pointerleave'])el.addEventListener(ev,()=>{input[key]=false;el.classList.remove('active')});
+  const release=e=>{
+    input[key]=false;
+    el.classList.remove('active');
+    if(e?.pointerId!=null&&el.hasPointerCapture?.(e.pointerId)){try{el.releasePointerCapture(e.pointerId)}catch(err){}}
+  };
+  el.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    try{el.setPointerCapture?.(e.pointerId)}catch(err){}
+    input[key]=true;
+    el.classList.add('active');
+    if(audio?.state==='suspended')audio.resume?.();
+  });
+  for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,release);
 }
 bindHold(UI.up,'up');bindHold(UI.left,'left');bindHold(UI.right,'right');bindHold(UI.downBtn,'down');
-UI.center?.addEventListener('pointerdown',e=>{e.preventDefault();input.up=input.down=input.left=input.right=false});
-UI.smash?.addEventListener('pointerdown',e=>{e.preventDefault();UI.smash.classList.add('active');smash()});
-UI.dash?.addEventListener('pointerdown',e=>{e.preventDefault();UI.dash.classList.add('active');dash()});
-UI.special?.addEventListener('pointerdown',e=>{e.preventDefault();UI.special.classList.add('active');special()});
-for(const el of [UI.smash,UI.dash,UI.special]) for(const ev of ['pointerup','pointercancel','pointerleave']) el?.addEventListener(ev,()=>el.classList.remove('active'));
+
+UI.center?.addEventListener('pointerdown',e=>{
+  e.preventDefault();input.up=input.down=input.left=input.right=false;
+  for(const el of [UI.up,UI.downBtn,UI.left,UI.right])el?.classList.remove('active');
+});
+
+function bindAction(el,fn){
+  if(!el)return;
+  const release=()=>el.classList.remove('active');
+  el.addEventListener('pointerdown',e=>{
+    e.preventDefault();try{el.setPointerCapture?.(e.pointerId)}catch(err){}
+    el.classList.add('active');fn();
+  });
+  for(const ev of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(ev,release);
+}
+bindAction(UI.smash,smash);bindAction(UI.dash,dash);bindAction(UI.special,special);
+
+function releaseAllInputs(){
+  input.up=input.down=input.left=input.right=false;
+  for(const el of [UI.up,UI.downBtn,UI.left,UI.right,UI.smash,UI.dash,UI.special])el?.classList.remove('active');
+}
+window.addEventListener('blur',releaseAllInputs);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAllInputs()});
 
 canvas.addEventListener('pointerdown',e=>{
   e.preventDefault();
@@ -247,7 +279,7 @@ canvas.addEventListener('pointerdown',e=>{
 
   if(state.mode==='select'){
     // Three large character cards.
-    const cardY=210, cardH=245, startX=72, cardW=250, gap=33;
+    const cardY=112, cardH=350, startX=72, cardW=250, gap=33;
     for(let i=0;i<3;i++){
       const cx=startX+i*(cardW+gap);
       if(x>=cx&&x<=cx+cardW&&y>=cardY&&y<=cardY+cardH){
@@ -358,7 +390,7 @@ function tackle(d){
 
 function update(dt){
   pollGamepad();
-  state.time+=dt;state.flash=Math.max(0,state.flash-dt);state.shake=Math.max(0,state.shake-45*dt);state.bannerTime=Math.max(0,state.bannerTime-dt);state.splashTimer=Math.max(0,state.splashTimer-dt);if(state.splashTimer<=0)state.splash='';
+  state.time+=dt;state.flash=Math.max(0,state.flash-dt);state.shake=Math.max(0,state.shake-45*dt);state.bannerTime=Math.max(0,state.bannerTime-dt);state.splashTimer=Math.max(0,state.splashTimer-dt);state.crowdFlash=Math.max(0,state.crowdFlash-dt);state.driveGlow=Math.max(0,state.driveGlow-dt);if(state.splashTimer<=0)state.splash='';
   PRESENTATION.bootBlink+=dt;PRESENTATION.selectPulse+=dt;PRESENTATION.confirmFlash=Math.max(0,PRESENTATION.confirmFlash-dt);
 
   if(state.mode==='intro'){
@@ -446,57 +478,123 @@ function update(dt){
 }
 
 function syncUI(){
-  UI.score.textContent=pad(state.score);UI.down.textContent=`${state.down} & ${Math.ceil(state.toGo)}`;
-  UI.field.textContent=`${Math.floor(state.fieldYards)} YD`;UI.hp.textContent=Math.max(0,Math.ceil(state.hp));
-  UI.meter.textContent=`${Math.floor(state.meter)}%`;UI.status.textContent=state.paused?'PAUSED':`DRIVE ${state.drive}`;
-  UI.special.classList.toggle('ready',state.meter>=100);UI.special.textContent=state.meter>=100?`⚡ ${current().special}`:`⚡ MUTATION ${Math.floor(state.meter)}%`;
+  if(UI.score)UI.score.textContent=pad(state.score);
+  if(UI.down)UI.down.textContent=`${state.down} & ${Math.ceil(state.toGo)}`;
+  if(UI.field)UI.field.textContent=`${Math.floor(state.fieldYards)} YD`;
+  if(UI.hp)UI.hp.textContent=Math.max(0,Math.ceil(state.hp));
+  if(UI.meter)UI.meter.textContent=`${Math.floor(state.meter)}%`;
+  if(UI.status)UI.status.textContent=state.paused?'PAUSED':`DRIVE ${state.drive}`;
+  if(UI.special){
+    UI.special.classList.toggle('ready',state.meter>=100);
+    UI.special.textContent=state.meter>=100?`⚡ ${current().special}`:`⚡ MUTATION ${Math.floor(state.meter)}%`;
+  }
 }
 
 function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
 function txt(t,x,y,s=22,c='#fff',a='left'){ctx.fillStyle=c;ctx.font=`900 ${s}px "Barlow Condensed",Impact,sans-serif`;ctx.textAlign=a;ctx.textBaseline='middle';ctx.fillText(t,Math.round(x),Math.round(y))}
 function shadow(t,x,y,s,c,a='left'){txt(t,x+3,y+3,s,'rgba(0,0,0,.75)',a);txt(t,x,y,s,c,a)}
 
+
+function neonLine(x1,y1,x2,y2,color,width=2,alpha=.65){
+  ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;
+  ctx.shadowColor=color;ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+}
+function drawCrowdEnergy(){
+  const pulse=.22+.08*Math.sin(state.time*4.3);
+  ctx.save();
+  for(let i=0;i<32;i++){
+    const x=22+i*30;
+    const top=68+Math.sin(i*2.31+state.time*2)*5;
+    ctx.globalAlpha=.18+((i%4)*.045);
+    ctx.fillStyle=i%3===0?PALETTE.pink:(i%3===1?PALETTE.green:PALETTE.blue);
+    ctx.fillRect(x,top,2+(i%2),3);
+    ctx.fillRect(x,H-58-top/8,2+(i%2),3);
+  }
+  if(state.crowdFlash>0){
+    ctx.globalAlpha=clamp(state.crowdFlash*1.7,0,.5);
+    ctx.fillStyle=PALETTE.pink;ctx.fillRect(0,74,W,5);
+    ctx.fillStyle=PALETTE.green;ctx.fillRect(0,H-38,W,4);
+  }
+  ctx.restore();
+}
+function drawRain(){
+  ctx.save();ctx.lineWidth=1;
+  const speed=state.mode==='playing'?1.0:.45;
+  for(let i=0;i<34;i++){
+    const phase=(state.time*210*speed+i*79)%700;
+    const x=(i*137+phase*.22)%W;
+    const y=(phase+i*31)%H;
+    ctx.globalAlpha=.08+(i%5)*.015;
+    ctx.strokeStyle=i%7===0?PALETTE.pink:'rgba(190,220,255,.65)';
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-4,y+12);ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawSpeedFX(){
+  if(state.mode!=='playing')return;
+  const speed=Math.hypot(player.vx,player.vy);
+  if(speed<150&&player.dash<=0&&player.specialTime<=0)return;
+  const intensity=clamp((speed-120)/280+(player.dash>0?.35:0)+(player.specialTime>0?.25:0),0,.8);
+  ctx.save();ctx.globalAlpha=intensity;
+  ctx.strokeStyle=current().color;ctx.lineWidth=2;
+  for(let i=0;i<14;i++){
+    const y=FIELD.top+20+(i*31+state.time*140)%Math.max(40,FIELD.bottom-FIELD.top-40);
+    const len=22+(i%5)*11;
+    const x=FIELD.left+((i*97+state.time*390)%Math.max(40,FIELD.right-FIELD.left));
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-len,y);ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawPostFX(){
+  ctx.save();
+  const vignette=ctx.createRadialGradient(W/2,H/2,170,W/2,H/2,590);
+  vignette.addColorStop(0,'rgba(0,0,0,0)');
+  vignette.addColorStop(.74,'rgba(0,0,0,.06)');
+  vignette.addColorStop(1,'rgba(0,0,0,.46)');
+  ctx.fillStyle=vignette;ctx.fillRect(0,0,W,H);
+  ctx.globalAlpha=.11;
+  for(let y=0;y<H;y+=4){ctx.fillStyle='#000';ctx.fillRect(0,y,W,1)}
+  ctx.restore();
+}
+
 function drawField(){
-  // OPTION A / V4.3
-  // Layer 1: arena shell.
+  // V5 OVERKILL: full arena art + scrolling turf + fixed markings + neon depth.
   if(ready('gameplayArena')) ctx.drawImage(ASSETS.gameplayArena,0,0,W,H);
   else if(ready('stadium')) ctx.drawImage(ASSETS.stadium,0,0,W,H);
-  else rect(0,0,W,H,'#07140b');
+  else rect(0,0,W,H,'#061008');
 
-  // Layer 2: clean scrolling GRASS ONLY.
-  // No lines, numbers or logos are allowed to move.
+  // Darken outer bowl so sprites and field read immediately.
+  ctx.save();
+  const bowl=ctx.createLinearGradient(0,0,0,H);
+  bowl.addColorStop(0,'rgba(1,2,4,.16)');
+  bowl.addColorStop(.18,'rgba(0,0,0,0)');
+  bowl.addColorStop(.82,'rgba(0,0,0,0)');
+  bowl.addColorStop(1,'rgba(1,2,4,.24)');
+  ctx.fillStyle=bowl;ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
   const gx=18,gy=62,gw=W-36,gh=H-84;
   ctx.save();
   ctx.beginPath();ctx.rect(gx,gy,gw,gh);ctx.clip();
 
   if(ready('grass')){
-    const tileW=360;
-    const tileH=gh;
+    const tileW=360,tileH=gh;
     const off=((state.worldScroll*2.25)%tileW+tileW)%tileW;
-
-    for(let x=gx-off-tileW;x<gx+gw+tileW;x+=tileW){
-      ctx.drawImage(ASSETS.grass,x,gy,tileW,tileH);
-    }
-
-    // Keep the Mega Drive turf rich without muddying sprites.
-    ctx.fillStyle='rgba(4,50,12,.08)';
-    ctx.fillRect(gx,gy,gw,gh);
-  }else{
-    rect(gx,gy,gw,gh,'#0c4b20');
-  }
+    for(let x=gx-off-tileW;x<gx+gw+tileW;x+=tileW)ctx.drawImage(ASSETS.grass,x,gy,tileW,tileH);
+    const turfGlow=ctx.createLinearGradient(0,gy,0,gy+gh);
+    turfGlow.addColorStop(0,'rgba(138,255,43,.03)');
+    turfGlow.addColorStop(.5,'rgba(0,0,0,.04)');
+    turfGlow.addColorStop(1,'rgba(255,45,149,.035)');
+    ctx.fillStyle=turfGlow;ctx.fillRect(gx,gy,gw,gh);
+  }else rect(gx,gy,gw,gh,'#0c4b20');
   ctx.restore();
 
-  // Layer 3: STATIC transparent field overlay.
-  // Yard lines, numbers, midfield skull and TITAN BALL '94 side art stay locked.
   if(ready('fieldOverlay')){
-    ctx.save();
-    ctx.globalAlpha=.88;
+    ctx.save();ctx.globalAlpha=.91;
     ctx.drawImage(ASSETS.fieldOverlay,0,48,W,H-64);
     ctx.restore();
   }else{
-    // Fallback static markings only if overlay fails.
-    ctx.save();
-    ctx.globalAlpha=.5;
+    ctx.save();ctx.globalAlpha=.5;
     for(let i=1;i<10;i++){
       const x=FIELD.left+(FIELD.right-FIELD.left)*(i/10);
       rect(x-1,FIELD.top,2,FIELD.bottom-FIELD.top,'#baff56');
@@ -504,18 +602,28 @@ function drawField(){
     ctx.restore();
   }
 
-  // Layer 4: live gameplay markers only.
-  const firstX=clamp(
-    FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,
-    FIELD.left,FIELD.right
-  );
-  rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.78)');
-  rect(FIELD.right-4,FIELD.top,4,FIELD.bottom-FIELD.top,'rgba(255,45,149,.55)');
+  // Stadium neon rails, always above turf.
+  neonLine(FIELD.left-10,FIELD.top-3,FIELD.right+10,FIELD.top-3,PALETTE.pink,2,.55);
+  neonLine(FIELD.left-10,FIELD.bottom+3,FIELD.right+10,FIELD.bottom+3,PALETTE.green,2,.50);
+
+  // First down / goal line.
+  const firstX=clamp(FIELD.left+((state.seriesStart+20-state.fieldYards)/20)*150+300,FIELD.left,FIELD.right);
+  ctx.save();ctx.shadowColor=PALETTE.yellow;ctx.shadowBlur=10;
+  rect(firstX,FIELD.top,3,FIELD.bottom-FIELD.top,'rgba(255,229,59,.82)');
+  ctx.restore();
+  rect(FIELD.right-4,FIELD.top,4,FIELD.bottom-FIELD.top,'rgba(255,45,149,.68)');
+
+  drawCrowdEnergy();
+  drawRain();
 }
 
 function drawPlayer(){
   const c=current();
   if(player.invuln>0&&Math.floor(state.time*14)%2===0)return;
+
+  // Contact shadow grounds the high-detail sprite in the 16-bit field.
+  ctx.save();ctx.globalAlpha=.32;ctx.fillStyle='#000';ctx.beginPath();
+  ctx.ellipse(player.x,player.y+31,player.r*1.45,player.r*.52,0,0,TWO_PI);ctx.fill();ctx.restore();
   for(const t of player.trail){ctx.globalAlpha=clamp(t.life/.28,0,.35);rect(t.x-8,t.y-8,16,16,t.color);t.life-=.016}ctx.globalAlpha=1;
   if(player.specialTime>0){ctx.save();ctx.shadowColor=c.color;ctx.shadowBlur=30;ctx.strokeStyle=c.color;ctx.lineWidth=4;ctx.beginPath();ctx.arc(player.x,player.y,player.r+12+Math.sin(state.time*16)*4,0,TWO_PI);ctx.stroke();ctx.restore()}
 
@@ -523,8 +631,8 @@ function drawPlayer(){
   const pose=SHEET_POSES[c.id][moving?'run':'idle'];
   const sheetKey=c.id==='dex'?'dexSheet':c.id==='nikki'?'nikkiSheet':'bruiserSheet';
   const scale=c.id==='mack'?1.12:1;
-  const drawW=(moving?112:82)*scale;
-  const drawH=(moving?100:118)*scale;
+  const drawW=(moving?126:92)*scale;
+  const drawH=(moving?112:132)*scale;
   const flip=player.vx< -8;
 
   if(!sheetArt(sheetKey,...pose,player.x-drawW/2,player.y-drawH/2,drawW,drawH,1,flip)){
@@ -535,6 +643,8 @@ function drawPlayer(){
   if(player.smash>0){ctx.strokeStyle=PALETTE.pink;ctx.lineWidth=5;ctx.beginPath();ctx.arc(player.x+player.r,player.y,24,0,TWO_PI);ctx.stroke()}
 }
 function drawDefender(d){
+  ctx.save();ctx.globalAlpha=.26;ctx.fillStyle='#000';ctx.beginPath();
+  ctx.ellipse(d.x,d.y+25,d.r*1.35,d.r*.48,0,0,TWO_PI);ctx.fill();ctx.restore();
   if(d.type==='ref'){
     if(art('bobby',d.x-34,d.y-52,68,104))return;
     ctx.fillStyle=PALETTE.yellow;ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,TWO_PI);ctx.fill();
@@ -610,19 +720,48 @@ function drawSplash(){
 }
 
 function drawHUD(){
-  rect(16,14,420,78,'rgba(0,0,0,.62)');rect(445,14,499,78,'rgba(0,0,0,.62)');
-  const c=current();txt(`${c.name} #${c.no}`,28,34,22,c.color);txt(c.desc,28,61,15,'#fff');
-  txt(`HP ${Math.max(0,Math.ceil(state.hp))}`,250,34,18,'#fff');rect(300,27,120,14,'rgba(255,255,255,.13)');rect(303,30,114*clamp(state.hp/c.hp,0,1),8,state.hp>35?PALETTE.green:PALETTE.pink);
-  txt(`MUTATION ${Math.floor(state.meter)}%`,250,61,16,PALETTE.yellow);
-  shadow(`SCORE ${pad(state.score)}`,930,34,24,'#fff','right');shadow(`DOWN ${state.down} // ${Math.ceil(state.toGo)} TO GO`,930,62,18,PALETTE.green,'right');
-  if(state.multiplier>1)txt(`COMBO x${state.multiplier.toFixed(1)}`,W/2,101,18,PALETTE.pink,'center');
-  if(state.bannerTime>0){rect(W/2-230,100,460,52,'rgba(0,0,0,.7)');shadow(state.banner,W/2,127,28,state.banner.includes('MUTATION')||state.banner.includes('VOLTAGE')?PALETTE.yellow:'#fff','center')}
+  // One continuous broadcast bar instead of two unrelated black boxes.
+  const grad=ctx.createLinearGradient(14,0,946,0);
+  grad.addColorStop(0,'rgba(3,5,7,.91)');
+  grad.addColorStop(.5,'rgba(8,8,12,.84)');
+  grad.addColorStop(1,'rgba(3,5,7,.91)');
+  ctx.fillStyle=grad;ctx.fillRect(14,12,932,80);
+  ctx.strokeStyle='rgba(255,255,255,.08)';ctx.strokeRect(14.5,12.5,931,79);
+  neonLine(14,92,946,92,current().color,2,.55);
+
+  const c=current();
+  shadow(`${c.name} #${c.no}`,28,34,22,c.color);
+  txt(c.desc,28,61,14,'#d8dde1');
+
+  txt(`HP ${Math.max(0,Math.ceil(state.hp))}`,244,31,17,'#fff');
+  rect(294,25,128,16,'rgba(255,255,255,.12)');
+  rect(297,28,122*clamp(state.hp/c.hp,0,1),10,state.hp>35?PALETTE.green:PALETTE.pink);
+  txt(`MUT ${Math.floor(state.meter)}%`,244,61,16,state.meter>=100?PALETTE.yellow:PALETTE.blue);
+
+  shadow(`SCORE ${pad(state.score)}`,930,31,24,'#fff','right');
+  shadow(`DOWN ${state.down} // ${Math.ceil(state.toGo)} TO GO`,930,61,18,PALETTE.green,'right');
+
+  txt(`DRIVE ${state.drive}`,W/2,29,16,'rgba(255,255,255,.72)','center');
+  txt(`${Math.floor(state.fieldYards)} YD`,W/2,58,19,PALETTE.yellow,'center');
+
+  if(state.multiplier>1)shadow(`COMBO x${state.multiplier.toFixed(1)}`,W/2,107,19,PALETTE.pink,'center');
+
+  if(state.bannerTime>0){
+    const bw=500,bx=W/2-bw/2;
+    ctx.save();ctx.globalAlpha=.94;
+    const bg=ctx.createLinearGradient(bx,0,bx+bw,0);
+    bg.addColorStop(0,'rgba(0,0,0,.18)');bg.addColorStop(.15,'rgba(0,0,0,.84)');
+    bg.addColorStop(.85,'rgba(0,0,0,.84)');bg.addColorStop(1,'rgba(0,0,0,.18)');
+    ctx.fillStyle=bg;ctx.fillRect(bx,100,bw,52);ctx.restore();
+    shadow(state.banner,W/2,127,28,state.banner.includes('MUTATION')||state.banner.includes('VOLTAGE')?PALETTE.yellow:'#fff','center');
+  }
 }
+
 function drawBoot(){
   drawField();
   rect(0,0,W,H,'rgba(0,0,0,.56)');
   rect(0,0,W,92,'rgba(0,0,0,.62)');
-  shadow("TITAN BALL '94",W/2,142,78,PALETTE.pink,'center');
+  shadow("TITAN BALL '94",W/2,142,82,PALETTE.pink,'center');
   shadow('16-BIT MUTATION ENGINE',W/2,206,23,PALETTE.green,'center');
 
   // Animated Mega Drive-era chrome bands.
@@ -630,12 +769,12 @@ function drawBoot(){
     const yy=260+i*8;
     rect(W/2-250,yy,500,3,i%2?PALETTE.blue:PALETTE.pink);
   }
-  txt('TITAN CITY SPORTS DIVISION',W/2,335,18,'#fff','center');
+  shadow('TITAN CITY SPORTS DIVISION',W/2,335,19,'#fff','center');
   txt('BIGGER HITS // MORE MUTATIONS // ZERO RULES',W/2,371,20,PALETTE.green,'center');
 
   const blink=Math.floor(PRESENTATION.bootBlink*2.2)%2===0;
   if(blink) shadow('PRESS START // INSERT MUTATION',W/2,435,29,PALETTE.yellow,'center');
-  txt(`© 1994 TITAN CITY GAMES // HIGH ${pad(save.high)}`,W/2,495,15,'rgba(255,255,255,.68)','center');
+  txt(`© 1994 TITAN CITY GAMES // V5 OVERKILL // HIGH ${pad(save.high)}`,W/2,495,15,'rgba(255,255,255,.68)','center');
 }
 
 function statBar(label,val,x,y,color){
@@ -711,9 +850,13 @@ function render(){
   else if(state.mode==='intro')drawIntro();
   else if(state.mode==='gameover')drawGameOver();
   else{
-    drawField();for(const p of state.pickups)drawPickup(p);for(const d of state.defenders)drawDefender(d);drawPlayer();drawEffects();drawHUD();drawSplash();
+    drawField();drawSpeedFX();
+    for(const p of state.pickups)drawPickup(p);
+    for(const d of state.defenders)drawDefender(d);
+    drawPlayer();drawEffects();drawHUD();drawSplash();
     if(state.paused){rect(0,0,W,H,'rgba(0,0,0,.62)');shadow('PAUSED',W/2,H/2-10,62,PALETTE.yellow,'center');txt('PRESS P / START',W/2,H/2+48,22,'#fff','center')}
   }
+  drawPostFX();
   if(state.flash>0){ctx.globalAlpha=clamp(state.flash*2,0,.55);rect(0,0,W,H,'#fff');ctx.globalAlpha=1}
   ctx.restore();
 }
