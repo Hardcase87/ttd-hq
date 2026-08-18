@@ -6,7 +6,7 @@ const W=canvas.width,H=canvas.height,GROUND=438,TWO=Math.PI*2;
 const UI={score:document.getElementById('rebScore'),distance:document.getElementById('rebDistance'),hp:document.getElementById('rebHp'),ammo:document.getElementById('rebAmmo'),rage:document.getElementById('rebRage'),status:document.getElementById('rebStatus'),jump:document.getElementById('rebJump'),fire:document.getElementById('rebFire'),rageBtn:document.getElementById('rebRageBtn')};
 const SAVE='ttd-reb-renal-failure-v1-highscore';
 const ART_PATH='assets/images/reb-renal-failure/';
-const ART_FILES={reb:'reb.png',shoot:'reb-shoot.png',trooper:'enemy-trooper.png',hound:'warhound.png',gunship:'gunship.png',creatine:'creatine.png',serum:'serum.png',ammo:'ammo.png',jungle:'jungle.png',floor:'jungle-floor.png',cover:'cover.jpg',title:'title-poster.png'};
+const ART_FILES={reb:'reb.png',shoot:'reb-shoot.png',trooper:'enemy-trooper.png',hound:'warhound.png',gunship:'gunship.png',creatine:'creatine.png',serum:'serum.png',ammo:'ammo.PNG',jungle:'jungle.png',floor:'jungle-floor.png',cover:'cover.jpg',title:'title-poster.png'};
 const ART={}; for(const [k,f] of Object.entries(ART_FILES)){const i=new Image();i.src=ART_PATH+f;ART[k]=i}
 const ready=k=>ART[k]?.complete&&ART[k].naturalWidth>0;
 function art(k,x,y,w,h,a=1){if(!ready(k))return false;ctx.save();ctx.globalAlpha=a;ctx.drawImage(ART[k],Math.round(x),Math.round(y),Math.round(w),Math.round(h));ctx.restore();return true}
