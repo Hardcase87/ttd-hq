@@ -14,6 +14,53 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+
+<style>
+.reb-launch{
+  margin-top:1rem;
+  display:grid;
+  grid-template-columns:minmax(220px,.72fr) 1.28fr;
+  gap:1rem;
+  align-items:stretch;
+  overflow:hidden;
+  border-color:rgba(255,45,149,.34)!important;
+  background:
+    radial-gradient(circle at 12% 12%,rgba(255,45,149,.12),transparent 34%),
+    radial-gradient(circle at 90% 20%,rgba(138,255,43,.10),transparent 32%),
+    rgba(8,8,13,.94)!important;
+}
+.reb-launch-art{
+  min-height:280px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(138,255,43,.20);
+  background:#050608;
+}
+.reb-launch-art img{width:100%;height:100%;object-fit:cover;display:block}
+.reb-launch-copy{padding:1.15rem;display:flex;flex-direction:column;justify-content:center}
+.reb-launch-copy h2{
+  margin:.1rem 0 .45rem;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(2.7rem,7vw,5.6rem);
+  line-height:.82;
+  background:linear-gradient(90deg,#ff2d95,#fff,#8aff2b);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.reb-launch-copy p{max-width:720px}
+.reb-launch-tags{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1rem}
+.reb-launch-tags span{
+  padding:.4rem .65rem;border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);
+  font-family:"Barlow Condensed",sans-serif;
+  font-weight:800;letter-spacing:.06em;
+}
+.reb-launch-actions{display:flex;gap:.65rem;flex-wrap:wrap}
+@media(max-width:760px){
+  .reb-launch{grid-template-columns:1fr}
+  .reb-launch-art{min-height:240px;max-height:360px}
+}
+</style>
+
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -71,6 +118,25 @@
       <a class="module-card image-module" href="arcade.html" aria-label="Open Arcade module"><img src="assets/images/module-arcade.png" alt="TTD HQ Arcade command module" /></a>
       <a class="module-card image-module" href="store.html" aria-label="Open Store module"><img src="assets/images/module-store.png" alt="TTD HQ Store command module" /></a>
     </section>
+
+    <section class="panel reb-launch" aria-label="REB Renal Failure featured game">
+      <div class="reb-launch-art">
+        <img src="assets/images/reb-renal-failure/cover.jpg" alt="REB Renal Failure arcade game artwork">
+      </div>
+      <div class="reb-launch-copy">
+        <p class="eyebrow">TTD ARCADE // NEW DEPLOYMENT</p>
+        <h2>REB: RENAL FAILURE</h2>
+        <p>Jungle renal warfare. Mutant troopers. Bio-warhounds. A nephrology gunship. Hold DRRRRRT, manage ammo and trigger RENAL RAGE when medical advice has completely failed.</p>
+        <div class="reb-launch-tags">
+          <span>STAGE 1 LIVE</span><span>DRRRRRT ENGINE V1.3</span><span>iPAD READY</span>
+        </div>
+        <div class="reb-launch-actions">
+          <a class="read-comic-btn" href="reb-renal-failure.html">PLAY REB NOW →</a>
+          <a class="action-link" href="arcade.html">OPEN TTD ARCADE →</a>
+        </div>
+      </div>
+    </section>
+
 <section class="dashboard-grid">
       <article class="panel feature-panel" id="map">
         <div class="panel-head"><div><p class="eyebrow">CITY MAP</p><h2>Titan City District Grid</h2></div><span>LIVE</span></div>
@@ -116,11 +182,11 @@
       </article>
 
       <article class="panel feature-panel" id="arcade">
-        <div class="panel-head"><div><p class="eyebrow">ARCADE</p><h2>Titan Ball</h2></div><span>2 CABINETS ONLINE</span></div>
-        <p>Enter the Titan City arcade. Run the original 1992 cabinet or load the completed 16-bit Mega Drive mutation engine.</p>
+        <div class="panel-head"><div><p class="eyebrow">ARCADE</p><h2>TTD Arcade</h2></div><span>3 CABINETS LIVE</span></div>
+        <p>Titan Ball '92. Titan Ball '94. REB: Renal Failure. Three browser cabinets are now deployed inside Titan City.</p>
         <div class="issue-actions">
-          <a class="read-comic-btn" href="arcade.html">PLAY TITAN BALL '92 →</a>
-          <a class="read-comic-btn" href="titanball94.html">PLAY TITAN BALL '94 →</a>
+          <a class="read-comic-btn" href="arcade.html">OPEN ARCADE →</a>
+          <a class="action-link" href="reb-renal-failure.html">PLAY REB →</a>
         </div>
       </article>
 

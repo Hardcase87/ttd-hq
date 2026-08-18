@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<title>Titan Ball '92 // TTD HQ</title>
+<title>TTD Arcade // Titan City Network</title>
 
 <style>
 /* V10 TITAN BALL '92 - self-contained arcade patch */
@@ -206,6 +206,26 @@
 .tb92-btn.volt{background:linear-gradient(180deg,rgba(255,229,59,.10),rgba(255,229,59,.025))}
 
 </style>
+
+<style>
+.reb-cabinet-link{
+  margin-top:1rem;padding:0!important;overflow:hidden;
+  display:grid;grid-template-columns:minmax(210px,.72fr) 1.28fr;
+  text-decoration:none;color:inherit;
+  border-color:rgba(255,45,149,.32)!important;
+  background:linear-gradient(135deg,rgba(255,45,149,.08),rgba(138,255,43,.05)),#07080b!important;
+}
+.reb-cabinet-link img{width:100%;height:100%;min-height:245px;object-fit:cover;display:block}
+.reb-cabinet-copy{padding:1.2rem;display:flex;flex-direction:column;justify-content:center}
+.reb-cabinet-copy h2{
+  margin:.1rem 0;font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(2.6rem,7vw,5rem);line-height:.84;
+  color:#ff2d95;text-shadow:2px 2px 0 rgba(138,255,43,.22);
+}
+.reb-cabinet-copy strong{color:var(--green);letter-spacing:.08em}
+@media(max-width:760px){.reb-cabinet-link{grid-template-columns:1fr}.reb-cabinet-link img{max-height:360px}}
+</style>
+
 </head>
 
 <body>
@@ -219,8 +239,8 @@
 <main class="app-shell page-shell">
 
 <section class="network-strip panel">
-  <div><span class="pulse-dot"></span><span>ARCADE // TITAN BALL</span></div>
-  <div>2 CABINETS ONLINE</div>
+  <div><span class="pulse-dot"></span><span>ARCADE // TITAN CITY</span></div>
+  <div>3 CABINETS ONLINE</div>
 </section>
 
 <section class="panel" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
@@ -231,8 +251,19 @@
   <div class="issue-actions" style="margin:0">
     <a class="read-comic-btn" href="arcade.html">TITAN BALL '92</a>
     <a class="read-comic-btn" href="titanball94.html">TITAN BALL '94 // MEGA DRIVE →</a>
+    <a class="read-comic-btn" href="reb-renal-failure.html">REB: RENAL FAILURE // DRRRRRT →</a>
   </div>
 </section>
+
+<a class="panel reb-cabinet-link" href="reb-renal-failure.html" aria-label="Play REB Renal Failure">
+  <img src="assets/images/reb-renal-failure/cover.jpg" alt="REB Renal Failure cabinet art">
+  <div class="reb-cabinet-copy">
+    <p class="eyebrow">CABINET 03 // NEW DEPLOYMENT</p>
+    <h2>REB: RENAL FAILURE</h2>
+    <p>Hold DRRRRRT. Conserve ammo. Trigger RENAL RAGE. Survive the Jungle Renal Warzone.</p>
+    <strong>PLAY NOW // DRRRRRT ENGINE V1.3 →</strong>
+  </div>
+</a>
 
 <section class="panel titanball-hero">
   <img src="assets/images/module-arcade.png" alt="Titan Ball arcade module">
