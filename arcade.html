@@ -94,6 +94,7 @@
   margin-top:12px;
   user-select:none;
   -webkit-user-select:none;
+  -webkit-touch-callout:none;
 }
 .tb92-btn{
   min-height:68px;
@@ -108,6 +109,10 @@
   text-transform:uppercase;
   box-shadow:inset 0 -5px 0 rgba(0,0,0,.28);
   touch-action:manipulation;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
 }
 .tb92-btn:active,.tb92-btn.active{transform:translateY(3px);box-shadow:inset 0 -2px 0 rgba(0,0,0,.3)}
 .tb92-btn.jump{border-color:rgba(57,215,255,.45);color:var(--blue)}
@@ -350,5 +355,13 @@
 
 <script src="app.js"></script>
 <script src="titanball.js"></script>
+<script>
+for(const el of document.querySelectorAll(".tb92-btn")){
+  for(const ev of ["contextmenu","selectstart","dragstart"]){
+    el.addEventListener(ev,e=>e.preventDefault());
+  }
+  el.addEventListener("touchstart",e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+}
+</script>
 </body>
 </html>

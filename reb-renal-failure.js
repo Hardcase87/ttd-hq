@@ -46,7 +46,26 @@ function fireOnce(){if(state.mode!=='playing'){start();return}if(state.missionCo
 function rage(){if(state.mode!=='playing'){start();return}if(state.renal>=100&&state.rageTime<=0){state.renal=0;state.rageTime=6;state.banner='RENAL RAGE // AMMO BURN ENGAGED';state.bannerTime=1.3;state.flash=.28;state.shake=9;buzz(40);tone(420,.11,'sawtooth',.03);setTimeout(()=>tone(650,.12,'square',.03),100);setTimeout(()=>tone(900,.14,'square',.025),200)}}
 function bindTap(el,fn){if(!el)return;el.addEventListener('pointerdown',e=>{e.preventDefault();el.classList.add('active');fn()});for(const ev of ['pointerup','pointercancel','pointerleave'])el.addEventListener(ev,()=>el.classList.remove('active'))}
 bindTap(UI.jump,jump);bindTap(UI.rageBtn,rage);
-if(UI.fire){const stop=()=>{state.fireHeld=false;UI.fire.classList.remove('active')};UI.fire.addEventListener('pointerdown',e=>{e.preventDefault();try{UI.fire.setPointerCapture(e.pointerId)}catch(_e){}state.fireHeld=true;UI.fire.classList.add('active');fireOnce()});for(const ev of ['pointerup','pointercancel','lostpointercapture'])UI.fire.addEventListener(ev,stop)}
+
+// iPad/Safari arcade-control lock:
+// keep long-press for gameplay, never allow text selection, copy callouts, drag, or context menus.
+for(const el of [UI.jump,UI.fire,UI.rageBtn].filter(Boolean)){
+  for(const ev of ['contextmenu','selectstart','dragstart']){
+    el.addEventListener(ev,e=>e.preventDefault());
+  }
+  el.addEventListener('touchstart',e=>{ if(e.cancelable)e.preventDefault(); },{passive:false});
+}
+if(UI.fire){
+  const stop=()=>{state.fireHeld=false;UI.fire.classList.remove('active')};
+  UI.fire.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    try{UI.fire.setPointerCapture(e.pointerId)}catch(_e){}
+    state.fireHeld=true;
+    UI.fire.classList.add('active');
+    fireOnce()
+  });
+  for(const ev of ['pointerup','pointercancel','lostpointercapture'])UI.fire.addEventListener(ev,stop)
+}
 canvas.addEventListener('pointerdown',e=>{e.preventDefault();start()});
 const keys={};window.addEventListener('keydown',e=>{if(['Space','ArrowUp','KeyX','KeyV','Enter'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='Space'||e.code==='ArrowUp')jump();else if(e.code==='KeyX')fireOnce();else if(e.code==='KeyV')rage();else if(e.code==='Enter')start()});window.addEventListener('keyup',e=>keys[e.code]=false);window.addEventListener('blur',()=>{state.fireHeld=false;for(const k in keys)keys[k]=false});
 function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
