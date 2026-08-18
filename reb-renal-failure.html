@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#050608">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="styles.css">
+<title>REB: Renal Failure // TTD HQ</title>
+<style>
+:root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b;--ink:#050608;--muted:#9ea5ad}
+*{box-sizing:border-box}html,body{margin:0;background:#050608;color:#fff;font-family:Inter,Arial,sans-serif;overscroll-behavior:none}
+body{padding-bottom:88px;background:radial-gradient(circle at 50% -10%,rgba(255,45,149,.10),transparent 34%),#050608}
+a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-top{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 3px 13px;font-family:"Barlow Condensed",Impact,sans-serif;text-transform:uppercase}.reb-top strong{font-size:clamp(2rem,6vw,4.2rem);line-height:.82;background:linear-gradient(90deg,var(--p),#fff,var(--g));-webkit-background-clip:text;color:transparent;text-shadow:0 0 24px rgba(255,45,149,.12)}.reb-top span{color:var(--g);font-weight:900;letter-spacing:.08em;text-align:right}.cabinet{position:relative;padding:12px;border-radius:26px;border:1px solid rgba(138,255,43,.30);background:linear-gradient(145deg,rgba(255,45,149,.05),rgba(138,255,43,.04)),#07080b;box-shadow:0 24px 90px #000,inset 0 0 0 2px rgba(255,255,255,.025)}.screen{position:relative;overflow:hidden;border-radius:17px;border:2px solid rgba(57,215,255,.20);background:#020403;box-shadow:inset 0 0 45px #000,0 0 25px rgba(57,215,255,.06)}#rebCanvas{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#030705;touch-action:none}.screen:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.024) 0 1px,transparent 1px 4px);mix-blend-mode:screen;opacity:.24}.chips{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:9px}.chip{padding:7px 9px;border:1px solid rgba(255,255,255,.09);border-radius:11px;background:rgba(255,255,255,.025);font-family:"Barlow Condensed",Impact,sans-serif;position:relative;overflow:hidden}.chip:after{content:"";position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--p),var(--g),var(--b));opacity:.42}.chip b{display:block;color:var(--muted);font-size:.65rem;letter-spacing:.08em}.chip span{font-size:1.02rem;font-weight:900}.controls{display:grid;grid-template-columns:.8fr 1.15fr 1.15fr;gap:9px;margin-top:10px}.btn{min-height:70px;border-radius:17px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.018));color:#fff;font:900 1.05rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.07em;text-transform:uppercase;touch-action:none;-webkit-tap-highlight-color:transparent;box-shadow:inset 0 -5px rgba(0,0,0,.30)}.btn.active,.btn:active{transform:translateY(3px);box-shadow:inset 0 -2px rgba(0,0,0,.3)}.jump{color:var(--b);border-color:rgba(57,215,255,.42)}.fire{color:var(--p);border-color:rgba(255,45,149,.52)}.rage{color:var(--y);border-color:rgba(255,229,59,.48)}.rage.ready{animation:rage .32s infinite alternate;background:rgba(255,229,59,.11)}@keyframes rage{to{box-shadow:0 0 28px rgba(255,229,59,.28),inset 0 -5px rgba(0,0,0,.3)}}.help{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 3px 1px;color:var(--muted);font-size:.76rem}.help strong{color:var(--g)}.brief{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}.panel{border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.025);padding:14px}.panel h2{margin:.1rem 0;font:900 2rem "Barlow Condensed",Impact,sans-serif}.cover{padding:0;overflow:hidden}.cover img{display:block;width:100%;height:100%;max-height:310px;object-fit:cover}.bottom-nav{position:fixed;z-index:20;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:4px;padding:6px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(8,9,13,.94);backdrop-filter:blur(12px);box-shadow:0 14px 40px #000}.bottom-nav a{text-decoration:none;padding:12px 22px;border-radius:11px;color:#c5c9ce;font:700 .85rem "Barlow Condensed",sans-serif;letter-spacing:.08em}.bottom-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}}
+</style>
+</head>
+<body>
+<main class="reb-shell">
+  <div class="reb-top"><strong>REB: RENAL FAILURE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V1.0</span></div>
+  <section class="cabinet">
+    <div class="screen"><canvas id="rebCanvas" width="960" height="540" aria-label="REB Renal Failure arcade game"></canvas></div>
+    <div class="chips">
+      <div class="chip"><b>SCORE</b><span id="rebScore">000000</span></div>
+      <div class="chip"><b>DISTANCE</b><span id="rebDistance">0 M</span></div>
+      <div class="chip"><b>HP</b><span id="rebHp">100</span></div>
+      <div class="chip"><b>AMMO</b><span id="rebAmmo">120</span></div>
+      <div class="chip"><b>RENAL</b><span id="rebRage">0%</span></div>
+      <div class="chip"><b>STATUS</b><span id="rebStatus">READY</span></div>
+    </div>
+    <div class="controls">
+      <button class="btn jump" id="rebJump" type="button">▲ JUMP</button>
+      <button class="btn fire" id="rebFire" type="button">✹ DRRRRRT</button>
+      <button class="btn rage" id="rebRageBtn" type="button">⚡ RENAL RAGE 0%</button>
+    </div>
+    <div class="help"><span><strong>iPAD:</strong> hold DRRRRRT // tap JUMP // trigger RENAL RAGE at 100%</span><span><strong>KEYBOARD:</strong> SPACE jump // X fire // V rage // ENTER start</span></div>
+  </section>
+  <section class="brief">
+    <article class="panel"><p style="color:var(--g);font-weight:900;margin:.1rem 0">MISSION BRIEF</p><h2>JUNGLE RENAL WARZONE</h2><p>REB has entered a toxic jungle where mutant troopers, bio-warhounds and a nephrology gunship have made the catastrophic mistake of standing downrange. Collect ammo. Hoard creatine. Trigger RENAL RAGE. Medical advice has been ignored.</p></article>
+    <article class="panel cover"><img src="assets/images/reb-renal-failure/cover.jpg" alt="REB Renal Failure cover art"></article>
+  </section>
+</main>
+<nav class="bottom-nav"><a href="index.html">HQ</a><a href="arcade.html">ARCADE</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a></nav>
+<script src="reb-renal-failure.js"></script>
+</body></html>
