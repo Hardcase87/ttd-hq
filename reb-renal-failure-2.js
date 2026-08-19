@@ -43,6 +43,7 @@ const ART_SRC = {
   rebHdFire: EXP + 'reb-hd-fire.png',
   rebHdJump: EXP + 'reb-hd-jump.png',
   rebHdLand: EXP + 'reb-hd-land.png',
+  stage1Hd: EXP + 'stage-1-jungle-hd.jpg',
 
   // Stage 1 compatibility zone: intentionally identical to REB Part 1.
   jungle: SHARED + 'jungle.png',
@@ -192,7 +193,7 @@ function buzz(ms = 15) { try { navigator.vibrate?.(ms); } catch (_) {} }
 const STAGES = [
   {
     id:1, name:'JUNGLE RENAL WARZONE', subtitle:'JUNGLE DEPLOYMENT',
-    bg:'jungle', procedural:false,
+    bg:'stage1Hd', procedural:false,
     warriorA:'trooper', warriorB:'trooper', brute:'trooper', animal:'hound', air:'gunship',
     airName:'NEPHROLOGY GUNSHIP', airHp:28, bossAt:650, length:1000, speed:235,
     spawn:[.75,1.35], maxGround:8,
@@ -223,7 +224,7 @@ function clearWorld() {
 }
 function applyStageDom() {
   const s = stage();
-  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.7 // HD COMBAT POLISH`;
+  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.8 // HD ENEMY PASS`;
   if (UI.missionTitle) UI.missionTitle.textContent = s.name;
   if (UI.missionText) UI.missionText.textContent = s.brief;
 }
@@ -259,10 +260,10 @@ function jump() {
   }
 }
 function playerMuzzle() {
-  // V2.7 coordinates matched to the larger HD REB poses.
-  if (!player.onGround) return { x: player.x + 96, y: player.y + 18 };
-  if (player.landTime > 0) return { x: player.x + 110, y: GROUND - 106 };
-  return { x: player.x + 125, y: GROUND - 103 };
+  // V2.8: start the projectile inside the minigun artwork. Bullets are rendered
+  // before REB, so the first pixels are hidden by the sprite and appear to leave the barrel.
+  if (!player.onGround) return { x: player.x + 88, y: player.y + 14 };
+  return { x: player.x + 92, y: GROUND - 116 };
 }
 function fireOnce() {
   if (state.mode !== 'playing') { start(); return; }
@@ -277,7 +278,7 @@ function fireOnce() {
   const muzzle = playerMuzzle();
   state.bullets.push({ x:muzzle.x, y:muzzle.y, w:25, h:6, vx:rage?1020:850, damage:rage?3:1, life:.72 });
   gunSound();
-  if (Math.random() < .35) particles(muzzle.x+4, muzzle.y+3, '#ffe53b', 4, .50);
+  if (Math.random() < .35) particles(muzzle.x+20, muzzle.y+3, '#ffe53b', 4, .48);
 }
 function rage() {
   if (state.mode !== 'playing') { start(); return; }
@@ -396,17 +397,17 @@ function canSpawnGround() {
 function enemySpec(type) {
   if (state.stage === 1) {
     const part1 = {
-      warriorA:{w:52,h:77,hp:2,extra:rand(-10,45),shoot:rand(1.3,2.8),damage:20,score:350,renal:6},
-      animal:{w:86,h:61,hp:4,extra:120,shoot:999,damage:28,score:900,renal:14}
+      warriorA:{w:78,h:136,hp:2,extra:rand(-10,45),shoot:rand(1.3,2.8),damage:20,score:350,renal:6},
+      animal:{w:120,h:130,hp:4,extra:120,shoot:999,damage:28,score:900,renal:14}
     };
     return part1[type] || part1.warriorA;
   }
   const level = state.stage - 1;
   const table = {
-    warriorA:{w:52,h:77,hp:2+Math.floor(level*.45),extra:rand(-5,30),shoot:rand(1.6,2.7),damage:16,score:350,renal:6},
-    warriorB:{w:56,h:79,hp:3+Math.floor(level*.5),extra:rand(5,45),shoot:rand(1.35,2.35),damage:18,score:450,renal:7},
-    brute:{w:78,h:100,hp:7+level,extra:-35,shoot:rand(1.8,2.8),damage:27,score:1400,renal:18},
-    animal:{w:86,h:61,hp:4+Math.floor(level*.6),extra:75+level*4,shoot:999,damage:23,score:850,renal:14}
+    warriorA:{w:78,h:136,hp:2+Math.floor(level*.45),extra:rand(-5,30),shoot:rand(1.6,2.7),damage:16,score:350,renal:6},
+    warriorB:{w:82,h:140,hp:3+Math.floor(level*.5),extra:rand(5,45),shoot:rand(1.35,2.35),damage:18,score:450,renal:7},
+    brute:{w:108,h:164,hp:7+level,extra:-35,shoot:rand(1.8,2.8),damage:27,score:1400,renal:18},
+    animal:{w:120,h:130,hp:4+Math.floor(level*.6),extra:75+level*4,shoot:999,damage:23,score:850,renal:14}
   };
   return table[type] || table.warriorA;
 }
@@ -426,14 +427,12 @@ function spawnEnemy(type) {
     state.banner = `${s.airName} INBOUND`; state.bannerTime = 1.2; state.shake = 6;
     return true;
   }
+  if (!canSpawnGround()) return false;
   if (state.stage === 1) {
     if (!type) type = Math.random() > .78 ? 'animal' : 'warriorA';
-  } else {
-    if (!canSpawnGround()) return false;
-    if (!type) {
-      const r = Math.random();
-      type = r < .42 ? 'warriorA' : r < .70 ? 'warriorB' : r < .86 ? 'animal' : 'brute';
-    }
+  } else if (!type) {
+    const r = Math.random();
+    type = r < .42 ? 'warriorA' : r < .70 ? 'warriorB' : r < .86 ? 'animal' : 'brute';
   }
   const sp = enemySpec(type);
   const lastX = groundEnemies().reduce((m,e)=>Math.max(m,e.x+e.w), W-120);
@@ -546,7 +545,7 @@ function update(dt) {
       e.x -= (worldSpeed+(e.extra||0))*dt;
       if ((e.type==='warriorA'||e.type==='warriorB'||e.type==='brute') && e.shoot<=0 && e.x<850 && e.x>360) {
         e.shoot=e.type==='brute'?rand(1.7,2.6):e.type==='warriorB'?rand(1.35,2.25):rand(1.7,2.8);
-        state.enemyShots.push({x:e.x,y:e.y+31,w:e.type==='brute'?24:18,h:e.type==='brute'?7:5,vx:e.type==='brute'?-410:-445,life:2.1,damage:e.type==='brute'?13:10});
+        state.enemyShots.push({x:e.x,y:e.y+Math.min(72,e.h*.46),w:e.type==='brute'?24:18,h:e.type==='brute'?7:5,vx:e.type==='brute'?-410:-445,life:2.1,damage:e.type==='brute'?13:10});
       }
     }
     if (rects(player,e)) {
@@ -655,22 +654,16 @@ function drawProceduralJungle() {
 function drawBackground() {
   const s=stage();
 
-  // Stage 1 is intentionally rendered exactly in the Part 1 jungle style.
+  // V2.8 Stage 1: supplied full-frame HD jungle artwork, no legacy half-wallpaper/floor strip.
   if (state.stage === 1) {
     ctx.fillStyle='#07130b';
     ctx.fillRect(0,0,W,H);
-    if (ready('jungle')) art('jungle',0,0,W,H,1);
+    if (!art('stage1Hd',0,0,W,H,1) && ready('jungle')) art('jungle',0,0,W,H,1);
 
-    ctx.fillStyle='rgba(0,0,0,.10)';
-    ctx.fillRect(0,0,W,H);
-
-    if (ready('floor')) {
-      ctx.save();
-      ctx.globalAlpha=.16;
-      const fw=540, fh=180, off=(state.distance*7)%fw;
-      for(let x=-off-fw;x<W+fw;x+=fw) art('floor',x,GROUND-92,fw,fh);
-      ctx.restore();
-    }
+    const shade=ctx.createLinearGradient(0,H*.72,0,H);
+    shade.addColorStop(0,'rgba(0,0,0,0)');
+    shade.addColorStop(1,'rgba(0,0,0,.16)');
+    ctx.fillStyle=shade; ctx.fillRect(0,0,W,H);
 
     const progress=clamp(state.distance/s.length,0,1);
     ctx.fillStyle='rgba(0,0,0,.64)';
@@ -792,27 +785,32 @@ function drawProceduralEnemy(e){
 }
 function drawEnemy(e){
   const s=stage();
-  ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+6:GROUND+4,e.w*.58,e.type==='air'?8:10,0,0,TWO);ctx.fill();ctx.restore();
+  ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+6:GROUND+4,e.w*.62,e.type==='air'?8:12,0,0,TWO);ctx.fill();ctx.restore();
+
+  // Boss/aircraft sizing remains V2.7 until the next boss test.
+  if (e.type==='air') {
+    if (state.stage === 1) art('gunship',e.x-45,e.y-38,280,190);
+    else if (!art(s.air,e.x-45,e.y-38,280,190)) drawProceduralEnemy(e);
+    return;
+  }
+
+  const centered = (key,w,h) => art(key, e.x + e.w/2 - w/2, GROUND - h, w, h);
 
   if (state.stage === 1) {
-    if(e.type==='warriorA' || e.type==='warriorB' || e.type==='brute') {
-      art('trooper',e.x-28,e.y-48,112,125);
-    } else if(e.type==='animal') {
-      art('hound',e.x-28,e.y-45,142,112);
-    } else {
-      art('gunship',e.x-45,e.y-38,280,190);
-    }
+    const ok = e.type==='animal'
+      ? centered('hound',190,154)
+      : centered('trooper',170,192);
+    if(!ok) drawProceduralEnemy(e);
     return;
   }
 
   if(s.procedural){ drawProceduralEnemy(e); return; }
 
   let ok=false;
-  if(e.type==='warriorA') ok=art(s.warriorA,e.x-28,e.y-48,112,125);
-  else if(e.type==='warriorB') ok=art(s.warriorB,e.x-28,e.y-48,118,130);
-  else if(e.type==='animal') ok=art(s.animal,e.x-28,e.y-45,142,112);
-  else if(e.type==='brute') ok=art(s.brute,e.x-36,e.y-60,150,165);
-  else ok=art(s.air,e.x-45,e.y-38,280,190);
+  if(e.type==='warriorA') ok=centered(s.warriorA,172,194);
+  else if(e.type==='warriorB') ok=centered(s.warriorB,178,198);
+  else if(e.type==='animal') ok=centered(s.animal,194,158);
+  else if(e.type==='brute') ok=centered(s.brute,220,232);
 
   if(!ok) drawProceduralEnemy(e);
 }
@@ -829,7 +827,7 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.7',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.8',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){
