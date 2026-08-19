@@ -37,7 +37,14 @@ const ART_SRC = {
   creatine: SHARED + 'creatine.png',
   serum: SHARED + 'serum.png',
   ammo: SHARED + 'ammo.PNG',
-  cover: EXP + 'cover.png'
+  cover: EXP + 'cover.png',
+
+  // Stage 1 compatibility zone: intentionally identical to REB Part 1.
+  jungle: SHARED + 'jungle.png',
+  floor: SHARED + 'jungle-floor.png',
+  trooper: SHARED + 'enemy-trooper.png',
+  hound: SHARED + 'warhound.png',
+  gunship: SHARED + 'gunship.png'
 };
 for (let n = 2; n <= 8; n++) {
   const bgNames = {
@@ -116,7 +123,14 @@ function boom() { tone(62, .10, 'sawtooth', .035); setTimeout(() => tone(42, .11
 function buzz(ms = 15) { try { navigator.vibrate?.(ms); } catch (_) {} }
 
 const STAGES = [
-  { id:1, name:'JUNGLE RENAL WARZONE', subtitle:'SEQUEL DEPLOYMENT', bg:null, procedural:true, warriorA:null, warriorB:null, brute:null, animal:null, air:null, airName:'RENAL STALKER', airHp:24, bossAt:500, length:760, speed:235, spawn:[.85,1.35], maxGround:3, brief:'REB enters a new toxic jungle theatre. No Part 1 troops survived the migration: this zone is occupied by sequel-only neon mutants and the Renal Stalker.' },
+  {
+    id:1, name:'JUNGLE RENAL WARZONE', subtitle:'JUNGLE DEPLOYMENT',
+    bg:'jungle', procedural:false,
+    warriorA:'trooper', warriorB:'trooper', brute:'trooper', animal:'hound', air:'gunship',
+    airName:'NEPHROLOGY GUNSHIP', airHp:28, bossAt:650, length:1000, speed:235,
+    spawn:[.75,1.35], maxGround:8,
+    brief:'REB has entered a toxic jungle where mutant troopers, bio-warhounds and a nephrology gunship have made the catastrophic mistake of standing downrange. Collect ammo. Hoard creatine. Trigger RENAL RAGE. Medical advice has been ignored.'
+  },
   { id:2, name:'WAR ZONE', subtitle:'RENAL REVENGE', bg:'s2bg', warriorA:'s2warriorA', warriorB:'s2warriorB', brute:'s2brute', animal:'s2animal', air:'s2air', airName:'ATTACK CHOPPER', airHp:28, bossAt:500, length:760, speed:246, spawn:[.78,1.24], maxGround:3, brief:'The jungle was only triage. REB enters a bombed-out war zone packed with assault squads, an armoured brute, a mutated war-beast and an attack chopper with terrible judgement.' },
   { id:3, name:'ZOO ESCAPE', subtitle:'ANIMAL CONTROL FAILED', bg:'s3bg', warriorA:'s3warriorA', warriorB:'s3warriorB', brute:'s3brute', animal:'s3animal', air:'s3air', airName:'MUTATED AIRBORNE', airHp:32, bossAt:490, length:760, speed:254, spawn:[.74,1.18], maxGround:3, brief:'Titan City Zoo has lost containment. Armed keepers, escaped brutes and something formerly listed as a harmless animal are now between REB and the exit. Airspace is biologically compromised.' },
   { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4warriorA', warriorB:'s4warriorB', brute:'s4brute', animal:'s4animal', air:'s4air', airName:'MED-EVAC GUNSHIP', airHp:36, bossAt:485, length:760, speed:262, spawn:[.70,1.12], maxGround:4, brief:'The nephrology ward has declared REB medically non-compliant. Security teams, one dialysis brute, a mutant renal hound and an armed med-evac platform are enforcing the discharge plan.' },
@@ -142,7 +156,7 @@ function clearWorld() {
 }
 function applyStageDom() {
   const s = stage();
-  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.3 // RENAL REVENGE`;
+  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.4 // STAGE 1 LEGACY`;
   if (UI.missionTitle) UI.missionTitle.textContent = s.name;
   if (UI.missionText) UI.missionText.textContent = s.brief;
 }
@@ -157,7 +171,7 @@ function setStage(id, freshRun = false) {
     emergencyAmmoCooldown:0, cameoTime:0, cameo:null
   });
   if (freshRun) {
-    state.score = 0; state.hp = 100; state.ammo = 90; state.renal = 0; state.kills = 0;
+    state.score = 0; state.hp = 100; state.ammo = 80; state.renal = 0; state.kills = 0;
   } else {
     state.hp = clamp(state.hp + 20, 0, 100);
     state.ammo = clamp(state.ammo + 36, 0, state.maxAmmo);
@@ -243,6 +257,13 @@ function canSpawnGround() {
   return rightmost < W - 115;
 }
 function enemySpec(type) {
+  if (state.stage === 1) {
+    const part1 = {
+      warriorA:{w:52,h:77,hp:2,extra:rand(-10,45),shoot:rand(1.3,2.8),damage:20,score:350,renal:6},
+      animal:{w:86,h:61,hp:4,extra:120,shoot:999,damage:28,score:900,renal:14}
+    };
+    return part1[type] || part1.warriorA;
+  }
   const level = state.stage - 1;
   const table = {
     warriorA:{w:52,h:77,hp:2+Math.floor(level*.45),extra:rand(-5,30),shoot:rand(1.6,2.7),damage:16,score:350,renal:6},
@@ -257,14 +278,25 @@ function spawnEnemy(type) {
   if (type === 'air') {
     if (state.bossSpawned || state.bossDefeated) return false;
     state.bossSpawned = true;
-    state.enemies.push({ type:'air', x:W+100, y:120, w:190, h:105, hp:s.airHp, maxHp:s.airHp, shoot:1.0, damage:22+state.stage, score:7000+state.stage*800, renal:35, phase:0, boss:true });
+    state.enemies.push({
+      type:'air', x:W+100, y:120, w:190, h:105,
+      hp:s.airHp, maxHp:s.airHp,
+      shoot:state.stage===1?.9:1.0,
+      damage:state.stage===1?30:22+state.stage,
+      score:state.stage===1?7500:7000+state.stage*800,
+      renal:35, phase:0, boss:true
+    });
     state.banner = `${s.airName} INBOUND`; state.bannerTime = 1.2; state.shake = 6;
     return true;
   }
-  if (!canSpawnGround()) return false;
-  if (!type) {
-    const r = Math.random();
-    type = r < .42 ? 'warriorA' : r < .70 ? 'warriorB' : r < .86 ? 'animal' : 'brute';
+  if (state.stage === 1) {
+    if (!type) type = Math.random() > .78 ? 'animal' : 'warriorA';
+  } else {
+    if (!canSpawnGround()) return false;
+    if (!type) {
+      const r = Math.random();
+      type = r < .42 ? 'warriorA' : r < .70 ? 'warriorB' : r < .86 ? 'animal' : 'brute';
+    }
   }
   const sp = enemySpec(type);
   const lastX = groundEnemies().reduce((m,e)=>Math.max(m,e.x+e.w), W-120);
@@ -481,6 +513,36 @@ function drawProceduralJungle() {
 
 function drawBackground() {
   const s=stage();
+
+  // Stage 1 is intentionally rendered exactly in the Part 1 jungle style.
+  if (state.stage === 1) {
+    ctx.fillStyle='#07130b';
+    ctx.fillRect(0,0,W,H);
+    if (ready('jungle')) art('jungle',0,0,W,H,1);
+
+    ctx.fillStyle='rgba(0,0,0,.10)';
+    ctx.fillRect(0,0,W,H);
+
+    if (ready('floor')) {
+      ctx.save();
+      ctx.globalAlpha=.16;
+      const fw=540, fh=180, off=(state.distance*7)%fw;
+      for(let x=-off-fw;x<W+fw;x+=fw) art('floor',x,GROUND-92,fw,fh);
+      ctx.restore();
+    }
+
+    const progress=clamp(state.distance/s.length,0,1);
+    ctx.fillStyle='rgba(0,0,0,.64)';
+    ctx.fillRect(24,24,310,18);
+    ctx.fillStyle='#8aff2b';
+    ctx.fillRect(27,27,304*progress,12);
+    ctx.strokeStyle='rgba(255,255,255,.20)';
+    ctx.strokeRect(24,24,310,18);
+    text(`${Math.floor(state.distance)} / ${s.length} M`,345,34,17,'#fff');
+    text(`STAGE ${s.id}/8 // ${s.name}`,24,99,18,'#39d7ff');
+    return;
+  }
+
   drawBattlefieldBase();
   if (s.procedural) {
     drawProceduralJungle();
@@ -558,6 +620,17 @@ function drawEnemy(e){
   const s=stage();
   ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+6:GROUND+4,e.w*.58,e.type==='air'?8:10,0,0,TWO);ctx.fill();ctx.restore();
 
+  if (state.stage === 1) {
+    if(e.type==='warriorA' || e.type==='warriorB' || e.type==='brute') {
+      art('trooper',e.x-28,e.y-48,112,125);
+    } else if(e.type==='animal') {
+      art('hound',e.x-28,e.y-45,142,112);
+    } else {
+      art('gunship',e.x-45,e.y-38,280,190);
+    }
+    return;
+  }
+
   if(s.procedural){ drawProceduralEnemy(e); return; }
 
   let ok=false;
@@ -582,7 +655,7 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.3',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.4',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){
