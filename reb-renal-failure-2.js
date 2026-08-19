@@ -4,7 +4,8 @@
 const canvas = document.getElementById('rebCanvas');
 if (!canvas) return;
 const ctx = canvas.getContext('2d', { alpha: false });
-ctx.imageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = 'high';
 canvas.style.touchAction = 'none';
 
 const W = canvas.width;
@@ -38,6 +39,10 @@ const ART_SRC = {
   serum: SHARED + 'serum.png',
   ammo: SHARED + 'ammo.PNG',
   cover: EXP + 'cover.png',
+  rebHdIdle: EXP + 'reb-hd-idle.png',
+  rebHdFire: EXP + 'reb-hd-fire.png',
+  rebHdJump: EXP + 'reb-hd-jump.png',
+  rebHdLand: EXP + 'reb-hd-land.png',
 
   // Stage 1 compatibility zone: intentionally identical to REB Part 1.
   jungle: SHARED + 'jungle.png',
@@ -147,7 +152,7 @@ const state = {
   stage:1, kills:0, stageKills:0, bossSpawned:false, bossDefeated:false, stageClearTimer:0,
   emergencyAmmoCooldown:0, cameoTime:0, cameo:null
 };
-const player = { x:148, y:GROUND-84, w:56, h:84, vy:0, onGround:true, invuln:0, shootPose:0 };
+const player = { x:148, y:GROUND-84, w:56, h:84, vy:0, onGround:true, invuln:0, shootPose:0, landTime:0 };
 const stage = () => STAGES[state.stage - 1] || STAGES[0];
 const keys = {};
 
@@ -156,7 +161,7 @@ function clearWorld() {
 }
 function applyStageDom() {
   const s = stage();
-  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.5 // BOSS/FLOOR FIX`;
+  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.6 // HD REB`;
   if (UI.missionTitle) UI.missionTitle.textContent = s.name;
   if (UI.missionText) UI.missionText.textContent = s.brief;
 }
@@ -178,7 +183,7 @@ function setStage(id, freshRun = false) {
     state.score += 1500 * s.id;
   }
   clearWorld();
-  Object.assign(player, { y:GROUND-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0 });
+  Object.assign(player, { y:GROUND-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0, landTime:0 });
   applyStageDom(); sync();
   tone(220,.05); setTimeout(()=>tone(330,.06),60); setTimeout(()=>tone(440,.10),125);
 }
@@ -347,7 +352,7 @@ function enemyHit(e,b) {
 
 function update(dt) {
   state.time += dt; state.flash=Math.max(0,state.flash-dt); state.shake=Math.max(0,state.shake-44*dt); state.bannerTime=Math.max(0,state.bannerTime-dt);
-  state.fireCooldown=Math.max(0,state.fireCooldown-dt); player.invuln=Math.max(0,player.invuln-dt); player.shootPose=Math.max(0,player.shootPose-dt); state.cameoTime=Math.max(0,state.cameoTime-dt);
+  state.fireCooldown=Math.max(0,state.fireCooldown-dt); player.invuln=Math.max(0,player.invuln-dt); player.shootPose=Math.max(0,player.shootPose-dt); player.landTime=Math.max(0,player.landTime-dt); state.cameoTime=Math.max(0,state.cameoTime-dt);
   if (state.mode !== 'playing') return;
 
   if (state.stageClearTimer > 0) {
@@ -363,8 +368,12 @@ function update(dt) {
   if (state.ammo <= 10 && state.emergencyAmmoCooldown<=0 && !state.pickups.some(p=>p.type==='ammo')) spawnEmergencyAmmo();
   if ((state.fireHeld || keys.KeyX) && state.fireCooldown <= 0) fireOnce();
 
+  const wasGrounded = player.onGround;
   player.vy += 1950*dt; player.y += player.vy*dt;
-  if (player.y >= GROUND-player.h) { player.y=GROUND-player.h; player.vy=0; player.onGround=true; } else player.onGround=false;
+  if (player.y >= GROUND-player.h) {
+    if (!wasGrounded && player.vy > 120) player.landTime = .22;
+    player.y=GROUND-player.h; player.vy=0; player.onGround=true;
+  } else player.onGround=false;
 
   const s=stage();
   const worldSpeed=s.speed+(state.rageTime>0?70:0);
@@ -578,12 +587,52 @@ function drawBackground() {
 }
 function drawPlayer(){
   if(player.invuln>0&&Math.floor(state.time*15)%2===0)return;
-  const rageOn=state.rageTime>0,shooting=player.shootPose>0||state.fireHeld||keys.KeyX;
-  ctx.save();ctx.globalAlpha=.30;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(player.x+28,GROUND+4,58,12,0,0,TWO);ctx.fill();ctx.restore();
-  if(rageOn){ctx.save();ctx.shadowColor='#8aff2b';ctx.shadowBlur=35;ctx.globalAlpha=.30;ctx.fillStyle='#8aff2b';ctx.beginPath();ctx.arc(player.x+44,player.y+34,72,0,TWO);ctx.fill();ctx.restore();}
-  const k=shooting?'shoot':'reb',dw=shooting?158:140,dh=shooting?158:146,dx=player.x-40,dy=player.y-(shooting?55:48);
-  if(!art(k,dx,dy,dw,dh)){ctx.fillStyle='#ff2d95';ctx.fillRect(player.x,player.y,player.w,player.h);}
-  if(shooting){shadow('AHHHH!',player.x+74,player.y-36,21,'#ff2d95','center');shadow('DRRRRRT',player.x+132,player.y+22,18,'#ffe53b','left');}
+  const rageOn=state.rageTime>0, shooting=player.shootPose>0||state.fireHeld||keys.KeyX;
+
+  ctx.save();
+  ctx.globalAlpha=.30;
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.ellipse(player.x+30,GROUND+5,70,14,0,0,TWO);
+  ctx.fill();
+  ctx.restore();
+
+  if(rageOn){
+    ctx.save();
+    ctx.shadowColor='#8aff2b';
+    ctx.shadowBlur=44;
+    ctx.globalAlpha=.34;
+    ctx.fillStyle='#8aff2b';
+    ctx.beginPath();
+    ctx.arc(player.x+45,player.y+30,84,0,TWO);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  let key='rebHdIdle', dw=150, dh=220, dx=player.x-48, dy=GROUND-220;
+
+  if(!player.onGround){
+    key='rebHdJump'; dw=158; dh=224; dx=player.x-49; dy=player.y-92;
+  } else if(player.landTime>0){
+    key='rebHdLand'; dw=162; dh=224; dx=player.x-50; dy=GROUND-224;
+  } else if(shooting){
+    key='rebHdFire'; dw=184; dh=228; dx=player.x-48; dy=GROUND-228;
+  }
+
+  if(!art(key,dx,dy,dw,dh)){
+    const fallback=shooting?'shoot':'reb';
+    const fw=shooting?158:140, fh=shooting?158:146;
+    const fx=player.x-40, fy=player.y-(shooting?55:48);
+    if(!art(fallback,fx,fy,fw,fh)){
+      ctx.fillStyle='#ff2d95';
+      ctx.fillRect(player.x,player.y,player.w,player.h);
+    }
+  }
+
+  if(shooting && player.onGround){
+    shadow('YEAHHHH!',player.x+86,player.y-48,21,'#ff2d95','center');
+    shadow('DRRRRRT',player.x+145,player.y+18,18,'#ffe53b','left');
+  }
 }
 function drawProceduralEnemy(e){
   const cx=e.x+e.w/2;
@@ -648,7 +697,7 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.5',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.6',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){
