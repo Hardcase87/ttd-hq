@@ -13,7 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
-const VERSION_LABEL = 'DRRRRRT ENGINE V2.9 // INTERMISSION + AURA PASS';
+const VERSION_LABEL = 'DRRRRRT ENGINE V3.0 // FINAL SEQUEL POLISH';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -41,12 +41,13 @@ const ART_SRC = {
   ammo: SHARED + 'ammo.PNG',
   cover: EXP + 'cover.png',
   rebHdIdle: EXP + 'reb-hd-idle.png',
-  rebHdFire: EXP + 'reb-hd-fire.png',
+  rebHdFire: EXP + 'reb-hd-fire-v3.png',
   rebHdJump: EXP + 'reb-hd-jump.png',
   rebHdLand: EXP + 'reb-hd-land.png',
   stage1Hd: EXP + 'stage-1-jungle-hd.jpg',
-  hardcaseCard: EXP + 'intermission-hardcase.png',
-  nikkiCard: EXP + 'intermission-nikki.png',
+  hardcaseCard: EXP + 'intermission-hardcase-v3.png',
+  nikkiCard: EXP + 'intermission-nikki-v3.png',
+  toxicElite: EXP + 'enemy-hd-toxic-elite-left.png',
 
   // Stage 1 compatibility zone: intentionally identical to REB Part 1.
   jungle: SHARED + 'jungle.png',
@@ -229,7 +230,7 @@ const STAGES = [
   { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4warriorA', warriorB:'s4warriorB', brute:'s4brute', animal:'s4animal', air:'s4air', airName:'MED-EVAC GUNSHIP', airHp:36, bossAt:485, length:760, speed:262, spawn:[.70,1.12], maxGround:4, brief:'The nephrology ward has declared REB medically non-compliant. Security teams, one dialysis brute, a mutant renal hound and an armed med-evac platform are enforcing the discharge plan.' },
   { id:5, name:'CARDIO WARD', subtitle:'HEART RATE: UNACCEPTABLE', bg:'s5bg', warriorA:'s5warriorA', warriorB:'s5warriorB', brute:'s5brute', animal:'s5animal', air:'s5air', airName:'CARDIAC INTERCEPTOR', airHp:40, bossAt:480, length:760, speed:270, spawn:[.67,1.08], maxGround:4, brief:'Cardiology would like REB to reduce intensity. REB has declined. Armed orderlies, a hypertrophic brute, a mutant ward animal and a cardiac interceptor attempt to enforce a reasonable training zone.' },
   { id:6, name:'BEACH / SEA ASSAULT', subtitle:'HYDRATION OPTIONAL', bg:'s6bg', warriorA:'s6warriorA', warriorB:'s6warriorB', brute:'s6brute', animal:'s6animal', air:'s6air', airName:'SEA STRIKE FIGHTER', airHp:44, bossAt:475, length:760, speed:278, spawn:[.64,1.04], maxGround:4, brief:'REB reaches the coast. Amphibious mutants, beach mercenaries and a sea-bred brute attack from the surf while a strike aircraft turns hydration into a tactical issue.' },
-  { id:7, name:'TOXIC FACTORY', subtitle:'SUPPLEMENT PRODUCTION LINE', bg:'s7bg', warriorA:'s7warriorA', warriorB:'s7warriorB', brute:'s7brute', animal:'s7animal', air:'s7air', airName:'BIOHAZARD DRONE', airHp:50, bossAt:470, length:760, speed:286, spawn:[.61,1.00], maxGround:4, brief:'The fluorescent nonsense has a source. Factory shock troops, an industrial brute, a chemically improved animal and a hovering biohazard platform guard the production line.' },
+  { id:7, name:'TOXIC FACTORY', subtitle:'SUPPLEMENT PRODUCTION LINE', bg:'s7bg', warriorA:'toxicElite', warriorB:'s7warriorB', brute:'s7brute', animal:'s7animal', air:'s7air', airName:'BIOHAZARD DRONE', airHp:50, bossAt:470, length:760, speed:286, spawn:[.61,1.00], maxGround:4, brief:'The fluorescent nonsense has a source. Factory shock troops, an industrial brute, a chemically improved animal and a hovering biohazard platform guard the production line.' },
   { id:8, name:'RENAL FORTRESS', subtitle:'FINAL RENAL COLLAPSE', bg:'s8bg', warriorA:'s8warriorA', warriorB:'s8warriorB', brute:'s8brute', animal:'s8animal', air:'s8air', airName:'RENAL OVERLORD UFO', airHp:58, bossAt:500, length:820, speed:296, spawn:[.58,.96], maxGround:4, brief:'The Renal Fortress is the end of the line. Every surviving mutant, one final brute, one impossible animal and the Renal Overlord air platform are waiting. Finish the campaign. Question the kidneys later.' }
 ];
 
@@ -285,10 +286,9 @@ function jump() {
   }
 }
 function playerMuzzle() {
-  // V2.8: start the projectile inside the minigun artwork. Bullets are rendered
-  // before REB, so the first pixels are hidden by the sprite and appear to leave the barrel.
-  if (!player.onGround) return { x: player.x + 90, y: player.y + 18 };
-  return { x: player.x + 96, y: GROUND - 116 };
+  if (!player.onGround) return { x: player.x + 94, y: player.y + 20 };
+  const dx = player.x - 45, dy = GROUND - 242, dw = 198, dh = 242;
+  return { x: dx + dw * .90, y: dy + dh * .47 };
 }
 function fireOnce() {
   if (state.mode !== 'playing') { start(); return; }
@@ -302,9 +302,9 @@ function fireOnce() {
   player.shootPose = .12;
   player.muzzleFlash = rage ? .13 : .10;
   const muzzle = playerMuzzle();
-  state.bullets.push({ x:muzzle.x-4, y:muzzle.y, w:25, h:6, vx:rage?1020:850, damage:rage?3:1, life:.72 });
+  state.bullets.push({ x:muzzle.x-12, y:muzzle.y-3, w:34, h:8, vx:rage?1080:890, damage:rage?3:1, life:.76 });
   gunSound();
-  if (Math.random() < .35) particles(muzzle.x+20, muzzle.y+3, '#ffe53b', 4, .48);
+  if (Math.random() < .55) particles(muzzle.x+10, muzzle.y+2, '#ffe53b', 6, .56);
 }
 function rage() {
   if (state.mode !== 'playing') { start(); return; }
@@ -442,12 +442,12 @@ function spawnEnemy(type) {
   if (type === 'air') {
     if (state.bossSpawned || state.bossDefeated) return false;
     state.bossSpawned = true;
-    const hpBoost = state.stage === 1 ? 1.35 : 1.48;
+    const hpBoost = state.stage === 1 ? 1.55 : (state.stage >= 7 ? 1.95 : 1.75);
     const bossHp = Math.round(s.airHp * hpBoost);
     state.enemies.push({
       type:'air', x:W+100, y:120, w:190, h:105,
       hp:bossHp, maxHp:bossHp,
-      shoot:state.stage===1?.78:.86,
+      shoot:state.stage===1?.72:.78,
       damage:state.stage===1?32:24+state.stage,
       score:state.stage===1?7500:7000+state.stage*800,
       renal:35, phase:0, boss:true
@@ -499,7 +499,7 @@ function clearStage() {
   tone(523,.08); setTimeout(()=>tone(659,.08),90); setTimeout(()=>tone(784,.12),175);
 }
 function enemyHit(e,b) {
-  e.hp -= b.damage; b.life=0;
+  e.hp -= b.damage; e.hitFlash=.12; b.life=0;
   particles(b.x,b.y,e.type==='air'?'#ffe53b':'#8aff2b',e.type==='air'?8:5,.7);
   if (e.hp <= 0) {
     e.dead=true; state.kills++; state.stageKills++; state.score += e.score||350;
@@ -560,16 +560,28 @@ function update(dt) {
 
   for (const e of state.enemies) {
     if (e.dead) continue;
-    e.phase=(e.phase||0)+dt; e.shoot-=dt;
+    e.phase=(e.phase||0)+dt; e.shoot-=dt; e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);
     if (e.type==='air') {
-      const targetX=665+Math.sin(e.phase*.7)*42;
-      e.x += (targetX-e.x)*Math.min(1,dt*1.6);
-      e.y = 205 + Math.sin(e.phase*1.30)*20; // V2.7 mid-screen boss patrol band
+      const hpRatio=clamp(e.hp/e.maxHp,0,1);
+      const bossPhase=hpRatio>.66?1:hpRatio>.33?2:3;
+      const xCenter=bossPhase===1?665:bossPhase===2?642:620;
+      const xAmp=bossPhase===1?42:bossPhase===2?58:74;
+      const yAmp=bossPhase===1?20:bossPhase===2?30:40;
+      const targetX=xCenter+Math.sin(e.phase*(bossPhase===3?1.15:.78))*xAmp;
+      e.x += (targetX-e.x)*Math.min(1,dt*(bossPhase===3?2.15:1.75));
+      e.y = 198 + Math.sin(e.phase*(bossPhase===1?1.30:bossPhase===2?1.65:2.05))*yAmp;
       if (e.shoot<=0 && e.x<W-80) {
-        e.shoot=Math.max(.46,.88-state.stage*.035);
-        state.enemyShots.push({x:e.x+28,y:e.y+68,w:20,h:8,vx:-520-state.stage*10,life:2.2,damage:12+Math.floor(state.stage*.7)});
-        state.enemyShots.push({x:e.x+78,y:e.y+86,w:18,h:7,vx:-470-state.stage*8,life:2.2,damage:11+Math.floor(state.stage*.6)});
-        if(state.stage>=5) state.enemyShots.push({x:e.x+54,y:e.y+77,w:18,h:7,vx:-495-state.stage*9,life:2.2,damage:12+Math.floor(state.stage*.6)});
+        const baseGap=bossPhase===1?.68:bossPhase===2?.52:.39;
+        e.shoot=Math.max(.32,baseGap-state.stage*.018);
+        const baseDmg=12+Math.floor(state.stage*.7);
+        state.enemyShots.push({x:e.x+26,y:e.y+66,w:22,h:8,vx:-530-state.stage*10,vy:bossPhase>=2?-34:0,life:2.25,damage:baseDmg});
+        state.enemyShots.push({x:e.x+82,y:e.y+86,w:20,h:8,vx:-490-state.stage*8,vy:bossPhase>=2?34:0,life:2.25,damage:baseDmg-1});
+        if(bossPhase>=2) state.enemyShots.push({x:e.x+55,y:e.y+76,w:20,h:8,vx:-510-state.stage*9,vy:0,life:2.25,damage:baseDmg});
+        if(bossPhase===3 && state.stage>=5){
+          state.enemyShots.push({x:e.x+48,y:e.y+72,w:18,h:7,vx:-500-state.stage*9,vy:-88,life:2.25,damage:baseDmg});
+          state.enemyShots.push({x:e.x+62,y:e.y+80,w:18,h:7,vx:-500-state.stage*9,vy:88,life:2.25,damage:baseDmg});
+        }
+        if(bossPhase===3){ state.shake=Math.max(state.shake,3.5); }
       }
     } else {
       e.x -= (worldSpeed+(e.extra||0))*dt;
@@ -585,7 +597,7 @@ function update(dt) {
   }
 
   for (const shot of state.enemyShots) {
-    shot.x += shot.vx*dt; shot.life -= dt;
+    shot.x += shot.vx*dt; shot.y += (shot.vy||0)*dt; shot.life -= dt;
     if (shot.life>0 && rects(player,shot)) { shot.life=0; damage(shot.damage||10,'INCOMING!'); }
   }
   for (const p of state.pickups) {
@@ -753,35 +765,35 @@ function drawPlayer(){
   ctx.restore();
 
   if(rageOn){
-    const cx=player.x+44, cy=player.y+36, pulse=1+Math.sin(state.time*11)*.07;
+    const cx=player.x+44, cy=player.y+36, pulse=1+Math.sin(state.time*11)*.08;
     ctx.save();
-    const grad=ctx.createRadialGradient(cx,cy,22,cx,cy,132*pulse);
-    grad.addColorStop(0,'rgba(138,255,43,0.02)');
-    grad.addColorStop(.34,'rgba(138,255,43,0.14)');
-    grad.addColorStop(.72,'rgba(138,255,43,0.22)');
+    const grad=ctx.createRadialGradient(cx,cy,18,cx,cy,164*pulse);
+    grad.addColorStop(0,'rgba(255,255,255,.04)');
+    grad.addColorStop(.22,'rgba(138,255,43,.10)');
+    grad.addColorStop(.55,'rgba(138,255,43,.24)');
+    grad.addColorStop(.78,'rgba(57,215,255,.13)');
     grad.addColorStop(1,'rgba(138,255,43,0)');
-    ctx.globalAlpha=.95;
-    ctx.fillStyle=grad;
-    ctx.beginPath();
-    ctx.ellipse(cx,cy,112*pulse,132*pulse,0,0,TWO);
-    ctx.fill();
-    ctx.lineWidth=3;
-    ctx.strokeStyle='rgba(138,255,43,0.62)';
-    ctx.shadowColor='#8aff2b';
-    ctx.shadowBlur=34;
-    ctx.beginPath(); ctx.ellipse(cx,cy,90*pulse,118*pulse,0,0,TWO); ctx.stroke();
-    ctx.globalAlpha=.45;
-    ctx.strokeStyle='rgba(57,215,255,0.55)';
-    ctx.beginPath(); ctx.ellipse(cx+4,cy-3,74*pulse,96*pulse,Math.sin(state.time*2.3)*.08,0,TWO); ctx.stroke();
+    ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(cx,cy,138*pulse,162*pulse,0,0,TWO); ctx.fill();
+
+    ctx.lineWidth=4; ctx.shadowColor='#8aff2b'; ctx.shadowBlur=38;
+    for(let i=0;i<3;i++){
+      ctx.globalAlpha=.68-i*.15;
+      ctx.strokeStyle=i===1?'#39d7ff':'#8aff2b';
+      ctx.beginPath();
+      ctx.ellipse(cx,cy,94+i*17,118+i*15,state.time*(i%2?.55:-.42),0,TWO);
+      ctx.stroke();
+    }
     ctx.restore();
 
     ctx.save();
-    ctx.globalAlpha=.66;
-    for(let i=0;i<8;i++){
-      const a=state.time*3.6+i*TWO/8;
-      const rx=Math.cos(a)*88, ry=Math.sin(a*1.18)*56;
-      ctx.fillStyle=i%2===0?'rgba(138,255,43,.70)':'rgba(255,229,59,.52)';
-      ctx.beginPath(); ctx.arc(cx+rx,cy+ry,4+(i%3),0,TWO); ctx.fill();
+    for(let i=0;i<12;i++){
+      const a=state.time*(3.4+i*.025)+i*TWO/12;
+      const radius=92+(i%3)*24;
+      const rx=Math.cos(a)*radius, ry=Math.sin(a*1.13)*(58+(i%4)*9);
+      ctx.globalAlpha=.48+.22*Math.sin(state.time*7+i);
+      ctx.fillStyle=i%3===0?'#39d7ff':i%2===0?'#8aff2b':'#ffe53b';
+      ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=14;
+      ctx.beginPath(); ctx.arc(cx+rx,cy+ry,3+(i%4),0,TWO); ctx.fill();
     }
     ctx.restore();
   }
@@ -793,7 +805,7 @@ function drawPlayer(){
   } else if(player.landTime>0){
     key='rebHdLand'; dw=162; dh=224; dx=player.x-50; dy=GROUND-224;
   } else if(shooting){
-    key='rebHdFire'; dw=184; dh=228; dx=player.x-48; dy=GROUND-228;
+    key='rebHdFire'; dw=198; dh=242; dx=player.x-45; dy=GROUND-242;
   }
 
   if(!art(key,dx,dy,dw,dh)){
@@ -807,7 +819,7 @@ function drawPlayer(){
   }
 
   if((shooting || player.muzzleFlash>0) && player.onGround){
-    const fx=player.x+112, fy=GROUND-118, p=clamp((player.muzzleFlash||0)*10,0,1);
+    const muzzle=playerMuzzle(), fx=muzzle.x+2, fy=muzzle.y+1, p=clamp((player.muzzleFlash||0)*10,0,1);
     ctx.save();
     ctx.translate(fx,fy);
     ctx.globalAlpha=.45+.55*p;
@@ -848,73 +860,118 @@ function drawProceduralEnemy(e){
   }
   ctx.restore();
 }
+function enemyGlowColor(){
+  return ['#8aff2b','#ff2d95','#8aff2b','#39d7ff','#ff2d95','#39d7ff','#8aff2b','#ff2d95'][state.stage-1] || '#8aff2b';
+}
+function artEnemyHD(key,x,y,w,h,flipX=false,alpha=1){
+  if(!ready(key)) return false;
+  const img=ART[key], glow=enemyGlowColor();
+  const draw=()=>{
+    if(flipX){ ctx.translate(x+w,y); ctx.scale(-1,1); ctx.drawImage(img,0,0,w,h); }
+    else ctx.drawImage(img,x,y,w,h);
+  };
+  ctx.save();
+  ctx.globalAlpha=.38*alpha; ctx.shadowColor=glow; ctx.shadowBlur=24;
+  draw(); ctx.restore();
+  ctx.save(); ctx.globalAlpha=alpha; draw(); ctx.restore();
+  return true;
+}
 function drawEnemy(e){
-  const s=stage();
-  ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+6:GROUND+4,e.w*.62,e.type==='air'?8:12,0,0,TWO);ctx.fill();ctx.restore();
+  const s=stage(), glow=enemyGlowColor();
+  ctx.save();
+  ctx.globalAlpha=.28; ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+8:GROUND+5,e.type==='air'?e.w*.68:e.w*.78,e.type==='air'?10:14,0,0,TWO);
+  ctx.fill(); ctx.restore();
 
-  // Boss/aircraft sizing remains V2.7 until the next boss test.
   if (e.type==='air') {
-    if (state.stage === 1) art('gunship',e.x-45,e.y-38,280,190);
-    else if (!art(s.air,e.x-45,e.y-38,280,190)) drawProceduralEnemy(e);
+    const x=e.x-48,y=e.y-42,w=288,h=196;
+    const key=state.stage===1?'gunship':s.air;
+    if(!artEnemyHD(key,x,y,w,h,false,1)) drawProceduralEnemy(e);
+    if(e.hitFlash>0){
+      ctx.save(); ctx.globalAlpha=clamp(e.hitFlash*5,0,.55); ctx.fillStyle='#fff'; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.restore();
+    }
     return;
   }
 
-  const centered = (key,w,h) => art(key, e.x + e.w/2 - w/2, GROUND - h, w, h);
-
-  if (state.stage === 1) {
-    const ok = e.type==='animal'
-      ? centered('hound',190,154)
-      : centered('trooper',170,192);
-    if(!ok) drawProceduralEnemy(e);
-    return;
-  }
-
-  if(s.procedural){ drawProceduralEnemy(e); return; }
+  const bob=Math.sin((e.phase||0)*5+e.x*.01)*1.5;
+  const centered=(key,w,h)=>artEnemyHD(key,e.x+e.w/2-w/2,GROUND-h+bob,w,h,false,1);
 
   let ok=false;
-  if(e.type==='warriorA') ok=centered(s.warriorA,172,194);
-  else if(e.type==='warriorB') ok=centered(s.warriorB,178,198);
-  else if(e.type==='animal') ok=centered(s.animal,194,158);
-  else if(e.type==='brute') ok=centered(s.brute,220,232);
+  if(state.stage===1){
+    ok=e.type==='animal'?centered('hound',204,166):centered('trooper',182,204);
+  }else if(e.type==='warriorA') ok=centered(s.warriorA,188,210);
+  else if(e.type==='warriorB') ok=centered(s.warriorB,194,216);
+  else if(e.type==='animal') ok=centered(s.animal,214,176);
+  else if(e.type==='brute') ok=centered(s.brute,238,250);
 
   if(!ok) drawProceduralEnemy(e);
+
+  if(e.hitFlash>0){
+    ctx.save();
+    ctx.globalAlpha=clamp(e.hitFlash*4.5,0,.48);
+    ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.shadowColor=glow; ctx.shadowBlur=18;
+    ctx.strokeRect(e.x-4,e.y-4,e.w+8,e.h+8);
+    ctx.restore();
+  }
 }
 function drawPickup(p){const bob=Math.sin(p.spin)*5,y=p.y+bob;ctx.save();ctx.shadowBlur=22;ctx.shadowColor=p.type==='creatine'?'#8aff2b':p.type==='serum'?'#39d7ff':'#ffe53b';if(p.type==='creatine')art('creatine',p.x-18,y-24,82,82);else if(p.type==='serum')art('serum',p.x-18,y-22,76,82);else if(!art('ammo',p.x-14,y-16,64,64)){ctx.fillStyle='#171817';ctx.fillRect(p.x,y,52,38);ctx.strokeStyle='#ffe53b';ctx.strokeRect(p.x,y,52,38);}ctx.restore();}
-function drawBullet(b){ctx.save();ctx.shadowColor='#ffe53b';ctx.shadowBlur=10;ctx.fillStyle='#fff3a0';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle='#ff2d95';ctx.fillRect(b.x+b.w-5,b.y,5,b.h);ctx.restore();}
+function drawBullet(b){
+  ctx.save();
+  ctx.shadowColor='#ffe53b'; ctx.shadowBlur=16;
+  const g=ctx.createLinearGradient(b.x-18,b.y,b.x+b.w,b.y);
+  g.addColorStop(0,'rgba(255,45,149,0)'); g.addColorStop(.35,'rgba(255,45,149,.72)'); g.addColorStop(1,'#fff7b0');
+  ctx.fillStyle=g; ctx.fillRect(b.x-18,b.y,b.w+18,b.h);
+  ctx.fillStyle='#8aff2b'; ctx.fillRect(b.x+b.w-4,b.y+1,6,Math.max(2,b.h-2));
+  ctx.restore();
+}
 function drawEnemyShot(s){ctx.save();ctx.shadowColor='#ff2d95';ctx.shadowBlur=8;ctx.fillStyle='#ff2d95';ctx.fillRect(s.x,s.y,s.w,s.h);ctx.restore();}
 function drawParticles(){for(const p of state.particles){ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.size,p.size);}ctx.globalAlpha=1;}
 function drawHud(){
   text('HP',24,68,18,'#fff');ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(56,59,150,18);ctx.fillStyle=state.hp>35?'#8aff2b':'#ff2d95';ctx.fillRect(59,62,144*clamp(state.hp/100,0,1),12);
   text(`AMMO ${state.ammo}`,224,68,18,state.ammo<=15?'#ff2d95':'#ffe53b');text('RENAL',360,68,18,'#fff');ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(420,59,145,18);ctx.fillStyle=state.rageTime>0?'#ffe53b':'#8aff2b';ctx.fillRect(423,62,139*(state.rageTime>0?1:state.renal/100),12);
   shadow(`SCORE ${pad(state.score)}`,W-24,37,24,'#fff','right');shadow(`KILLS ${state.kills}`,W-24,68,18,'#8aff2b','right');
+  const boss=state.enemies.find(e=>!e.dead&&e.type==='air');
+  if(boss){
+    const pct=clamp(boss.hp/boss.maxHp,0,1);
+    ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(W/2-150,103,300,17);
+    const bg=ctx.createLinearGradient(W/2-147,0,W/2+147,0); bg.addColorStop(0,'#ff2d95'); bg.addColorStop(.55,'#ffe53b'); bg.addColorStop(1,'#8aff2b');
+    ctx.fillStyle=bg; ctx.fillRect(W/2-147,106,294*pct,11);
+    text(`${stage().airName} // ${Math.ceil(pct*100)}%`,W/2,128,15,'#fff','center');
+  }
   if(state.bannerTime>0){ctx.globalAlpha=clamp(state.bannerTime*2,0,1);ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(W/2-300,112,600,55);shadow(state.banner,W/2,140,24,state.banner.includes('RENAL')?'#ffe53b':'#fff','center');ctx.globalAlpha=1;}
 }
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.9',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.0',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){
   if(state.cameoTime<=0||!state.cameo)return;
-  const hard=state.cameo==='hardcase',x=W-280,y=H-308,w=248,h=248;
+  const hard=state.cameo==='hardcase',x=625,y=154,w=292,h=292;
   const key=hard?'hardcaseCard':'nikkiCard';
-  const name=hard?"HARDCASE '87":"NIKKI NITRO";
-  const line1=hard?'TACTICAL SUPPORT INBOUND':'TITAN BABE SUPPORT INBOUND';
-  const line2=hard?'NEXT ZONE IS HOT. KEEP FIRING.':'SEQUEL ENERGY ONLY. KEEP MOVING.';
-  ctx.save();ctx.globalAlpha=clamp(state.cameoTime*2,0,1);
-  ctx.fillStyle='rgba(5,8,7,.94)';ctx.fillRect(x-12,y-12,w+24,h+92);
-  ctx.strokeStyle=hard?'#39d7ff':'#ff2d95';ctx.lineWidth=3;ctx.strokeRect(x-12,y-12,w+24,h+92);
+  ctx.save(); ctx.globalAlpha=clamp(state.cameoTime*2,0,1);
+  ctx.shadowColor=hard?'#39d7ff':'#ff2d95'; ctx.shadowBlur=28;
   if(!drawCoverImage(key,x,y,w,h,1)){
-    ctx.fillStyle=hard?'#10384a':'#4a1234';ctx.fillRect(x+22,y+20,w-44,h-40);
-    shadow(hard?'H87':'NN',x+w/2,y+96,58,'#fff','center');
+    ctx.fillStyle=hard?'#10384a':'#4a1234';ctx.fillRect(x,y,w,h);
+    shadow(hard?'H87':'NN',x+w/2,y+h/2,70,'#fff','center');
   }
-  shadow(name,x+w/2,y+h+18,22,hard?'#39d7ff':'#ff2d95','center');
-  text(line1,x+w/2,y+h+44,16,'#ffe53b','center');
-  text(line2,x+w/2,y+h+64,15,'#fff','center');
   ctx.restore();
 }
-function drawStageClear(){if(state.stageClearTimer<=0)return;ctx.fillStyle='rgba(0,0,0,.54)';ctx.fillRect(0,0,W,H);shadow(`STAGE ${state.stage} CLEARED`,W/2,168,58,'#8aff2b','center');shadow(stage().name,W/2,222,31,'#fff','center');text(state.stage<8?`NEXT: ${STAGES[state.stage].name}`:'FINAL RENAL COLLAPSE SURVIVED',W/2,264,20,'#ffe53b','center');text('INTERMISSION SUPPORT ONLINE',W/2,292,16,'#39d7ff','center');drawCameo();}
+function drawStageClear(){
+  if(state.stageClearTimer<=0)return;
+  ctx.fillStyle='rgba(0,0,0,.66)';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(5,8,7,.88)';ctx.fillRect(35,122,555,310);
+  ctx.strokeStyle='rgba(138,255,43,.42)';ctx.lineWidth=2;ctx.strokeRect(35,122,555,310);
+  shadow(`STAGE ${state.stage} CLEARED`,310,176,48,'#8aff2b','center');
+  shadow(stage().name,310,226,28,'#fff','center');
+  text(state.stage<8?`NEXT: ${STAGES[state.stage].name}`:'FINAL RENAL COLLAPSE SURVIVED',310,276,20,'#ffe53b','center');
+  text(state.cameo==='hardcase'?"HARDCASE '87 // TACTICAL SUPPORT":"NIKKI NITRO // TITAN BABE SUPPORT",310,326,18,state.cameo==='hardcase'?'#39d7ff':'#ff2d95','center');
+  text('FULL HD SEQUEL DEPLOYMENT',310,362,17,'#39d7ff','center');
+  text('DRRRRRT. MOVE OUT.',310,396,20,'#fff','center');
+  drawCameo();
+}
 function drawEnd(victoryMode){ctx.fillStyle='rgba(0,0,0,.76)';ctx.fillRect(0,0,W,H);shadow(victoryMode?'RENAL REVENGE COMPLETE':'RENAL FAILURE',W/2,155,58,victoryMode?'#8aff2b':'#ff2d95','center');if(victoryMode)shadow('ALL 8 STAGES CLEARED',W/2,208,24,'#ffe53b','center');shadow(`SCORE ${pad(state.score)}`,W/2,260,30,'#fff','center');text(`${state.kills} KILLS // STAGE ${state.stage}/8`,W/2,300,21,'#39d7ff','center');ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(W/2-220,345,440,70);ctx.strokeStyle='rgba(138,255,43,.48)';ctx.strokeRect(W/2-220,345,440,70);shadow('TAP TO REDEPLOY',W/2,380,25,'#fff','center');}
 function render(){
   const sx=state.shake>0?Math.round(rand(-state.shake,state.shake)):0,sy=state.shake>0?Math.round(rand(-state.shake*.5,state.shake*.5)):0;
