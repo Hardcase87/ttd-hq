@@ -28,24 +28,16 @@ const UI = {
   missionText: document.getElementById('rebMissionText') || document.querySelector('.brief .panel h2 + p')
 };
 
-const BASE = 'assets/images/reb-renal-failure/';
+const SHARED = 'assets/images/reb-renal-failure/'; // REB/player + pickups only
 const EXP = 'assets/images/reb-renal-failure-2/';
 const ART_SRC = {
-  reb: BASE + 'reb.png',
-  shoot: BASE + 'reb-shoot.png',
-  creatine: BASE + 'creatine.png',
-  serum: BASE + 'serum.png',
-  ammo: BASE + 'ammo.PNG',
-  cover: EXP + 'cover.png',
-  fallbackCover: BASE + 'cover.jpg',
-  title: BASE + 'title-poster.png',
-  trooper: BASE + 'enemy-trooper.png',
-  hound: BASE + 'warhound.png',
-  gunship: BASE + 'gunship.png',
-  jungle: BASE + 'jungle.png',
-  floor: BASE + 'jungle-floor.png',
-  hardcaseCameo: BASE + 'cameo-hardcase87.png',
-  nikkiCameo: BASE + 'cameo-nikki-nitro.png'
+  // Shared protagonist/consumables are intentional franchise assets.
+  reb: SHARED + 'reb.png',
+  shoot: SHARED + 'reb-shoot.png',
+  creatine: SHARED + 'creatine.png',
+  serum: SHARED + 'serum.png',
+  ammo: SHARED + 'ammo.PNG',
+  cover: EXP + 'cover.png'
 };
 for (let n = 2; n <= 8; n++) {
   const bgNames = {
@@ -124,7 +116,7 @@ function boom() { tone(62, .10, 'sawtooth', .035); setTimeout(() => tone(42, .11
 function buzz(ms = 15) { try { navigator.vibrate?.(ms); } catch (_) {} }
 
 const STAGES = [
-  { id:1, name:'JUNGLE RENAL WARZONE', subtitle:'JUNGLE DEPLOYMENT', bg:'jungle', warriorA:'trooper', warriorB:'trooper', brute:'trooper', animal:'hound', air:'gunship', airName:'NEPHROLOGY GUNSHIP', airHp:24, bossAt:500, length:760, speed:235, spawn:[.85,1.35], maxGround:3, brief:'REB has entered a toxic jungle where mutant troopers, bio-warhounds and a nephrology gunship have made the catastrophic mistake of standing downrange. Collect ammo. Hoard creatine. Trigger RENAL RAGE. Medical advice has been ignored.' },
+  { id:1, name:'JUNGLE RENAL WARZONE', subtitle:'SEQUEL DEPLOYMENT', bg:null, procedural:true, warriorA:null, warriorB:null, brute:null, animal:null, air:null, airName:'RENAL STALKER', airHp:24, bossAt:500, length:760, speed:235, spawn:[.85,1.35], maxGround:3, brief:'REB enters a new toxic jungle theatre. No Part 1 troops survived the migration: this zone is occupied by sequel-only neon mutants and the Renal Stalker.' },
   { id:2, name:'WAR ZONE', subtitle:'RENAL REVENGE', bg:'s2bg', warriorA:'s2warriorA', warriorB:'s2warriorB', brute:'s2brute', animal:'s2animal', air:'s2air', airName:'ATTACK CHOPPER', airHp:28, bossAt:500, length:760, speed:246, spawn:[.78,1.24], maxGround:3, brief:'The jungle was only triage. REB enters a bombed-out war zone packed with assault squads, an armoured brute, a mutated war-beast and an attack chopper with terrible judgement.' },
   { id:3, name:'ZOO ESCAPE', subtitle:'ANIMAL CONTROL FAILED', bg:'s3bg', warriorA:'s3warriorA', warriorB:'s3warriorB', brute:'s3brute', animal:'s3animal', air:'s3air', airName:'MUTATED AIRBORNE', airHp:32, bossAt:490, length:760, speed:254, spawn:[.74,1.18], maxGround:3, brief:'Titan City Zoo has lost containment. Armed keepers, escaped brutes and something formerly listed as a harmless animal are now between REB and the exit. Airspace is biologically compromised.' },
   { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4warriorA', warriorB:'s4warriorB', brute:'s4brute', animal:'s4animal', air:'s4air', airName:'MED-EVAC GUNSHIP', airHp:36, bossAt:485, length:760, speed:262, spawn:[.70,1.12], maxGround:4, brief:'The nephrology ward has declared REB medically non-compliant. Security teams, one dialysis brute, a mutant renal hound and an armed med-evac platform are enforcing the discharge plan.' },
@@ -150,7 +142,7 @@ function clearWorld() {
 }
 function applyStageDom() {
   const s = stage();
-  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.1 // RENAL REVENGE`;
+  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.3 // RENAL REVENGE`;
   if (UI.missionTitle) UI.missionTitle.textContent = s.name;
   if (UI.missionText) UI.missionText.textContent = s.brief;
 }
@@ -421,21 +413,110 @@ function sync() {
   if(UI.hp)UI.hp.textContent=Math.max(0,Math.ceil(state.hp));
   if(UI.ammo)UI.ammo.textContent=state.ammo;
   if(UI.rage)UI.rage.textContent=`${Math.floor(state.renal)}%`;
-  if(UI.status)UI.status.textContent=state.mode==='playing'?(state.rageTime>0?'RENAL RAGE':`STAGE ${state.stage}/8`):state.mode.toUpperCase();
+  const boss=state.enemies.find(e=>!e.dead&&e.type==='air');
+  if(UI.status)UI.status.textContent=state.mode==='playing'
+    ? (boss ? `BOSS ${Math.max(0,Math.ceil((boss.hp/boss.maxHp)*100))}%` : state.rageTime>0 ? 'RENAL RAGE' : `STAGE ${state.stage}/8`)
+    : state.mode.toUpperCase();
   if(UI.rageBtn){UI.rageBtn.classList.toggle('ready',state.renal>=100);UI.rageBtn.textContent=state.renal>=100?'⚡ RENAL RAGE READY!':`⚡ RENAL RAGE ${Math.floor(state.renal)}%`;}
 }
 function text(t,x,y,size=24,c='#fff',align='left'){ctx.fillStyle=c;ctx.font=`900 ${size}px "Barlow Condensed",Impact,sans-serif`;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(t,x,y);}
 function shadow(t,x,y,size,c,align='left'){text(t,x+3,y+3,size,'rgba(0,0,0,.78)',align);text(t,x,y,size,c,align);}
 
+function drawBattlefieldBase() {
+  // V2.2: opaque scenic base prevents transparent/empty PNG regions from exposing the canvas black.
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#12091d');
+  sky.addColorStop(.52,'#24102e');
+  sky.addColorStop(.72,'#10251d');
+  sky.addColorStop(1,'#07130d');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  // Distant toxic haze gives transparent middle sections real scenery instead of a flat slab.
+  const haze=ctx.createLinearGradient(0,GROUND-175,0,GROUND+40);
+  haze.addColorStop(0,'rgba(255,45,149,.18)');
+  haze.addColorStop(.38,'rgba(57,215,255,.08)');
+  haze.addColorStop(.72,'rgba(138,255,43,.16)');
+  haze.addColorStop(1,'rgba(5,12,8,.70)');
+  ctx.fillStyle=haze; ctx.fillRect(0,GROUND-175,W,215);
+
+  // Layered ground silhouettes keep the play lane visually continuous on every stage.
+  ctx.fillStyle='rgba(18,45,27,.78)';
+  ctx.beginPath(); ctx.moveTo(0,GROUND-108);
+  for(let x=0;x<=W;x+=64){const y=GROUND-105-Math.sin((x+state.distance*2)*.017)*18-Math.sin(x*.043)*9;ctx.lineTo(x,y);}
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='rgba(5,14,9,.88)';
+  ctx.fillRect(0,GROUND-48,W,H-GROUND+48);
+}
+
+
+function drawProceduralJungle() {
+  // Sequel-only Stage 1 scenery. No Part 1 jungle/floor art is referenced.
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#170523'); sky.addColorStop(.45,'#3d0b3e');
+  sky.addColorStop(.70,'#0d3129'); sky.addColorStop(1,'#07150d');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  ctx.save();
+  ctx.globalAlpha=.34;
+  for(let i=0;i<13;i++){
+    const x=((i*93)-(state.distance*5)%93)-50;
+    const h=90+(i%4)*27;
+    ctx.fillStyle=i%2?'#0c281b':'#102f20';
+    ctx.fillRect(x,GROUND-h,16,h);
+    ctx.beginPath();
+    ctx.fillStyle=i%3===0?'#8aff2b':'#234f2e';
+    ctx.arc(x+8,GROUND-h,48+(i%3)*12,0,TWO);ctx.fill();
+  }
+  ctx.restore();
+
+  for(let i=0;i<5;i++){
+    const x=110+i*190;
+    const g=ctx.createLinearGradient(x,150,x+24,GROUND);
+    g.addColorStop(0,'rgba(57,215,255,.04)');
+    g.addColorStop(.45,i%2?'rgba(138,255,43,.22)':'rgba(255,45,149,.18)');
+    g.addColorStop(1,'rgba(138,255,43,0)');
+    ctx.fillStyle=g; ctx.fillRect(x,145+(i%2)*40,28,220);
+  }
+}
+
 function drawBackground() {
   const s=stage();
-  ctx.fillStyle='#08100d'; ctx.fillRect(0,0,W,H);
-  if (!drawCoverImage(s.bg,0,0,W,H,1)) drawCoverImage('jungle',0,0,W,H,1);
-  const grd=ctx.createLinearGradient(0,H*.58,0,H); grd.addColorStop(0,'rgba(0,0,0,0)'); grd.addColorStop(1,'rgba(0,0,0,.38)'); ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
-  if (state.stage===1 && ready('floor')) {
-    ctx.save(); ctx.globalAlpha=.12; const fw=540,fh=180,off=(state.distance*7)%fw;
-    for(let x=-off-fw;x<W+fw;x+=fw) art('floor',x,GROUND-92,fw,fh); ctx.restore();
+  drawBattlefieldBase();
+  if (s.procedural) {
+    drawProceduralJungle();
+  } else if (s.bg) {
+    drawCoverImage(s.bg,0,0,W,H,1);
   }
+
+  // Rebuild the combat lane over any transparent/blank lower portion of the source art.
+  const lane=ctx.createLinearGradient(0,GROUND-155,0,H);
+  lane.addColorStop(0,'rgba(24,20,34,.04)');
+  lane.addColorStop(.34,'rgba(16,45,28,.28)');
+  lane.addColorStop(.72,'rgba(7,22,13,.58)');
+  lane.addColorStop(1,'rgba(3,9,6,.82)');
+  ctx.fillStyle=lane; ctx.fillRect(0,GROUND-155,W,H-(GROUND-155));
+
+  // Opaque running surface for every stage; no Part 1 floor sprite fallback.
+  const ground=ctx.createLinearGradient(0,GROUND-90,0,H);
+  ground.addColorStop(0,state.stage===1?'rgba(76,255,90,.14)':'rgba(28,55,36,.18)');
+  ground.addColorStop(.55,state.stage===1?'rgba(15,54,22,.68)':'rgba(9,25,15,.62)');
+  ground.addColorStop(1,'rgba(3,10,6,.90)');
+  ctx.fillStyle=ground; ctx.fillRect(0,GROUND-90,W,H-GROUND+90);
+  ctx.save();
+  ctx.globalAlpha=.28;
+  ctx.strokeStyle=state.stage===1?'#8aff2b':'#39d7ff';
+  ctx.lineWidth=2;
+  const laneOff=(state.distance*13)%96;
+  for(let x=-laneOff;x<W+96;x+=96){
+    ctx.beginPath();ctx.moveTo(x,GROUND-30);ctx.lineTo(x+56,H);ctx.stroke();
+  }
+  ctx.restore();
+
+  const vignette=ctx.createLinearGradient(0,H*.58,0,H);
+  vignette.addColorStop(0,'rgba(0,0,0,0)');
+  vignette.addColorStop(1,'rgba(0,0,0,.25)');
+  ctx.fillStyle=vignette; ctx.fillRect(0,0,W,H);
+
   const progress=clamp(state.distance/s.length,0,1);
   ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(24,24,310,18);ctx.fillStyle='#8aff2b';ctx.fillRect(27,27,304*progress,12);
   ctx.strokeStyle='rgba(255,255,255,.25)';ctx.strokeRect(24,24,310,18);text(`${Math.floor(state.distance)} / ${s.length} M`,345,34,17,'#fff');text(`STAGE ${s.id}/8 // ${s.name}`,24,99,18,'#39d7ff');
@@ -449,15 +530,44 @@ function drawPlayer(){
   if(!art(k,dx,dy,dw,dh)){ctx.fillStyle='#ff2d95';ctx.fillRect(player.x,player.y,player.w,player.h);}
   if(shooting){shadow('AHHHH!',player.x+74,player.y-36,21,'#ff2d95','center');shadow('DRRRRRT',player.x+132,player.y+22,18,'#ffe53b','left');}
 }
+function drawProceduralEnemy(e){
+  const cx=e.x+e.w/2;
+  ctx.save();
+  ctx.lineWidth=4;
+  if(e.type==='air'){
+    ctx.shadowColor='#ff2d95';ctx.shadowBlur=20;
+    ctx.fillStyle='#2b0925';ctx.strokeStyle='#ff2d95';
+    ctx.beginPath();ctx.ellipse(cx,e.y+48,92,38,0,0,TWO);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#8aff2b';
+    for(let i=-2;i<=2;i++){ctx.beginPath();ctx.arc(cx+i*30,e.y+48,5,0,TWO);ctx.fill();}
+    ctx.restore();return;
+  }
+  const main=e.type==='brute'?'#39d7ff':e.type==='animal'?'#ffe53b':e.type==='warriorB'?'#ff2d95':'#8aff2b';
+  ctx.shadowColor=main;ctx.shadowBlur=14;ctx.strokeStyle=main;ctx.fillStyle='rgba(8,14,12,.96)';
+  if(e.type==='animal'){
+    ctx.beginPath();ctx.ellipse(cx,e.y+35,e.w*.48,e.h*.42,0,0,TWO);ctx.fill();ctx.stroke();
+    ctx.fillStyle=main;ctx.beginPath();ctx.arc(cx+24,e.y+28,6,0,TWO);ctx.fill();
+  }else{
+    ctx.beginPath();ctx.roundRect(e.x+8,e.y+18,e.w-16,e.h-20,12);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,e.y+16,e.type==='brute'?18:14,0,TWO);ctx.fill();ctx.stroke();
+    ctx.fillStyle=main;ctx.fillRect(cx-10,e.y+12,7,4);ctx.fillRect(cx+3,e.y+12,7,4);
+  }
+  ctx.restore();
+}
 function drawEnemy(e){
   const s=stage();
   ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+6:GROUND+4,e.w*.58,e.type==='air'?8:10,0,0,TWO);ctx.fill();ctx.restore();
-  if(e.type==='warriorA')artAny([s.warriorA,'trooper'],e.x-28,e.y-48,112,125);
-  else if(e.type==='warriorB')artAny([s.warriorB,s.warriorA,'trooper'],e.x-28,e.y-48,118,130);
-  else if(e.type==='animal')artAny([s.animal,'hound'],e.x-28,e.y-45,142,112);
-  else if(e.type==='brute')artAny([s.brute,s.warriorB,'trooper'],e.x-36,e.y-60,150,165);
-  else {artAny([s.air,'gunship'],e.x-45,e.y-38,280,190);const ratio=clamp(e.hp/e.maxHp,0,1);ctx.fillStyle='rgba(0,0,0,.78)';ctx.fillRect(e.x,e.y-16,180,10);ctx.fillStyle='#ff2d95';ctx.fillRect(e.x+2,e.y-14,176*ratio,6);}
-  if(e.type==='brute'){const ratio=clamp(e.hp/e.maxHp,0,1);ctx.fillStyle='rgba(0,0,0,.68)';ctx.fillRect(e.x,e.y-13,74,7);ctx.fillStyle='#39d7ff';ctx.fillRect(e.x+1,e.y-12,72*ratio,5);}
+
+  if(s.procedural){ drawProceduralEnemy(e); return; }
+
+  let ok=false;
+  if(e.type==='warriorA') ok=art(s.warriorA,e.x-28,e.y-48,112,125);
+  else if(e.type==='warriorB') ok=art(s.warriorB,e.x-28,e.y-48,118,130);
+  else if(e.type==='animal') ok=art(s.animal,e.x-28,e.y-45,142,112);
+  else if(e.type==='brute') ok=art(s.brute,e.x-36,e.y-60,150,165);
+  else ok=art(s.air,e.x-45,e.y-38,280,190);
+
+  if(!ok) drawProceduralEnemy(e);
 }
 function drawPickup(p){const bob=Math.sin(p.spin)*5,y=p.y+bob;ctx.save();ctx.shadowBlur=22;ctx.shadowColor=p.type==='creatine'?'#8aff2b':p.type==='serum'?'#39d7ff':'#ffe53b';if(p.type==='creatine')art('creatine',p.x-18,y-24,82,82);else if(p.type==='serum')art('serum',p.x-18,y-22,76,82);else if(!art('ammo',p.x-14,y-16,64,64)){ctx.fillStyle='#171817';ctx.fillRect(p.x,y,52,38);ctx.strokeStyle='#ffe53b';ctx.strokeRect(p.x,y,52,38);}ctx.restore();}
 function drawBullet(b){ctx.save();ctx.shadowColor='#ffe53b';ctx.shadowBlur=10;ctx.fillStyle='#fff3a0';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle='#ff2d95';ctx.fillRect(b.x+b.w-5,b.y,5,b.h);ctx.restore();}
@@ -471,11 +581,21 @@ function drawHud(){
 }
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
-  if(!art('title',32,46,456,456,.98)) artAny(['cover','fallbackCover'],36,72,300,300,.92);
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.1',690,266,19,'#39d7ff','center');
+  if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.3',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
-function drawCameo(){if(state.cameoTime<=0||!state.cameo)return;const hard=state.cameo==='hardcase',img=hard?'hardcaseCameo':'nikkiCameo',x=W-235,y=H-238,w=205,h=205;ctx.save();ctx.globalAlpha=clamp(state.cameoTime*2,0,1);ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(x-8,y-8,w+16,h+48);ctx.strokeStyle=hard?'#39d7ff':'#ff2d95';ctx.lineWidth=3;ctx.strokeRect(x-8,y-8,w+16,h+48);if(!art(img,x,y,w,h)){ctx.fillStyle=hard?'#39d7ff':'#ff2d95';ctx.fillRect(x+28,y+24,w-56,h-34);}shadow(hard?'HARDCASE ’87':'NIKKI NITRO',x+w/2,y+h+18,21,hard?'#39d7ff':'#ff2d95','center');ctx.restore();}
+function drawCameo(){
+  if(state.cameoTime<=0||!state.cameo)return;
+  const hard=state.cameo==='hardcase',x=W-235,y=H-238,w=205,h=205;
+  ctx.save();ctx.globalAlpha=clamp(state.cameoTime*2,0,1);
+  ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(x-8,y-8,w+16,h+48);
+  ctx.strokeStyle=hard?'#39d7ff':'#ff2d95';ctx.lineWidth=3;ctx.strokeRect(x-8,y-8,w+16,h+48);
+  ctx.fillStyle=hard?'#10384a':'#4a1234';ctx.fillRect(x+22,y+20,w-44,h-40);
+  shadow(hard?'H87':'NN',x+w/2,y+96,58,'#fff','center');
+  shadow(hard?'HARDCASE ’87':'NIKKI NITRO',x+w/2,y+h+18,21,hard?'#39d7ff':'#ff2d95','center');
+  ctx.restore();
+}
 function drawStageClear(){if(state.stageClearTimer<=0)return;ctx.fillStyle='rgba(0,0,0,.48)';ctx.fillRect(0,0,W,H);shadow(`STAGE ${state.stage} CLEARED`,W/2,175,58,'#8aff2b','center');shadow(stage().name,W/2,230,31,'#fff','center');text(state.stage<8?'NEXT DEPLOYMENT INBOUND':'FINAL RENAL COLLAPSE SURVIVED',W/2,272,20,'#ffe53b','center');drawCameo();}
 function drawEnd(victoryMode){ctx.fillStyle='rgba(0,0,0,.76)';ctx.fillRect(0,0,W,H);shadow(victoryMode?'RENAL REVENGE COMPLETE':'RENAL FAILURE',W/2,155,58,victoryMode?'#8aff2b':'#ff2d95','center');if(victoryMode)shadow('ALL 8 STAGES CLEARED',W/2,208,24,'#ffe53b','center');shadow(`SCORE ${pad(state.score)}`,W/2,260,30,'#fff','center');text(`${state.kills} KILLS // STAGE ${state.stage}/8`,W/2,300,21,'#39d7ff','center');ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(W/2-220,345,440,70);ctx.strokeStyle='rgba(138,255,43,.48)';ctx.strokeRect(W/2-220,345,440,70);shadow('TAP TO REDEPLOY',W/2,380,25,'#fff','center');}
 function render(){
