@@ -13,6 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
+const VERSION_LABEL = 'DRRRRRT ENGINE V2.9 // INTERMISSION + AURA PASS';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -44,6 +45,8 @@ const ART_SRC = {
   rebHdJump: EXP + 'reb-hd-jump.png',
   rebHdLand: EXP + 'reb-hd-land.png',
   stage1Hd: EXP + 'stage-1-jungle-hd.jpg',
+  hardcaseCard: EXP + 'intermission-hardcase.png',
+  nikkiCard: EXP + 'intermission-nikki.png',
 
   // Stage 1 compatibility zone: intentionally identical to REB Part 1.
   jungle: SHARED + 'jungle.png',
@@ -140,45 +143,67 @@ function ensureAudio() {
 function gunSound() {
   const a = ensureAudio(); if (!a) return;
   const t = a.currentTime;
+
   const master = a.createGain();
-  master.gain.setValueAtTime(.055, t);
-  master.gain.exponentialRampToValueAtTime(.0001, t + .055);
+  master.gain.setValueAtTime(.065, t);
+  master.gain.exponentialRampToValueAtTime(.0001, t + .085);
   master.connect(a.destination);
 
-  const thud = a.createOscillator();
-  thud.type = 'sawtooth';
-  thud.frequency.setValueAtTime(rand(58, 72), t);
-  thud.frequency.exponentialRampToValueAtTime(38, t + .045);
-  thud.connect(master); thud.start(t); thud.stop(t + .055);
+  const sub = a.createOscillator();
+  const subGain = a.createGain();
+  sub.type = 'sawtooth';
+  sub.frequency.setValueAtTime(rand(52, 64), t);
+  sub.frequency.exponentialRampToValueAtTime(33, t + .07);
+  subGain.gain.setValueAtTime(.42, t);
+  subGain.gain.exponentialRampToValueAtTime(.0001, t + .078);
+  sub.connect(subGain); subGain.connect(master); sub.start(t); sub.stop(t + .08);
 
   const mech = a.createOscillator();
   const mechGain = a.createGain();
   mech.type = 'square';
-  mech.frequency.setValueAtTime(rand(105, 135), t);
-  mechGain.gain.setValueAtTime(.34, t);
-  mechGain.gain.exponentialRampToValueAtTime(.0001, t + .032);
-  mech.connect(mechGain); mechGain.connect(master);
-  mech.start(t); mech.stop(t + .034);
+  mech.frequency.setValueAtTime(rand(96, 122), t);
+  mech.frequency.exponentialRampToValueAtTime(82, t + .03);
+  mechGain.gain.setValueAtTime(.28, t);
+  mechGain.gain.exponentialRampToValueAtTime(.0001, t + .045);
+  mech.connect(mechGain); mechGain.connect(master); mech.start(t); mech.stop(t + .05);
+
+  const clack = a.createOscillator();
+  const clackGain = a.createGain();
+  clack.type = 'triangle';
+  clack.frequency.setValueAtTime(190, t);
+  clack.frequency.exponentialRampToValueAtTime(120, t + .025);
+  clackGain.gain.setValueAtTime(.12, t);
+  clackGain.gain.exponentialRampToValueAtTime(.0001, t + .028);
+  clack.connect(clackGain); clackGain.connect(master); clack.start(t); clack.stop(t + .03);
 
   const noise = a.createBufferSource();
   const filter = a.createBiquadFilter();
   const ng = a.createGain();
   noise.buffer = noiseBuffer;
-  filter.type = 'bandpass'; filter.frequency.value = 760; filter.Q.value = .65;
-  ng.gain.setValueAtTime(.28, t);
-  ng.gain.exponentialRampToValueAtTime(.0001, t + .035);
+  filter.type = 'bandpass'; filter.frequency.value = 720; filter.Q.value = .72;
+  ng.gain.setValueAtTime(.30, t);
+  ng.gain.exponentialRampToValueAtTime(.0001, t + .05);
   noise.connect(filter); filter.connect(ng); ng.connect(master);
-  noise.start(t); noise.stop(t + .04);
+  noise.start(t); noise.stop(t + .055);
 }
 function jumpSound() {
-  const a = ensureAudio(); if (!a) { tone(150,.09,'sawtooth',.025); return; }
-  const t=a.currentTime, g=a.createGain(), o=a.createOscillator();
-  o.type='sawtooth';
-  o.frequency.setValueAtTime(138,t);
-  o.frequency.exponentialRampToValueAtTime(82,t+.11);
-  g.gain.setValueAtTime(.035,t);
-  g.gain.exponentialRampToValueAtTime(.0001,t+.13);
-  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+.14);
+  const a = ensureAudio(); if (!a) { tone(126,.09,'sawtooth',.025); return; }
+  const t=a.currentTime;
+  const body=a.createOscillator(), bodyGain=a.createGain();
+  body.type='triangle';
+  body.frequency.setValueAtTime(124,t);
+  body.frequency.exponentialRampToValueAtTime(72,t+.14);
+  bodyGain.gain.setValueAtTime(.038,t);
+  bodyGain.gain.exponentialRampToValueAtTime(.0001,t+.16);
+  body.connect(bodyGain); bodyGain.connect(a.destination); body.start(t); body.stop(t+.17);
+
+  const bite=a.createOscillator(), biteGain=a.createGain();
+  bite.type='square';
+  bite.frequency.setValueAtTime(210,t);
+  bite.frequency.exponentialRampToValueAtTime(148,t+.045);
+  biteGain.gain.setValueAtTime(.012,t);
+  biteGain.gain.exponentialRampToValueAtTime(.0001,t+.05);
+  bite.connect(biteGain); biteGain.connect(a.destination); bite.start(t); bite.stop(t+.052);
 }
 function landSound() {
   const a=ensureAudio(); if(!a) return;
@@ -215,7 +240,7 @@ const state = {
   stage:1, kills:0, stageKills:0, bossSpawned:false, bossDefeated:false, stageClearTimer:0,
   emergencyAmmoCooldown:0, cameoTime:0, cameo:null
 };
-const player = { x:148, y:GROUND-84, w:56, h:84, vy:0, onGround:true, invuln:0, shootPose:0, landTime:0 };
+const player = { x:148, y:GROUND-84, w:56, h:84, vy:0, onGround:true, invuln:0, shootPose:0, landTime:0, muzzleFlash:0 };
 const stage = () => STAGES[state.stage - 1] || STAGES[0];
 const keys = {};
 
@@ -224,7 +249,7 @@ function clearWorld() {
 }
 function applyStageDom() {
   const s = stage();
-  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>DRRRRRT ENGINE V2.8 // HD ENEMY PASS`;
+  if (UI.stageLine) UI.stageLine.innerHTML = `STAGE ${s.id} // ${s.name}<br>${VERSION_LABEL}`;
   if (UI.missionTitle) UI.missionTitle.textContent = s.name;
   if (UI.missionText) UI.missionText.textContent = s.brief;
 }
@@ -246,7 +271,7 @@ function setStage(id, freshRun = false) {
     state.score += 1500 * s.id;
   }
   clearWorld();
-  Object.assign(player, { y:GROUND-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0, landTime:0 });
+  Object.assign(player, { y:GROUND-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0, landTime:0, muzzleFlash:0 });
   applyStageDom(); sync();
   tone(220,.05); setTimeout(()=>tone(330,.06),60); setTimeout(()=>tone(440,.10),125);
 }
@@ -262,8 +287,8 @@ function jump() {
 function playerMuzzle() {
   // V2.8: start the projectile inside the minigun artwork. Bullets are rendered
   // before REB, so the first pixels are hidden by the sprite and appear to leave the barrel.
-  if (!player.onGround) return { x: player.x + 88, y: player.y + 14 };
-  return { x: player.x + 92, y: GROUND - 116 };
+  if (!player.onGround) return { x: player.x + 90, y: player.y + 18 };
+  return { x: player.x + 96, y: GROUND - 116 };
 }
 function fireOnce() {
   if (state.mode !== 'playing') { start(); return; }
@@ -275,8 +300,9 @@ function fireOnce() {
   state.fireCooldown = rage ? .055 : .095;
   state.ammo--;
   player.shootPose = .12;
+  player.muzzleFlash = rage ? .13 : .10;
   const muzzle = playerMuzzle();
-  state.bullets.push({ x:muzzle.x, y:muzzle.y, w:25, h:6, vx:rage?1020:850, damage:rage?3:1, life:.72 });
+  state.bullets.push({ x:muzzle.x-4, y:muzzle.y, w:25, h:6, vx:rage?1020:850, damage:rage?3:1, life:.72 });
   gunSound();
   if (Math.random() < .35) particles(muzzle.x+20, muzzle.y+3, '#ffe53b', 4, .48);
 }
@@ -416,11 +442,13 @@ function spawnEnemy(type) {
   if (type === 'air') {
     if (state.bossSpawned || state.bossDefeated) return false;
     state.bossSpawned = true;
+    const hpBoost = state.stage === 1 ? 1.35 : 1.48;
+    const bossHp = Math.round(s.airHp * hpBoost);
     state.enemies.push({
       type:'air', x:W+100, y:120, w:190, h:105,
-      hp:s.airHp, maxHp:s.airHp,
-      shoot:state.stage===1?.9:1.0,
-      damage:state.stage===1?30:22+state.stage,
+      hp:bossHp, maxHp:bossHp,
+      shoot:state.stage===1?.78:.86,
+      damage:state.stage===1?32:24+state.stage,
       score:state.stage===1?7500:7000+state.stage*800,
       renal:35, phase:0, boss:true
     });
@@ -465,7 +493,7 @@ function victory() {
 }
 function clearStage() {
   if (state.stageClearTimer > 0 || state.mode !== 'playing') return;
-  state.stageClearTimer = 3.0; state.fireHeld=false; state.cameoTime=2.0; state.cameo=Math.random()<.5?'hardcase':'nikki';
+  state.stageClearTimer = 3.0; state.fireHeld=false; state.cameoTime=2.25; state.cameo=state.stage % 2 === 1 ? 'nikki' : 'hardcase';
   state.score += 8000 * state.stage; state.banner=`STAGE ${state.stage} COMPLETE`; state.bannerTime=2.1; state.flash=.28; state.shake=9;
   state.enemies.length=0; state.enemyShots.length=0;
   tone(523,.08); setTimeout(()=>tone(659,.08),90); setTimeout(()=>tone(784,.12),175);
@@ -500,6 +528,7 @@ function update(dt) {
   if ((state.fireHeld || keys.KeyX) && state.fireCooldown <= 0) fireOnce();
 
   const wasGrounded = player.onGround;
+  player.muzzleFlash=Math.max(0,player.muzzleFlash-dt);
   player.vy += 1950*dt; player.y += player.vy*dt;
   if (player.y >= GROUND-player.h) {
     if (!wasGrounded && player.vy > 120) { player.landTime = .22; landSound(); }
@@ -537,9 +566,10 @@ function update(dt) {
       e.x += (targetX-e.x)*Math.min(1,dt*1.6);
       e.y = 205 + Math.sin(e.phase*1.30)*20; // V2.7 mid-screen boss patrol band
       if (e.shoot<=0 && e.x<W-80) {
-        e.shoot=Math.max(.62,1.02-state.stage*.04);
-        state.enemyShots.push({x:e.x+28,y:e.y+68,w:20,h:8,vx:-500-state.stage*8,life:2.2,damage:11+Math.floor(state.stage*.6)});
-        state.enemyShots.push({x:e.x+78,y:e.y+86,w:18,h:7,vx:-455-state.stage*6,life:2.2,damage:10+Math.floor(state.stage*.5)});
+        e.shoot=Math.max(.46,.88-state.stage*.035);
+        state.enemyShots.push({x:e.x+28,y:e.y+68,w:20,h:8,vx:-520-state.stage*10,life:2.2,damage:12+Math.floor(state.stage*.7)});
+        state.enemyShots.push({x:e.x+78,y:e.y+86,w:18,h:7,vx:-470-state.stage*8,life:2.2,damage:11+Math.floor(state.stage*.6)});
+        if(state.stage>=5) state.enemyShots.push({x:e.x+54,y:e.y+77,w:18,h:7,vx:-495-state.stage*9,life:2.2,damage:12+Math.floor(state.stage*.6)});
       }
     } else {
       e.x -= (worldSpeed+(e.extra||0))*dt;
@@ -723,14 +753,36 @@ function drawPlayer(){
   ctx.restore();
 
   if(rageOn){
+    const cx=player.x+44, cy=player.y+36, pulse=1+Math.sin(state.time*11)*.07;
     ctx.save();
-    ctx.shadowColor='#8aff2b';
-    ctx.shadowBlur=44;
-    ctx.globalAlpha=.34;
-    ctx.fillStyle='#8aff2b';
+    const grad=ctx.createRadialGradient(cx,cy,22,cx,cy,132*pulse);
+    grad.addColorStop(0,'rgba(138,255,43,0.02)');
+    grad.addColorStop(.34,'rgba(138,255,43,0.14)');
+    grad.addColorStop(.72,'rgba(138,255,43,0.22)');
+    grad.addColorStop(1,'rgba(138,255,43,0)');
+    ctx.globalAlpha=.95;
+    ctx.fillStyle=grad;
     ctx.beginPath();
-    ctx.arc(player.x+45,player.y+30,84,0,TWO);
+    ctx.ellipse(cx,cy,112*pulse,132*pulse,0,0,TWO);
     ctx.fill();
+    ctx.lineWidth=3;
+    ctx.strokeStyle='rgba(138,255,43,0.62)';
+    ctx.shadowColor='#8aff2b';
+    ctx.shadowBlur=34;
+    ctx.beginPath(); ctx.ellipse(cx,cy,90*pulse,118*pulse,0,0,TWO); ctx.stroke();
+    ctx.globalAlpha=.45;
+    ctx.strokeStyle='rgba(57,215,255,0.55)';
+    ctx.beginPath(); ctx.ellipse(cx+4,cy-3,74*pulse,96*pulse,Math.sin(state.time*2.3)*.08,0,TWO); ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha=.66;
+    for(let i=0;i<8;i++){
+      const a=state.time*3.6+i*TWO/8;
+      const rx=Math.cos(a)*88, ry=Math.sin(a*1.18)*56;
+      ctx.fillStyle=i%2===0?'rgba(138,255,43,.70)':'rgba(255,229,59,.52)';
+      ctx.beginPath(); ctx.arc(cx+rx,cy+ry,4+(i%3),0,TWO); ctx.fill();
+    }
     ctx.restore();
   }
 
@@ -754,7 +806,20 @@ function drawPlayer(){
     }
   }
 
-  if(shooting && player.onGround){
+  if((shooting || player.muzzleFlash>0) && player.onGround){
+    const fx=player.x+112, fy=GROUND-118, p=clamp((player.muzzleFlash||0)*10,0,1);
+    ctx.save();
+    ctx.translate(fx,fy);
+    ctx.globalAlpha=.45+.55*p;
+    ctx.shadowColor='#ffe53b';
+    ctx.shadowBlur=22+24*p;
+    ctx.fillStyle='rgba(255,229,59,.95)';
+    ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(24+18*p,-8-4*p); ctx.lineTo(18+10*p,0); ctx.lineTo(24+18*p,8+4*p);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,45,149,.65)';
+    ctx.beginPath(); ctx.arc(6,0,7+5*p,0,TWO); ctx.fill();
+    ctx.restore();
     shadow('YEAHHHH!',player.x+86,player.y-48,21,'#ff2d95','center');
     shadow('DRRRRRT',player.x+145,player.y+18,18,'#ffe53b','left');
   }
@@ -827,21 +892,29 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.8',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V2.9',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){
   if(state.cameoTime<=0||!state.cameo)return;
-  const hard=state.cameo==='hardcase',x=W-235,y=H-238,w=205,h=205;
+  const hard=state.cameo==='hardcase',x=W-280,y=H-308,w=248,h=248;
+  const key=hard?'hardcaseCard':'nikkiCard';
+  const name=hard?"HARDCASE '87":"NIKKI NITRO";
+  const line1=hard?'TACTICAL SUPPORT INBOUND':'TITAN BABE SUPPORT INBOUND';
+  const line2=hard?'NEXT ZONE IS HOT. KEEP FIRING.':'SEQUEL ENERGY ONLY. KEEP MOVING.';
   ctx.save();ctx.globalAlpha=clamp(state.cameoTime*2,0,1);
-  ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(x-8,y-8,w+16,h+48);
-  ctx.strokeStyle=hard?'#39d7ff':'#ff2d95';ctx.lineWidth=3;ctx.strokeRect(x-8,y-8,w+16,h+48);
-  ctx.fillStyle=hard?'#10384a':'#4a1234';ctx.fillRect(x+22,y+20,w-44,h-40);
-  shadow(hard?'H87':'NN',x+w/2,y+96,58,'#fff','center');
-  shadow(hard?'HARDCASE ’87':'NIKKI NITRO',x+w/2,y+h+18,21,hard?'#39d7ff':'#ff2d95','center');
+  ctx.fillStyle='rgba(5,8,7,.94)';ctx.fillRect(x-12,y-12,w+24,h+92);
+  ctx.strokeStyle=hard?'#39d7ff':'#ff2d95';ctx.lineWidth=3;ctx.strokeRect(x-12,y-12,w+24,h+92);
+  if(!drawCoverImage(key,x,y,w,h,1)){
+    ctx.fillStyle=hard?'#10384a':'#4a1234';ctx.fillRect(x+22,y+20,w-44,h-40);
+    shadow(hard?'H87':'NN',x+w/2,y+96,58,'#fff','center');
+  }
+  shadow(name,x+w/2,y+h+18,22,hard?'#39d7ff':'#ff2d95','center');
+  text(line1,x+w/2,y+h+44,16,'#ffe53b','center');
+  text(line2,x+w/2,y+h+64,15,'#fff','center');
   ctx.restore();
 }
-function drawStageClear(){if(state.stageClearTimer<=0)return;ctx.fillStyle='rgba(0,0,0,.48)';ctx.fillRect(0,0,W,H);shadow(`STAGE ${state.stage} CLEARED`,W/2,175,58,'#8aff2b','center');shadow(stage().name,W/2,230,31,'#fff','center');text(state.stage<8?'NEXT DEPLOYMENT INBOUND':'FINAL RENAL COLLAPSE SURVIVED',W/2,272,20,'#ffe53b','center');drawCameo();}
+function drawStageClear(){if(state.stageClearTimer<=0)return;ctx.fillStyle='rgba(0,0,0,.54)';ctx.fillRect(0,0,W,H);shadow(`STAGE ${state.stage} CLEARED`,W/2,168,58,'#8aff2b','center');shadow(stage().name,W/2,222,31,'#fff','center');text(state.stage<8?`NEXT: ${STAGES[state.stage].name}`:'FINAL RENAL COLLAPSE SURVIVED',W/2,264,20,'#ffe53b','center');text('INTERMISSION SUPPORT ONLINE',W/2,292,16,'#39d7ff','center');drawCameo();}
 function drawEnd(victoryMode){ctx.fillStyle='rgba(0,0,0,.76)';ctx.fillRect(0,0,W,H);shadow(victoryMode?'RENAL REVENGE COMPLETE':'RENAL FAILURE',W/2,155,58,victoryMode?'#8aff2b':'#ff2d95','center');if(victoryMode)shadow('ALL 8 STAGES CLEARED',W/2,208,24,'#ffe53b','center');shadow(`SCORE ${pad(state.score)}`,W/2,260,30,'#fff','center');text(`${state.kills} KILLS // STAGE ${state.stage}/8`,W/2,300,21,'#39d7ff','center');ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(W/2-220,345,440,70);ctx.strokeStyle='rgba(138,255,43,.48)';ctx.strokeRect(W/2-220,345,440,70);shadow('TAP TO REDEPLOY',W/2,380,25,'#fff','center');}
 function render(){
   const sx=state.shake>0?Math.round(rand(-state.shake,state.shake)):0,sy=state.shake>0?Math.round(rand(-state.shake*.5,state.shake*.5)):0;
