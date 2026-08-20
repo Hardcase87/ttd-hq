@@ -13,7 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
-const VERSION_LABEL = 'DRRRRRT ENGINE V3.2 // MEGA DRIVE RENAL EDITION';
+const VERSION_LABEL = 'DRRRRRT ENGINE V3.3 // ENEMY ART + AUDIO MIX';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -50,31 +50,45 @@ const ART_SRC = {
   stage1Hd: EXP + 'stage-1-jungle-hd.jpg',
   hardcaseCard: EXP + 'intermission-hardcase-v3.png',
   nikkiCard: EXP + 'intermission-nikki-v3.png',
-  toxicElite: EXP + 'enemy-hd-toxic-elite-left.png',
 
-  // Stage 1 compatibility zone: intentionally identical to REB Part 1.
+  // V3.3 cropped roster: clean transparent sprites, all oriented toward REB.
+  s1enemyA: EXP + 'bonus-jungle-roster-enemy-a.png',
+  s1enemyB: EXP + 'bonus-jungle-roster-enemy-b.png',
+  s1enemyC: EXP + 'bonus-jungle-roster-enemy-c.png',
+  s1boss: EXP + 'bonus-jungle-roster-boss.png',
+
+  // Legacy fallbacks remain available if an uploaded V3.3 sprite has not propagated yet.
   jungle: SHARED + 'jungle.png',
   floor: SHARED + 'jungle-floor.png',
   trooper: SHARED + 'enemy-trooper.png',
   hound: SHARED + 'warhound.png',
   gunship: SHARED + 'gunship.png'
 };
+const ROSTER_NAMES = {
+  2:'stage-2-war-zone',
+  3:'stage-3-zoo-escape',
+  4:'stage-4-nephro-ward',
+  5:'stage-5-cardio-ward',
+  6:'stage-6-sea-assault',
+  7:'stage-7-toxic-factory',
+  8:'stage-8-renal-fortress'
+};
+const BG_NAMES = {
+  2:'stage-2-war-zone.png',
+  3:'stage-3-zoo-escape.png',
+  4:'stage-4-nephro-ward.png',
+  5:'stage-5-cardio-ward.png',
+  6:'stage-6-beach-sea-assault.png',
+  7:'stage-7-toxic-factory.png',
+  8:'stage-8-renal-fortress.png'
+};
 for (let n = 2; n <= 8; n++) {
-  const bgNames = {
-    2: 'stage-2-war-zone.png',
-    3: 'stage-3-zoo-escape.png',
-    4: 'stage-4-nephro-ward.png',
-    5: 'stage-5-cardio-ward.png',
-    6: 'stage-6-beach-sea-assault.png',
-    7: 'stage-7-toxic-factory.png',
-    8: 'stage-8-renal-fortress.png'
-  };
-  ART_SRC[`s${n}bg`] = EXP + bgNames[n];
-  ART_SRC[`s${n}warriorA`] = EXP + `stage-${n}-warrior-a.png`;
-  ART_SRC[`s${n}warriorB`] = EXP + `stage-${n}-warrior-b.png`;
-  ART_SRC[`s${n}brute`] = EXP + `stage-${n}-brute.png`;
-  ART_SRC[`s${n}animal`] = EXP + `stage-${n}-mutant-animal.png`;
-  ART_SRC[`s${n}air`] = EXP + `stage-${n}-airborne.png`;
+  ART_SRC[`s${n}bg`] = EXP + BG_NAMES[n];
+  const roster = ROSTER_NAMES[n];
+  ART_SRC[`s${n}enemyA`] = EXP + `${roster}-enemy-a.png`;
+  ART_SRC[`s${n}enemyB`] = EXP + `${roster}-enemy-b.png`;
+  ART_SRC[`s${n}enemyC`] = EXP + `${roster}-enemy-c.png`;
+  ART_SRC[`s${n}boss`] = EXP + `${roster}-boss.png`;
 }
 
 const ART = {};
@@ -128,7 +142,16 @@ const MUSIC_TRACKS = {
   7:'assets/audio/reb-renal-failure-2/Stage-7_Toxic-Factory_Neon-Contamination.mp3',
   8:'assets/audio/reb-renal-failure-2/Stage-8_Renal-Fortress_Deep-Collapse.mp3'
 };
-const music = { bgm:null, started:false, muted:false, volume:.72, currentStage:0, bossEscalated:false, bossPulse:0 };
+const MUSIC_VOLUME_SAVE = 'ttd-reb2-music-volume';
+const MUSIC_MUTE_SAVE = 'ttd-reb2-music-muted';
+const savedMusicVolume = Number(localStorage.getItem(MUSIC_VOLUME_SAVE));
+const music = {
+  bgm:null, started:false,
+  muted:localStorage.getItem(MUSIC_MUTE_SAVE)==='1',
+  volume:Number.isFinite(savedMusicVolume) ? clamp(savedMusicVolume,0,1) : .72,
+  currentStage:0, bossEscalated:false, bossPulse:0,
+  duckGain:1, duckHold:0
+};
 function tone(f = 220, d = .05, type = 'square', gain = .018) {
   try {
     audio ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -160,7 +183,7 @@ function gunSound() {
   const t = a.currentTime;
 
   const master = a.createGain();
-  master.gain.setValueAtTime(.065, t);
+  master.gain.setValueAtTime(.115, t);
   master.gain.exponentialRampToValueAtTime(.0001, t + .085);
   master.connect(a.destination);
 
@@ -178,7 +201,7 @@ function gunSound() {
   mech.type = 'square';
   mech.frequency.setValueAtTime(rand(96, 122), t);
   mech.frequency.exponentialRampToValueAtTime(82, t + .03);
-  mechGain.gain.setValueAtTime(.28, t);
+  mechGain.gain.setValueAtTime(.34, t);
   mechGain.gain.exponentialRampToValueAtTime(.0001, t + .045);
   mech.connect(mechGain); mechGain.connect(master); mech.start(t); mech.stop(t + .05);
 
@@ -196,7 +219,7 @@ function gunSound() {
   const ng = a.createGain();
   noise.buffer = noiseBuffer;
   filter.type = 'bandpass'; filter.frequency.value = 720; filter.Q.value = .72;
-  ng.gain.setValueAtTime(.30, t);
+  ng.gain.setValueAtTime(.40, t);
   ng.gain.exponentialRampToValueAtTime(.0001, t + .05);
   noise.connect(filter); filter.connect(ng); ng.connect(master);
   noise.start(t); noise.stop(t + .055);
@@ -251,7 +274,24 @@ function refreshMusicUi() {
 }
 function applyMusicVolume() {
   const bgm = ensureBgm();
-  bgm.volume = music.muted ? 0 : clamp(music.volume * (music.bossEscalated ? .9 : 1), 0, 1);
+  const bossGain = music.bossEscalated ? .92 : 1;
+  bgm.volume = music.muted ? 0 : clamp(music.volume * music.duckGain * bossGain, 0, 1);
+}
+function duckMusic(gain=.24, hold=.14) {
+  music.duckGain = Math.min(music.duckGain, gain);
+  music.duckHold = Math.max(music.duckHold, hold);
+  applyMusicVolume();
+}
+function updateMusicMix(dt) {
+  if (music.duckHold > 0) music.duckHold = Math.max(0, music.duckHold - dt);
+  const firing = state.mode==='playing' && (state.fireHeld || keys.KeyX || player.shootPose>0 || player.muzzleFlash>0);
+  const stageSting = state.stageClearTimer > 0;
+  const target = firing ? .24 : stageSting ? .44 : 1;
+  if (music.duckHold <= 0 || target < music.duckGain) {
+    const speed = target < music.duckGain ? 28 : 7.5;
+    music.duckGain += (target - music.duckGain) * Math.min(1, dt * speed);
+  }
+  applyMusicVolume();
 }
 async function startStageMusic(stageId, restart = false) {
   const src = MUSIC_TRACKS[stageId];
@@ -264,6 +304,9 @@ async function startStageMusic(stageId, restart = false) {
     music.currentStage = stageId;
   }
   music.bossEscalated = false;
+  music.bossPulse = 0;
+  music.duckGain = 1;
+  music.duckHold = 0;
   bgm.loop = true;
   bgm.playbackRate = 1;
   applyMusicVolume();
@@ -278,24 +321,24 @@ function wakeAudio() {
 }
 function setMusicVolume(value) {
   music.volume = clamp(value, 0, 1);
+  localStorage.setItem(MUSIC_VOLUME_SAVE, String(music.volume));
   applyMusicVolume();
   refreshMusicUi();
-  if (music.started && !music.muted) {
-    const bgm = ensureBgm();
-    bgm.play().catch(() => {});
-  }
+  if (music.started && !music.muted) ensureBgm().play().catch(() => {});
 }
 function toggleMusicMute() {
   music.muted = !music.muted;
+  localStorage.setItem(MUSIC_MUTE_SAVE, music.muted ? '1' : '0');
   applyMusicVolume();
   refreshMusicUi();
   if (!music.muted && music.started) ensureBgm().play().catch(() => {});
 }
 function bossPulseCue() {
   if (music.muted) return;
-  tone(118,.10,'square',.016);
-  setTimeout(() => tone(146,.08,'square',.014), 110);
-  setTimeout(() => tone(98,.12,'sawtooth',.014), 210);
+  duckMusic(.62,.28);
+  tone(118,.10,'square',.012);
+  setTimeout(() => tone(146,.08,'square',.011), 110);
+  setTimeout(() => tone(98,.12,'sawtooth',.011), 210);
 }
 function bossMusicEscalate() {
   const bgm = ensureBgm();
@@ -315,28 +358,29 @@ function bossMusicReset() {
   refreshMusicUi();
 }
 function stageClearSting() {
-  tone(392,.08,'square',.026);
-  setTimeout(() => tone(523,.08,'square',.024), 80);
-  setTimeout(() => tone(659,.12,'triangle',.022), 160);
-  setTimeout(() => tone(784,.16,'square',.018), 245);
+  duckMusic(.34,.75);
+  tone(392,.08,'square',.030);
+  setTimeout(() => tone(523,.08,'square',.028), 80);
+  setTimeout(() => tone(659,.12,'triangle',.026), 160);
+  setTimeout(() => tone(784,.16,'square',.022), 245);
 }
 
 const STAGES = [
   {
     id:1, name:'JUNGLE RENAL WARZONE', subtitle:'JUNGLE DEPLOYMENT',
     bg:'stage1Hd', procedural:false,
-    warriorA:'trooper', warriorB:'trooper', brute:'trooper', animal:'hound', air:'gunship',
-    airName:'NEPHROLOGY GUNSHIP', airHp:28, bossAt:650, length:1000, speed:235,
-    spawn:[.75,1.35], maxGround:8,
-    brief:'REB has entered a toxic jungle where mutant troopers, bio-warhounds and a nephrology gunship have made the catastrophic mistake of standing downrange. Collect ammo. Hoard creatine. Trigger RENAL RAGE. Medical advice has been ignored.'
+    warriorA:'s1enemyA', warriorB:'s1enemyB', brute:'s1enemyB', animal:'s1enemyC', air:'s1boss',
+    airName:'JUNGLE RENAL COLOSSUS', airHp:32, bossAt:650, length:1000, speed:235,
+    spawn:[.78,1.36], maxGround:7, bossGround:true,
+    brief:'REB has entered a toxic jungle where mutant troops and one grotesquely overqualified renal colossus have made the catastrophic mistake of standing downrange.'
   },
-  { id:2, name:'WAR ZONE', subtitle:'RENAL REVENGE', bg:'s2bg', warriorA:'s2warriorA', warriorB:'s2warriorB', brute:'s2brute', animal:'s2animal', air:'s2air', airName:'ATTACK CHOPPER', airHp:28, bossAt:500, length:760, speed:246, spawn:[.78,1.24], maxGround:3, brief:'The jungle was only triage. REB enters a bombed-out war zone packed with assault squads, an armoured brute, a mutated war-beast and an attack chopper with terrible judgement.' },
-  { id:3, name:'ZOO ESCAPE', subtitle:'ANIMAL CONTROL FAILED', bg:'s3bg', warriorA:'s3warriorA', warriorB:'s3warriorB', brute:'s3brute', animal:'s3animal', air:'s3air', airName:'MUTATED AIRBORNE', airHp:32, bossAt:490, length:760, speed:254, spawn:[.74,1.18], maxGround:3, brief:'Titan City Zoo has lost containment. Armed keepers, escaped brutes and something formerly listed as a harmless animal are now between REB and the exit. Airspace is biologically compromised.' },
-  { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4warriorA', warriorB:'s4warriorB', brute:'s4brute', animal:'s4animal', air:'s4air', airName:'MED-EVAC GUNSHIP', airHp:36, bossAt:485, length:760, speed:262, spawn:[.70,1.12], maxGround:4, brief:'The nephrology ward has declared REB medically non-compliant. Security teams, one dialysis brute, a mutant renal hound and an armed med-evac platform are enforcing the discharge plan.' },
-  { id:5, name:'CARDIO WARD', subtitle:'HEART RATE: UNACCEPTABLE', bg:'s5bg', warriorA:'s5warriorA', warriorB:'s5warriorB', brute:'s5brute', animal:'s5animal', air:'s5air', airName:'CARDIAC INTERCEPTOR', airHp:40, bossAt:480, length:760, speed:270, spawn:[.67,1.08], maxGround:4, brief:'Cardiology would like REB to reduce intensity. REB has declined. Armed orderlies, a hypertrophic brute, a mutant ward animal and a cardiac interceptor attempt to enforce a reasonable training zone.' },
-  { id:6, name:'BEACH / SEA ASSAULT', subtitle:'HYDRATION OPTIONAL', bg:'s6bg', warriorA:'s6warriorA', warriorB:'s6warriorB', brute:'s6brute', animal:'s6animal', air:'s6air', airName:'SEA STRIKE FIGHTER', airHp:44, bossAt:475, length:760, speed:278, spawn:[.64,1.04], maxGround:4, brief:'REB reaches the coast. Amphibious mutants, beach mercenaries and a sea-bred brute attack from the surf while a strike aircraft turns hydration into a tactical issue.' },
-  { id:7, name:'TOXIC FACTORY', subtitle:'SUPPLEMENT PRODUCTION LINE', bg:'s7bg', warriorA:'toxicElite', warriorB:'s7warriorB', brute:'s7brute', animal:'s7animal', air:'s7air', airName:'BIOHAZARD DRONE', airHp:50, bossAt:470, length:760, speed:286, spawn:[.61,1.00], maxGround:4, brief:'The fluorescent nonsense has a source. Factory shock troops, an industrial brute, a chemically improved animal and a hovering biohazard platform guard the production line.' },
-  { id:8, name:'RENAL FORTRESS', subtitle:'FINAL RENAL COLLAPSE', bg:'s8bg', warriorA:'s8warriorA', warriorB:'s8warriorB', brute:'s8brute', animal:'s8animal', air:'s8air', airName:'RENAL OVERLORD UFO', airHp:58, bossAt:500, length:820, speed:296, spawn:[.58,.96], maxGround:4, brief:'The Renal Fortress is the end of the line. Every surviving mutant, one final brute, one impossible animal and the Renal Overlord air platform are waiting. Finish the campaign. Question the kidneys later.' }
+  { id:2, name:'WAR ZONE', subtitle:'RENAL REVENGE', bg:'s2bg', warriorA:'s2enemyA', warriorB:'s2enemyB', brute:'s2enemyB', animal:'s2enemyC', air:'s2boss', airName:'WAR ZONE JUGGERNAUT', airHp:34, bossAt:500, length:760, speed:246, spawn:[.78,1.24], maxGround:3, bossGround:true, brief:'The jungle was only triage. REB enters a bombed-out war zone packed with toxic assault troops, heavy gunners, rocket units and a bio-armoured juggernaut.' },
+  { id:3, name:'ZOO ESCAPE', subtitle:'ANIMAL CONTROL FAILED', bg:'s3bg', warriorA:'s3enemyA', warriorB:'s3enemyA', brute:'s3enemyB', animal:'s3enemyC', air:'s3boss', airName:'ZOO ALPHA MUTANT', airHp:38, bossAt:490, length:760, speed:254, spawn:[.74,1.18], maxGround:3, bossGround:true, brief:'Titan City Zoo has lost containment. Primal handlers and engineered beasts are loose. The alpha mutant has noticed REB.' },
+  { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4enemyA', warriorB:'s4enemyA', brute:'s4enemyB', animal:'s4enemyC', air:'s4boss', airName:'MED-EVAC OVERSEER', airHp:42, bossAt:485, length:760, speed:262, spawn:[.70,1.12], maxGround:4, bossGround:false, brief:'The nephrology ward has declared REB medically non-compliant. Security, dialysis brutes and renal mutants are enforcing the discharge plan under a hovering med-evac overseer.' },
+  { id:5, name:'CARDIO WARD', subtitle:'HEART RATE: UNACCEPTABLE', bg:'s5bg', warriorA:'s5enemyA', warriorB:'s5enemyC', brute:'s5enemyB', animal:'s5enemyC', air:'s5boss', airName:'CARDIO OVERDRIVE TANK', airHp:46, bossAt:480, length:760, speed:270, spawn:[.67,1.08], maxGround:4, bossGround:true, brief:'Cardiology would like REB to reduce intensity. REB has declined. Sword freaks, heavy lifters and velocity mutants attempt a medically sensible intervention.' },
+  { id:6, name:'BEACH / SEA ASSAULT', subtitle:'HYDRATION OPTIONAL', bg:'s6bg', warriorA:'s6enemyA', warriorB:'s6enemyB', brute:'s6enemyC', animal:'s6enemyC', air:'s6boss', airName:'ABYSSAL RENAL OVERLORD', airHp:52, bossAt:475, length:760, speed:278, spawn:[.64,1.04], maxGround:4, bossGround:true, brief:'REB reaches the coast. Amphibious mercenaries and sea mutants attack from the surf before something much worse climbs out of the toxic water.' },
+  { id:7, name:'TOXIC FACTORY', subtitle:'SUPPLEMENT PRODUCTION LINE', bg:'s7bg', warriorA:'s7enemyA', warriorB:'s7enemyC', brute:'s7enemyB', animal:'s7enemyC', air:'s7boss', airName:'REACTOR BIO-JUGGERNAUT', airHp:58, bossAt:470, length:760, speed:286, spawn:[.61,1.00], maxGround:4, bossGround:true, brief:'The fluorescent nonsense has a source. Factory troops, industrial heavies and toxic operators guard a reactor-grown bio-juggernaut.' },
+  { id:8, name:'RENAL FORTRESS', subtitle:'FINAL RENAL COLLAPSE', bg:'s8bg', warriorA:'s8enemyA', warriorB:'s8enemyB', brute:'s8enemyB', animal:'s8enemyC', air:'s8boss', airName:'RENAL OVERLORD', airHp:68, bossAt:500, length:820, speed:296, spawn:[.58,.96], maxGround:4, bossGround:true, brief:'The Renal Fortress is the end of the line. Elite troops, fortress heavies and nightmare beasts stand between REB and the Renal Overlord.' }
 ];
 
 const state = {
@@ -412,6 +456,7 @@ function fireOnce() {
   player.muzzleFlash = rage ? .13 : .10;
   const muzzle = playerMuzzle();
   state.bullets.push({ x:muzzle.x-12, y:muzzle.y-3, w:34, h:8, vx:rage?1080:890, damage:rage?3:1, life:.76 });
+  duckMusic(.20,.16);
   gunSound();
   if (Math.random() < .55) particles(muzzle.x+10, muzzle.y+2, '#ffe53b', 6, .56);
 }
@@ -561,13 +606,15 @@ function spawnEnemy(type) {
   if (type === 'air') {
     if (state.bossSpawned || state.bossDefeated) return false;
     state.bossSpawned = true;
-    const hpBoost = state.stage === 1 ? 1.55 : (state.stage >= 7 ? 1.95 : 1.75);
+    const hpBoost = state.stage === 1 ? 1.50 : (state.stage >= 7 ? 1.92 : 1.72);
     const bossHp = Math.round(s.airHp * hpBoost);
+    const groundBoss = !!s.bossGround;
     state.enemies.push({
-      type:'air', x:W+100, y:120, w:190, h:105,
+      type:'air', x:W+130, y:groundBoss?GROUND-238:120,
+      w:groundBoss?190:180, h:groundBoss?238:150,
       hp:bossHp, maxHp:bossHp,
-      shoot:state.stage===1?.72:.78,
-      damage:state.stage===1?32:24+state.stage,
+      shoot:state.stage===1?.78:.82,
+      damage:state.stage===1?28:22+state.stage,
       score:state.stage===1?7500:7000+state.stage*800,
       renal:35, phase:0, boss:true
     });
@@ -633,6 +680,7 @@ function enemyHit(e,b) {
 function update(dt) {
   state.time += dt; state.flash=Math.max(0,state.flash-dt); state.shake=Math.max(0,state.shake-44*dt); state.bannerTime=Math.max(0,state.bannerTime-dt);
   state.fireCooldown=Math.max(0,state.fireCooldown-dt); player.invuln=Math.max(0,player.invuln-dt); player.shootPose=Math.max(0,player.shootPose-dt); player.landTime=Math.max(0,player.landTime-dt); state.cameoTime=Math.max(0,state.cameoTime-dt);
+  updateMusicMix(dt);
   if (state.mode !== 'playing') return;
 
   if (state.stageClearTimer > 0) {
@@ -689,24 +737,30 @@ function update(dt) {
     if (e.type==='air') {
       const hpRatio=clamp(e.hp/e.maxHp,0,1);
       const bossPhase=hpRatio>.66?1:hpRatio>.33?2:3;
-      const xCenter=bossPhase===1?665:bossPhase===2?642:620;
-      const xAmp=bossPhase===1?42:bossPhase===2?58:74;
-      const yAmp=bossPhase===1?20:bossPhase===2?30:40;
+      const groundBoss=!!s.bossGround;
+      const xCenter=groundBoss ? (bossPhase===1?720:bossPhase===2?690:660) : (bossPhase===1?665:bossPhase===2?642:620);
+      const xAmp=groundBoss ? (bossPhase===1?24:bossPhase===2?38:52) : (bossPhase===1?42:bossPhase===2?58:74);
       const targetX=xCenter+Math.sin(e.phase*(bossPhase===3?1.15:.78))*xAmp;
       e.x += (targetX-e.x)*Math.min(1,dt*(bossPhase===3?2.15:1.75));
-      e.y = 198 + Math.sin(e.phase*(bossPhase===1?1.30:bossPhase===2?1.65:2.05))*yAmp;
-      if (e.shoot<=0 && e.x<W-80) {
-        const baseGap=bossPhase===1?.68:bossPhase===2?.52:.39;
-        e.shoot=Math.max(.32,baseGap-state.stage*.018);
-        const baseDmg=12+Math.floor(state.stage*.7);
-        state.enemyShots.push({x:e.x+26,y:e.y+66,w:22,h:8,vx:-530-state.stage*10,vy:bossPhase>=2?-34:0,life:2.25,damage:baseDmg});
-        state.enemyShots.push({x:e.x+82,y:e.y+86,w:20,h:8,vx:-490-state.stage*8,vy:bossPhase>=2?34:0,life:2.25,damage:baseDmg-1});
-        if(bossPhase>=2) state.enemyShots.push({x:e.x+55,y:e.y+76,w:20,h:8,vx:-510-state.stage*9,vy:0,life:2.25,damage:baseDmg});
+      if (groundBoss) {
+        e.y = GROUND-e.h;
+      } else {
+        const yAmp=bossPhase===1?20:bossPhase===2?30:40;
+        e.y = 198 + Math.sin(e.phase*(bossPhase===1?1.30:bossPhase===2?1.65:2.05))*yAmp;
+      }
+      if (e.shoot<=0 && e.x<W-70) {
+        const baseGap=bossPhase===1?.76:bossPhase===2?.58:.44;
+        e.shoot=Math.max(.34,baseGap-state.stage*.016);
+        const baseDmg=11+Math.floor(state.stage*.65);
+        const shotY=e.y+(groundBoss?Math.min(e.h*.42,105):66);
+        state.enemyShots.push({x:e.x+18,y:shotY,w:22,h:8,vx:-500-state.stage*9,vy:bossPhase>=2?-30:0,life:2.25,damage:baseDmg});
+        state.enemyShots.push({x:e.x+72,y:shotY+20,w:20,h:8,vx:-465-state.stage*8,vy:bossPhase>=2?30:0,life:2.25,damage:Math.max(8,baseDmg-1)});
+        if(bossPhase>=2) state.enemyShots.push({x:e.x+48,y:shotY+10,w:20,h:8,vx:-485-state.stage*8,vy:0,life:2.25,damage:baseDmg});
         if(bossPhase===3 && state.stage>=5){
-          state.enemyShots.push({x:e.x+48,y:e.y+72,w:18,h:7,vx:-500-state.stage*9,vy:-88,life:2.25,damage:baseDmg});
-          state.enemyShots.push({x:e.x+62,y:e.y+80,w:18,h:7,vx:-500-state.stage*9,vy:88,life:2.25,damage:baseDmg});
+          state.enemyShots.push({x:e.x+42,y:shotY+6,w:18,h:7,vx:-480-state.stage*8,vy:-78,life:2.25,damage:baseDmg});
+          state.enemyShots.push({x:e.x+58,y:shotY+14,w:18,h:7,vx:-480-state.stage*8,vy:78,life:2.25,damage:baseDmg});
         }
-        if(bossPhase===3){ state.shake=Math.max(state.shake,3.5); }
+        if(bossPhase===3) state.shake=Math.max(state.shake,3.5);
       }
     } else {
       e.x -= (worldSpeed+(e.extra||0))*dt;
@@ -717,7 +771,8 @@ function update(dt) {
     }
     if (rects(player,e)) {
       if (state.rageTime>0) { e.hp-=6; if(e.hp<=0) enemyHit(e,{damage:0,life:0,x:e.x,y:e.y}); }
-      else if (e.type!=='air') { e.dead=true; damage(e.damage||18,e.type==='animal'?'MUTANT BITE!':e.type==='brute'?'BRUTE CONTACT!':'CONTACT!'); }
+      else if (e.type==='air' && s.bossGround) { damage(e.damage||28,'BOSS CONTACT!'); }
+      else if (e.type!=='air') { e.dead=true; damage(e.damage||18,e.type==='animal'?'MUTANT CONTACT!':e.type==='brute'?'BRUTE CONTACT!':'CONTACT!'); }
     }
   }
 
@@ -1032,6 +1087,21 @@ function artEnemyHD(key,x,y,w,h,flipX=false,alpha=1){
   ctx.save(); ctx.globalAlpha=alpha; draw(); ctx.restore();
   return true;
 }
+function drawEnemySprite(key, centerX, bottomY, targetH, maxW, alpha=1) {
+  if(!ready(key)) return false;
+  const img=ART[key];
+  let h=targetH;
+  let w=h*(img.naturalWidth/img.naturalHeight);
+  if(maxW && w>maxW){ const k=maxW/w; w*=k; h*=k; }
+  return artEnemyHD(key,centerX-w/2,bottomY-h,w,h,false,alpha);
+}
+function enemyRenderPreset(type){
+  const late=state.stage>=7?1.06:state.stage>=5?1.03:1;
+  if(type==='warriorA') return {h:205*late,w:188*late,off:0};
+  if(type==='warriorB') return {h:218*late,w:205*late,off:0};
+  if(type==='brute') return {h:246*late,w:238*late,off:2};
+  return {h:200*late,w:220*late,off:2};
+}
 function drawHitBursts(){
   for(const h of state.hitBursts){
     const p=clamp(h.life/h.max,0,1), r=h.size*(1-p*.45), x=h.x, y=h.y;
@@ -1080,31 +1150,30 @@ function drawSpriteHitGlow(e, glow) {
 }
 function drawEnemy(e){
   const s=stage(), glow=enemyGlowColor();
+  const groundBoss=e.type==='air' && !!s.bossGround;
   ctx.save();
   ctx.globalAlpha=.28; ctx.fillStyle='#000';
   ctx.beginPath();
-  ctx.ellipse(e.x+e.w/2,e.type==='air'?e.y+e.h+8:GROUND+5,e.type==='air'?e.w*.68:e.w*.78,e.type==='air'?10:14,0,0,TWO);
+  const shadowY=groundBoss||e.type!=='air'?GROUND+5:e.y+e.h+8;
+  ctx.ellipse(e.x+e.w/2,shadowY,e.type==='air'?(groundBoss?e.w*.92:e.w*.68):e.w*.78,e.type==='air'?12:14,0,0,TWO);
   ctx.fill(); ctx.restore();
 
   if (e.type==='air') {
-    const x=e.x-48,y=e.y-42,w=288,h=196;
-    const key=state.stage===1?'gunship':s.air;
-    if(!artEnemyHD(key,x,y,w,h,false,1)) drawProceduralEnemy(e);
+    const bossH = groundBoss ? (state.stage>=8?360:state.stage>=7?344:state.stage>=5?326:310) : 278;
+    const bossW = groundBoss ? (state.stage>=8?350:state.stage>=7?334:state.stage>=5?316:300) : 270;
+    const bottom = groundBoss ? GROUND+6 : e.y+e.h+28;
+    if(!drawEnemySprite(s.air,e.x+e.w/2,bottom,bossH,bossW,1)) {
+      const fallback=state.stage===1?'gunship':null;
+      if(!fallback || !artEnemyHD(fallback,e.x-48,e.y-42,288,196,false,1)) drawProceduralEnemy(e);
+    }
     drawSpriteHitGlow(e, '#ffe53b');
     return;
   }
 
-  const bob=Math.sin((e.phase||0)*5+e.x*.01)*1.5;
-  const centered=(key,w,h)=>artEnemyHD(key,e.x+e.w/2-w/2,GROUND-h+bob,w,h,false,1);
-
-  let ok=false;
-  if(state.stage===1){
-    ok=e.type==='animal'?centered('hound',204,166):centered('trooper',182,204);
-  }else if(e.type==='warriorA') ok=centered(s.warriorA,188,210);
-  else if(e.type==='warriorB') ok=centered(s.warriorB,194,216);
-  else if(e.type==='animal') ok=centered(s.animal,214,176);
-  else if(e.type==='brute') ok=centered(s.brute,238,250);
-
+  const bob=Math.sin((e.phase||0)*5+e.x*.01)*1.25;
+  const preset=enemyRenderPreset(e.type);
+  const key=e.type==='warriorA'?s.warriorA:e.type==='warriorB'?s.warriorB:e.type==='animal'?s.animal:s.brute;
+  const ok=drawEnemySprite(key,e.x+e.w/2,GROUND+bob+preset.off,preset.h,preset.w,1);
   if(!ok) drawProceduralEnemy(e);
   drawSpriteHitGlow(e, glow);
 }
@@ -1137,7 +1206,7 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.2',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.3',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){

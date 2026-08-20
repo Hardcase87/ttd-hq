@@ -1,0 +1,77 @@
+{
+  "version": "3.3",
+  "label": "ENEMY ART + AUDIO MIX",
+  "audio": {
+    "music_default": 0.72,
+    "music_duck_while_firing": 0.2,
+    "gun_master_gain": 0.115,
+    "volume_persisted": true,
+    "mute_persisted": true
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "enemy_a": "bonus-jungle-roster-enemy-a.png",
+      "enemy_b": "bonus-jungle-roster-enemy-b.png",
+      "enemy_c": "bonus-jungle-roster-enemy-c.png",
+      "boss": "bonus-jungle-roster-boss.png",
+      "boss_grounded": true
+    },
+    {
+      "stage": 2,
+      "enemy_a": "stage-2-war-zone-enemy-a.png",
+      "enemy_b": "stage-2-war-zone-enemy-b.png",
+      "enemy_c": "stage-2-war-zone-enemy-c.png",
+      "boss": "stage-2-war-zone-boss.png",
+      "boss_grounded": true
+    },
+    {
+      "stage": 3,
+      "enemy_a": "stage-3-zoo-escape-enemy-a.png",
+      "enemy_b": "stage-3-zoo-escape-enemy-b.png",
+      "enemy_c": "stage-3-zoo-escape-enemy-c.png",
+      "boss": "stage-3-zoo-escape-boss.png",
+      "boss_grounded": true
+    },
+    {
+      "stage": 4,
+      "enemy_a": "stage-4-nephro-ward-enemy-a.png",
+      "enemy_b": "stage-4-nephro-ward-enemy-b.png",
+      "enemy_c": "stage-4-nephro-ward-enemy-c.png",
+      "boss": "stage-4-nephro-ward-boss.png",
+      "boss_grounded": false
+    },
+    {
+      "stage": 5,
+      "enemy_a": "stage-5-cardio-ward-enemy-a.png",
+      "enemy_b": "stage-5-cardio-ward-enemy-b.png",
+      "enemy_c": "stage-5-cardio-ward-enemy-c.png",
+      "boss": "stage-5-cardio-ward-boss.png",
+      "boss_grounded": true
+    },
+    {
+      "stage": 6,
+      "enemy_a": "stage-6-sea-assault-enemy-a.png",
+      "enemy_b": "stage-6-sea-assault-enemy-b.png",
+      "enemy_c": "stage-6-sea-assault-enemy-c.png",
+      "boss": "stage-6-sea-assault-boss.png",
+      "boss_grounded": true
+    },
+    {
+      "stage": 7,
+      "enemy_a": "stage-7-toxic-factory-enemy-a.png",
+      "enemy_b": "stage-7-toxic-factory-enemy-b.png",
+      "enemy_c": "stage-7-toxic-factory-enemy-c.png",
+      "boss": "stage-7-toxic-factory-boss.png",
+      "boss_grounded": true
+    },
+    {
+      "stage": 8,
+      "enemy_a": "stage-8-renal-fortress-enemy-a.png",
+      "enemy_b": "stage-8-renal-fortress-enemy-b.png",
+      "enemy_c": "stage-8-renal-fortress-enemy-c.png",
+      "boss": "stage-8-renal-fortress-boss.png",
+      "boss_grounded": true
+    }
+  ]
+}
