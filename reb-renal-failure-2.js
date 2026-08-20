@@ -13,7 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
-const VERSION_LABEL = 'DRRRRRT ENGINE V3.1 // REPAIR PASS';
+const VERSION_LABEL = 'DRRRRRT ENGINE V3.2 // MEGA DRIVE RENAL EDITION';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -27,7 +27,10 @@ const UI = {
   rageBtn: document.getElementById('rebRageBtn'),
   stageLine: document.getElementById('rebStageLine') || document.querySelector('.reb-top span'),
   missionTitle: document.getElementById('rebMissionTitle') || document.querySelector('.brief .panel h2'),
-  missionText: document.getElementById('rebMissionText') || document.querySelector('.brief .panel h2 + p')
+  missionText: document.getElementById('rebMissionText') || document.querySelector('.brief .panel h2 + p'),
+  musicMute: document.getElementById('rebMusicMute'),
+  volume: document.getElementById('rebVolume'),
+  nowPlaying: document.getElementById('rebNowPlaying')
 };
 
 const SHARED = 'assets/images/reb-renal-failure/'; // REB/player + pickups only
@@ -41,7 +44,7 @@ const ART_SRC = {
   ammo: SHARED + 'ammo.PNG',
   cover: EXP + 'cover.png',
   rebHdIdle: EXP + 'reb-hd-idle.png',
-  rebHdFire: EXP + 'reb-hd-fire-v31.png',
+  rebHdFire: EXP + 'reb-hd-fire-v32.png',
   rebHdJump: EXP + 'reb-hd-jump.png',
   rebHdLand: EXP + 'reb-hd-land.png',
   stage1Hd: EXP + 'stage-1-jungle-hd.jpg',
@@ -115,6 +118,17 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const pad = n => Math.max(0, Math.floor(n)).toString().padStart(6, '0');
 let high = Number(localStorage.getItem(SAVE) || 0);
 let audio = null;
+const MUSIC_TRACKS = {
+  1:'assets/audio/reb-renal-failure-2/stage-1-renal-warzone-fm-assault.mp3',
+  2:'assets/audio/reb-renal-failure-2/Stage-2_Jungle-March_Hunter-Protocol.mp3',
+  3:'assets/audio/reb-renal-failure-2/Stage-3_Primal_Cage-Instinct.mp3',
+  4:'assets/audio/reb-renal-failure-2/Stage-4_Alert-Danger_Red-Protocol.mp3',
+  5:'assets/audio/reb-renal-failure-2/Stage-5_Fitness-Beats_Max-Rep-Alarm.mp3',
+  6:'assets/audio/reb-renal-failure-2/Stage-6_Beach-Boardwalk_Sunburn-Assault.mp3',
+  7:'assets/audio/reb-renal-failure-2/Stage-7_Toxic-Factory_Neon-Contamination.mp3',
+  8:'assets/audio/reb-renal-failure-2/Stage-8_Renal-Fortress_Deep-Collapse.mp3'
+};
+const music = { bgm:null, started:false, muted:false, volume:.72, currentStage:0, bossEscalated:false, bossPulse:0 };
 function tone(f = 220, d = .05, type = 'square', gain = .018) {
   try {
     audio ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -215,6 +229,97 @@ function landSound() {
 }
 function boom() { tone(62, .10, 'sawtooth', .035); setTimeout(() => tone(42, .11, 'square', .022), 30); }
 function buzz(ms = 15) { try { navigator.vibrate?.(ms); } catch (_) {} }
+function ensureBgm() {
+  if (!music.bgm) {
+    const bgm = new Audio();
+    bgm.loop = true;
+    bgm.preload = 'auto';
+    bgm.playsInline = true;
+    bgm.volume = music.volume;
+    music.bgm = bgm;
+  }
+  return music.bgm;
+}
+function musicLabel(stageId = state?.stage || 1, boss = music.bossEscalated) {
+  const s = STAGES[clamp(stageId,1,STAGES.length)-1] || STAGES[0];
+  return boss ? `BOSS MODE // ${s.name}` : `STAGE ${s.id} // ${s.name}`;
+}
+function refreshMusicUi() {
+  if (UI.musicMute) UI.musicMute.textContent = music.muted ? '♫ SOUND OFF' : '♫ SOUND ON';
+  if (UI.nowPlaying) UI.nowPlaying.textContent = musicLabel(music.currentStage || state?.stage || 1, music.bossEscalated);
+  if (UI.volume && String(Math.round(music.volume * 100)) !== UI.volume.value) UI.volume.value = String(Math.round(music.volume * 100));
+}
+function applyMusicVolume() {
+  const bgm = ensureBgm();
+  bgm.volume = music.muted ? 0 : clamp(music.volume * (music.bossEscalated ? .9 : 1), 0, 1);
+}
+async function startStageMusic(stageId, restart = false) {
+  const src = MUSIC_TRACKS[stageId];
+  if (!src) return;
+  const bgm = ensureBgm();
+  const absolute = new URL(src, window.location.href).href;
+  if (restart || music.currentStage !== stageId || !bgm.src || bgm.src !== absolute) {
+    bgm.src = src;
+    bgm.load();
+    music.currentStage = stageId;
+  }
+  music.bossEscalated = false;
+  bgm.loop = true;
+  bgm.playbackRate = 1;
+  applyMusicVolume();
+  refreshMusicUi();
+  if (!music.started) return;
+  try { await bgm.play(); } catch (_) {}
+}
+function wakeAudio() {
+  ensureAudio();
+  music.started = true;
+  startStageMusic(state.stage || 1, false);
+}
+function setMusicVolume(value) {
+  music.volume = clamp(value, 0, 1);
+  applyMusicVolume();
+  refreshMusicUi();
+  if (music.started && !music.muted) {
+    const bgm = ensureBgm();
+    bgm.play().catch(() => {});
+  }
+}
+function toggleMusicMute() {
+  music.muted = !music.muted;
+  applyMusicVolume();
+  refreshMusicUi();
+  if (!music.muted && music.started) ensureBgm().play().catch(() => {});
+}
+function bossPulseCue() {
+  if (music.muted) return;
+  tone(118,.10,'square',.016);
+  setTimeout(() => tone(146,.08,'square',.014), 110);
+  setTimeout(() => tone(98,.12,'sawtooth',.014), 210);
+}
+function bossMusicEscalate() {
+  const bgm = ensureBgm();
+  music.bossEscalated = true;
+  music.bossPulse = 0;
+  bgm.playbackRate = 1.08;
+  applyMusicVolume();
+  refreshMusicUi();
+  if (music.started && !music.muted) bgm.play().catch(() => {});
+}
+function bossMusicReset() {
+  const bgm = ensureBgm();
+  music.bossEscalated = false;
+  music.bossPulse = 0;
+  bgm.playbackRate = 1;
+  applyMusicVolume();
+  refreshMusicUi();
+}
+function stageClearSting() {
+  tone(392,.08,'square',.026);
+  setTimeout(() => tone(523,.08,'square',.024), 80);
+  setTimeout(() => tone(659,.12,'triangle',.022), 160);
+  setTimeout(() => tone(784,.16,'square',.018), 245);
+}
 
 const STAGES = [
   {
@@ -237,7 +342,7 @@ const STAGES = [
 const state = {
   mode:'title', score:0, distance:0, hp:100, ammo:90, maxAmmo:140, renal:0, rageTime:0,
   fireHeld:false, fireCooldown:0, time:0, last:performance.now(), spawnTimer:1, pickupTimer:2.5,
-  shake:0, flash:0, banner:'', bannerTime:0, bullets:[], enemies:[], pickups:[], enemyShots:[], particles:[],
+  shake:0, flash:0, banner:'', bannerTime:0, bullets:[], enemies:[], pickups:[], enemyShots:[], particles:[], hitBursts:[],
   stage:1, kills:0, stageKills:0, bossSpawned:false, bossDefeated:false, stageClearTimer:0,
   emergencyAmmoCooldown:0, cameoTime:0, cameo:null
 };
@@ -246,7 +351,7 @@ const stage = () => STAGES[state.stage - 1] || STAGES[0];
 const keys = {};
 
 function clearWorld() {
-  for (const k of ['bullets','enemies','pickups','enemyShots','particles']) state[k].length = 0;
+  for (const k of ['bullets','enemies','pickups','enemyShots','particles','hitBursts']) state[k].length = 0;
 }
 function applyStageDom() {
   const s = stage();
@@ -272,14 +377,16 @@ function setStage(id, freshRun = false) {
     state.score += 1500 * s.id;
   }
   clearWorld();
+  bossMusicReset();
   Object.assign(player, { y:GROUND-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0, landTime:0, muzzleFlash:0 });
-  applyStageDom(); sync();
+  applyStageDom(); startStageMusic(state.stage, true); sync();
   tone(220,.05); setTimeout(()=>tone(330,.06),60); setTimeout(()=>tone(440,.10),125);
 }
 function reset() { setStage(1, true); }
-function start() { if (['title','gameover','victory'].includes(state.mode)) reset(); }
+function start() { wakeAudio(); if (['title','gameover','victory'].includes(state.mode)) reset(); }
 
 function jump() {
+  wakeAudio();
   if (state.mode !== 'playing') { start(); return; }
   if (player.onGround && state.stageClearTimer <= 0) {
     player.vy = -760; player.onGround = false; jumpSound();
@@ -287,10 +394,12 @@ function jump() {
 }
 function playerMuzzle() {
   if (!player.onGround) return { x: player.x + 94, y: player.y + 20 };
-  const dx = player.x - 45, dy = GROUND - 242, dw = 248, dh = 242;
-  return { x: dx + dw * .72, y: dy + dh * .47 };
+  const stageGroundNudge = state.stage===1 ? 12 : 0;
+  const dx = player.x - 38, dy = GROUND - 276 + stageGroundNudge, dw = 226, dh = 276;
+  return { x: dx + dw * .76, y: dy + dh * .50 };
 }
 function fireOnce() {
+  wakeAudio();
   if (state.mode !== 'playing') { start(); return; }
   if (state.stageClearTimer > 0 || state.fireCooldown > 0) return;
   if (state.ammo <= 0) {
@@ -307,6 +416,7 @@ function fireOnce() {
   if (Math.random() < .55) particles(muzzle.x+10, muzzle.y+2, '#ffe53b', 6, .56);
 }
 function rage() {
+  wakeAudio();
   if (state.mode !== 'playing') { start(); return; }
   if (state.renal >= 100 && state.rageTime <= 0) {
     state.renal = 0; state.rageTime = 6; state.banner = 'RENAL RAGE // DRRRRRT OVERDRIVE';
@@ -382,6 +492,12 @@ function installArcadeMode() {
   document.addEventListener('webkitfullscreenchange',updateLabel);
 }
 installArcadeMode();
+if (UI.musicMute) UI.musicMute.addEventListener('pointerdown', e => { e.preventDefault(); wakeAudio(); toggleMusicMute(); UI.musicMute.classList.toggle('active', !music.muted); });
+if (UI.volume) {
+  UI.volume.addEventListener('input', e => { wakeAudio(); setMusicVolume(Number(e.target.value || 0) / 100); });
+  UI.volume.addEventListener('change', e => { wakeAudio(); setMusicVolume(Number(e.target.value || 0) / 100); });
+}
+refreshMusicUi();
 
 bindTap(UI.jump, jump); bindTap(UI.rageBtn, rage);
 for (const el of [UI.jump, UI.fire, UI.rageBtn].filter(Boolean)) {
@@ -410,6 +526,9 @@ window.addEventListener('blur', () => { state.fireHeld = false; for (const k in 
 function rects(a,b) { return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 function particles(x,y,color,count=9,power=1) {
   for (let i=0;i<count;i++) state.particles.push({x,y,vx:rand(-210,210)*power,vy:rand(-260,60)*power,life:rand(.25,.72),max:.72,size:rand(2,6),color});
+}
+function spawnHitBurst(x, y, boss = false) {
+  state.hitBursts.push({ x, y, life: boss ? .26 : .18, max: boss ? .26 : .18, size: boss ? 54 : 34, boss });
 }
 function groundEnemies() { return state.enemies.filter(e => !e.dead && e.type !== 'air'); }
 function canSpawnGround() {
@@ -452,7 +571,7 @@ function spawnEnemy(type) {
       score:state.stage===1?7500:7000+state.stage*800,
       renal:35, phase:0, boss:true
     });
-    state.banner = `${s.airName} INBOUND`; state.bannerTime = 1.2; state.shake = 6;
+    state.banner = `${s.airName} INBOUND`; state.bannerTime = 1.2; state.shake = 6; bossMusicEscalate();
     return true;
   }
   if (!canSpawnGround()) return false;
@@ -482,29 +601,31 @@ function damage(n,msg) {
   if (state.hp <= 0) gameOver();
 }
 function gameOver() {
-  state.hp=0; state.mode='gameover'; state.fireHeld=false;
+  state.hp=0; state.mode='gameover'; state.fireHeld=false; bossMusicReset();
   if (state.score > high) { high=Math.floor(state.score); localStorage.setItem(SAVE,String(high)); }
   tone(145,.16,'sawtooth',.035); setTimeout(()=>tone(92,.24,'square',.025),170); sync();
 }
 function victory() {
-  state.mode='victory'; state.fireHeld=false; state.score += 25000;
+  state.mode='victory'; state.fireHeld=false; state.score += 25000; bossMusicReset();
   if (state.score > high) { high=Math.floor(state.score); localStorage.setItem(SAVE,String(high)); }
   tone(523,.09); setTimeout(()=>tone(659,.09),90); setTimeout(()=>tone(784,.18),180); sync();
 }
 function clearStage() {
   if (state.stageClearTimer > 0 || state.mode !== 'playing') return;
-  state.stageClearTimer = 3.0; state.fireHeld=false; state.cameoTime=2.25; state.cameo=state.stage % 2 === 1 ? 'nikki' : 'hardcase';
+  state.stageClearTimer = 3.0; state.fireHeld=false; state.cameoTime=2.25; state.cameo=state.stage % 2 === 1 ? 'nikki' : 'hardcase'; bossMusicReset();
   state.score += 8000 * state.stage; state.banner=`STAGE ${state.stage} COMPLETE`; state.bannerTime=2.1; state.flash=.28; state.shake=9;
   state.enemies.length=0; state.enemyShots.length=0;
-  tone(523,.08); setTimeout(()=>tone(659,.08),90); setTimeout(()=>tone(784,.12),175);
+  stageClearSting();
 }
+
 function enemyHit(e,b) {
   e.hp -= b.damage; e.hitFlash=.12; b.life=0;
+  spawnHitBurst(b.x + (b.w||0) * .5, b.y + (b.h||0) * .5, e.type==='air');
   particles(b.x,b.y,e.type==='air'?'#ffe53b':'#8aff2b',e.type==='air'?8:5,.7);
   if (e.hp <= 0) {
     e.dead=true; state.kills++; state.stageKills++; state.score += e.score||350;
     state.renal=clamp(state.renal+(e.renal||6),0,100); state.shake=Math.max(state.shake,e.type==='air'?12:e.type==='brute'?7:4);
-    if (e.type==='air') { state.bossDefeated=true; state.banner=`${stage().airName} DESTROYED`; state.bannerTime=1.0; }
+    if (e.type==='air') { state.bossDefeated=true; state.banner=`${stage().airName} DESTROYED`; state.bannerTime=1.0; bossMusicReset(); }
     boom(); particles(e.x+e.w/2,e.y+e.h/2,e.type==='air'?'#ffe53b':e.type==='brute'?'#39d7ff':'#ff2d95',e.type==='air'?30:e.type==='brute'?22:14,e.type==='air'?1.7:1.2);
   }
 }
@@ -523,6 +644,10 @@ function update(dt) {
   }
 
   if (state.rageTime > 0) state.rageTime = Math.max(0,state.rageTime-dt);
+  if (music.bossEscalated) {
+    music.bossPulse -= dt;
+    if (music.bossPulse <= 0) { bossPulseCue(); music.bossPulse = .9; }
+  }
   state.emergencyAmmoCooldown=Math.max(0,state.emergencyAmmoCooldown-dt);
   if (state.ammo <= 10 && state.emergencyAmmoCooldown<=0 && !state.pickups.some(p=>p.type==='ammo')) spawnEmergencyAmmo();
   if ((state.fireHeld || keys.KeyX) && state.fireCooldown <= 0) fireOnce();
@@ -610,12 +735,14 @@ function update(dt) {
     }
   }
   for (const p of state.particles) { p.life-=dt; p.vy+=680*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; }
+  for (const h of state.hitBursts) h.life -= dt;
 
   state.bullets=state.bullets.filter(b=>b.life>0&&b.x<W+80);
   state.enemyShots=state.enemyShots.filter(s=>s.life>0&&s.x>-80);
   state.enemies=state.enemies.filter(e=>!e.dead && (e.type==='air'||e.x>-220));
   state.pickups=state.pickups.filter(p=>p.x>-100);
   state.particles=state.particles.filter(p=>p.life>0);
+  state.hitBursts=state.hitBursts.filter(h=>h.life>0);
 
   if (state.distance>=s.length && state.bossDefeated) clearStage();
   sync();
@@ -832,7 +959,7 @@ function drawPlayer(){
   } else if(player.landTime>0){
     key='rebHdLand'; dw=168; dh=244; dx=player.x-52; dy=GROUND-244+stageGroundNudge;
   } else if(shooting){
-    key='rebHdFire'; dw=248; dh=242; dx=player.x-45; dy=GROUND-242+stageGroundNudge;
+    key='rebHdFire'; dw=226; dh=276; dx=player.x-38; dy=GROUND-276+stageGroundNudge;
   }
 
   if(!art(key,dx,dy,dw,dh)){
@@ -861,8 +988,8 @@ function drawPlayer(){
     ctx.fillStyle='rgba(138,255,43,.32)';
     ctx.beginPath(); ctx.ellipse(25+18*p,0,18+14*p,8+5*p,0,0,TWO); ctx.fill();
     ctx.restore();
-    comicBurst('YEAHHHH!',player.x+110,player.y-50,23,'#ff55cf','#39d7ff','center',-.08);
-    comicBurst('DRRRRRT',player.x+170,player.y+18,20,'#ffe53b','#ff2d95','left',.04);
+    comicBurst('YEAHHHH!',player.x+112,player.y-52,25,'#ff55cf','#39d7ff','center',-.08);
+    comicBurst('DRRRRRT',player.x+172,player.y+18,24,'#ffe53b','#ff2d95','left',.04);
   }
 }
 function drawProceduralEnemy(e){
@@ -905,6 +1032,52 @@ function artEnemyHD(key,x,y,w,h,flipX=false,alpha=1){
   ctx.save(); ctx.globalAlpha=alpha; draw(); ctx.restore();
   return true;
 }
+function drawHitBursts(){
+  for(const h of state.hitBursts){
+    const p=clamp(h.life/h.max,0,1), r=h.size*(1-p*.45), x=h.x, y=h.y;
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.globalAlpha=p;
+    const grad=ctx.createRadialGradient(x,y,2,x,y,r);
+    grad.addColorStop(0,'rgba(255,255,255,.98)');
+    grad.addColorStop(.18,h.boss?'rgba(255,229,59,.96)':'rgba(255,255,255,.85)');
+    grad.addColorStop(.52,h.boss?'rgba(255,45,149,.54)':'rgba(138,255,43,.48)');
+    grad.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=grad;
+    ctx.beginPath(); ctx.arc(x,y,r,0,TWO); ctx.fill();
+    ctx.strokeStyle=h.boss?'rgba(255,229,59,.85)':'rgba(57,215,255,.72)';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    for(let i=0;i<8;i++){
+      const a=(i/8)*TWO + state.time*7*(h.boss?-.08:.05);
+      const outer=r*(1.1+(i%2)*.15), inner=r*.34;
+      const sx=x+Math.cos(a)*inner, sy=y+Math.sin(a)*inner;
+      const ex=x+Math.cos(a)*outer, ey=y+Math.sin(a)*outer;
+      ctx.moveTo(sx,sy); ctx.lineTo(ex,ey);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+function drawSpriteHitGlow(e, glow) {
+  if (!(e.hitFlash>0)) return;
+  const alpha = clamp(e.hitFlash * 4.5, 0, .45);
+  const x = e.x + e.w / 2;
+  const y = e.y + e.h / 2;
+  const rx = e.type === 'air' ? e.w * .75 : e.w * .58;
+  const ry = e.type === 'air' ? e.h * .55 : e.h * .48;
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  ctx.globalAlpha=alpha;
+  const grad = ctx.createRadialGradient(x, y, 4, x, y, Math.max(rx, ry));
+  grad.addColorStop(0,'rgba(255,255,255,.98)');
+  grad.addColorStop(.22,'rgba(255,255,255,.75)');
+  grad.addColorStop(.58, e.type === 'air' ? 'rgba(255,45,149,.34)' : 'rgba(138,255,43,.32)');
+  grad.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=grad;
+  ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,TWO); ctx.fill();
+  ctx.restore();
+}
 function drawEnemy(e){
   const s=stage(), glow=enemyGlowColor();
   ctx.save();
@@ -917,9 +1090,7 @@ function drawEnemy(e){
     const x=e.x-48,y=e.y-42,w=288,h=196;
     const key=state.stage===1?'gunship':s.air;
     if(!artEnemyHD(key,x,y,w,h,false,1)) drawProceduralEnemy(e);
-    if(e.hitFlash>0){
-      ctx.save(); ctx.globalAlpha=clamp(e.hitFlash*5,0,.55); ctx.fillStyle='#fff'; ctx.fillRect(e.x,e.y,e.w,e.h); ctx.restore();
-    }
+    drawSpriteHitGlow(e, '#ffe53b');
     return;
   }
 
@@ -935,14 +1106,7 @@ function drawEnemy(e){
   else if(e.type==='brute') ok=centered(s.brute,238,250);
 
   if(!ok) drawProceduralEnemy(e);
-
-  if(e.hitFlash>0){
-    ctx.save();
-    ctx.globalAlpha=clamp(e.hitFlash*4.5,0,.48);
-    ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.shadowColor=glow; ctx.shadowBlur=18;
-    ctx.strokeRect(e.x-4,e.y-4,e.w+8,e.h+8);
-    ctx.restore();
-  }
+  drawSpriteHitGlow(e, glow);
 }
 function drawPickup(p){const bob=Math.sin(p.spin)*5,y=p.y+bob;ctx.save();ctx.shadowBlur=22;ctx.shadowColor=p.type==='creatine'?'#8aff2b':p.type==='serum'?'#39d7ff':'#ffe53b';if(p.type==='creatine')art('creatine',p.x-18,y-24,82,82);else if(p.type==='serum')art('serum',p.x-18,y-22,76,82);else if(!art('ammo',p.x-14,y-16,64,64)){ctx.fillStyle='#171817';ctx.fillRect(p.x,y,52,38);ctx.strokeStyle='#ffe53b';ctx.strokeRect(p.x,y,52,38);}ctx.restore();}
 function drawBullet(b){
@@ -973,7 +1137,7 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.0',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.2',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){
@@ -1005,7 +1169,7 @@ function drawEnd(victoryMode){ctx.fillStyle='rgba(0,0,0,.76)';ctx.fillRect(0,0,W
 function render(){
   const sx=state.shake>0?Math.round(rand(-state.shake,state.shake)):0,sy=state.shake>0?Math.round(rand(-state.shake*.5,state.shake*.5)):0;
   ctx.save();ctx.translate(sx,sy);
-  if(state.mode==='title')drawTitle();else{drawBackground();for(const p of state.pickups)drawPickup(p);for(const s of state.enemyShots)drawEnemyShot(s);for(const b of state.bullets)drawBullet(b);for(const e of state.enemies)drawEnemy(e);drawPlayer();drawParticles();drawHud();drawStageClear();if(state.mode==='gameover')drawEnd(false);if(state.mode==='victory')drawEnd(true);}
+  if(state.mode==='title')drawTitle();else{drawBackground();for(const p of state.pickups)drawPickup(p);for(const s of state.enemyShots)drawEnemyShot(s);for(const b of state.bullets)drawBullet(b);for(const e of state.enemies)drawEnemy(e);drawHitBursts();drawPlayer();drawParticles();drawHud();drawStageClear();if(state.mode==='gameover')drawEnd(false);if(state.mode==='victory')drawEnd(true);}
   if(state.flash>0){ctx.fillStyle=`rgba(255,255,255,${Math.min(.34,state.flash)})`;ctx.fillRect(0,0,W,H);}ctx.restore();
 }
 function loop(now){const dt=Math.min(.034,(now-state.last)/1000||0);state.last=now;update(dt);render();requestAnimationFrame(loop);}

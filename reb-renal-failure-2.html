@@ -99,12 +99,19 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
       inset 0 -7px 0 rgba(0,0,0,.30);
   }
 }.help{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 3px 1px;color:var(--muted);font-size:.76rem}.help strong{color:var(--g)}.brief{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:12px}.panel{border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.025);padding:14px}.panel h2{margin:.1rem 0;font:900 2rem "Barlow Condensed",Impact,sans-serif}.cover{padding:0;overflow:hidden}.cover img{display:block;width:100%;height:100%;max-height:310px;object-fit:cover}.bottom-nav{position:fixed;z-index:20;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:4px;padding:6px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(8,9,13,.94);backdrop-filter:blur(12px);box-shadow:0 14px 40px #000}.bottom-nav a{text-decoration:none;padding:12px 22px;border-radius:11px;color:#c5c9ce;font:700 .85rem "Barlow Condensed",sans-serif;letter-spacing:.08em}.bottom-nav a:hover{background:rgba(255,255,255,.06);color:#fff}
-@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}}
+
+.audio-bar{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.10);border-radius:18px;background:rgba(255,255,255,.03)}
+.audio-bar .audio-label{font:900 .82rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.1em;color:var(--g);text-transform:uppercase}
+.audio-bar .audio-readout{font:900 .92rem "Barlow Condensed",Impact,sans-serif;color:#fff;letter-spacing:.08em}
+.audio-bar input[type=range]{width:100%;accent-color:#8aff2b}
+.audio-btn{min-height:48px;padding:0 16px;border-radius:14px;font:900 .95rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(138,255,43,.45);background:linear-gradient(180deg,rgba(138,255,43,.15),rgba(138,255,43,.04));color:var(--g);cursor:pointer}
+.audio-btn.active{filter:brightness(1.18)}
+@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}.audio-bar{grid-template-columns:1fr;gap:8px}.audio-btn{min-height:44px}}
 </style>
 </head>
 <body>
 <main class="reb-shell">
-  <div class="reb-top"><strong>REB: RENAL REVENGE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V3.1 // REPAIR PASS</span></div>
+  <div class="reb-top"><strong>REB: RENAL REVENGE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V3.2 // MEGA DRIVE RENAL EDITION</span></div>
   <section class="cabinet">
     <div class="screen"><canvas id="rebCanvas" width="960" height="540" aria-label="REB Renal Failure arcade game"></canvas></div>
     <div class="chips">
@@ -120,6 +127,14 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
       <button class="btn fire" id="rebFire" type="button" draggable="false" aria-label="Hold to fire">✹ DRRRRRT</button>
       <button class="btn rage" id="rebRageBtn" type="button" draggable="false" aria-label="Renal Rage">⚡ RENAL RAGE 0%</button>
     </div>
+    <div class="audio-bar">
+      <button class="audio-btn" id="rebMusicMute" type="button" aria-label="Mute soundtrack">♫ SOUND ON</button>
+      <div>
+        <div class="audio-label">Mega Drive Renal Mix</div>
+        <input id="rebVolume" type="range" min="0" max="100" step="1" value="72" aria-label="Music volume">
+      </div>
+      <div class="audio-readout" id="rebNowPlaying">STAGE 1 THEME</div>
+    </div>
     <div class="help"><span><strong>iPAD:</strong> hold DRRRRRT // tap JUMP // trigger RENAL RAGE at 100%</span><span><strong>KEYBOARD:</strong> SPACE jump // X fire // V rage // ENTER start</span></div>
   </section>
   <section class="brief">
@@ -128,5 +143,5 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
   </section>
 </main>
 <nav class="bottom-nav"><a href="index.html">HQ</a><a href="arcade.html">ARCADE</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a></nav>
-<script src="reb-renal-failure-2.js?v=31"></script>
+<script src="reb-renal-failure-2.js?v=32"></script>
 </body></html>
