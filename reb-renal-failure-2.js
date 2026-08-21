@@ -13,7 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
-const VERSION_LABEL = 'DRRRRRT ENGINE V3.3 // ENEMY ART + AUDIO MIX';
+const VERSION_LABEL = 'DRRRRRT ENGINE V3.4 // 99% POLISH PASS';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -30,6 +30,9 @@ const UI = {
   missionText: document.getElementById('rebMissionText') || document.querySelector('.brief .panel h2 + p'),
   musicMute: document.getElementById('rebMusicMute'),
   volume: document.getElementById('rebVolume'),
+  volumeValue: document.getElementById('rebVolumeValue'),
+  volumeDown: document.getElementById('rebVolumeDown'),
+  volumeUp: document.getElementById('rebVolumeUp'),
   nowPlaying: document.getElementById('rebNowPlaying')
 };
 
@@ -144,11 +147,18 @@ const MUSIC_TRACKS = {
 };
 const MUSIC_VOLUME_SAVE = 'ttd-reb2-music-volume';
 const MUSIC_MUTE_SAVE = 'ttd-reb2-music-muted';
+const MUSIC_DEFAULT_VOLUME = .72;
+const MUSIC_MASTER_GAIN = .82;
 const savedMusicVolume = Number(localStorage.getItem(MUSIC_VOLUME_SAVE));
+const savedMusicMuted = localStorage.getItem(MUSIC_MUTE_SAVE)==='1';
+let initialMusicVolume = Number.isFinite(savedMusicVolume) ? clamp(savedMusicVolume,0,1) : MUSIC_DEFAULT_VOLUME;
+// V3.4: rescue the old V3.3 Safari state where SOUND ON could coexist with a saved 0% volume.
+if (!savedMusicMuted && initialMusicVolume <= .01) initialMusicVolume = MUSIC_DEFAULT_VOLUME;
 const music = {
   bgm:null, started:false,
-  muted:localStorage.getItem(MUSIC_MUTE_SAVE)==='1',
-  volume:Number.isFinite(savedMusicVolume) ? clamp(savedMusicVolume,0,1) : .72,
+  muted:savedMusicMuted,
+  volume:initialMusicVolume,
+  lastAudibleVolume:initialMusicVolume > .05 ? initialMusicVolume : MUSIC_DEFAULT_VOLUME,
   currentStage:0, bossEscalated:false, bossPulse:0,
   duckGain:1, duckHold:0
 };
@@ -183,7 +193,7 @@ function gunSound() {
   const t = a.currentTime;
 
   const master = a.createGain();
-  master.gain.setValueAtTime(.115, t);
+  master.gain.setValueAtTime(.132, t);
   master.gain.exponentialRampToValueAtTime(.0001, t + .085);
   master.connect(a.destination);
 
@@ -201,7 +211,7 @@ function gunSound() {
   mech.type = 'square';
   mech.frequency.setValueAtTime(rand(96, 122), t);
   mech.frequency.exponentialRampToValueAtTime(82, t + .03);
-  mechGain.gain.setValueAtTime(.34, t);
+  mechGain.gain.setValueAtTime(.38, t);
   mechGain.gain.exponentialRampToValueAtTime(.0001, t + .045);
   mech.connect(mechGain); mechGain.connect(master); mech.start(t); mech.stop(t + .05);
 
@@ -219,7 +229,7 @@ function gunSound() {
   const ng = a.createGain();
   noise.buffer = noiseBuffer;
   filter.type = 'bandpass'; filter.frequency.value = 720; filter.Q.value = .72;
-  ng.gain.setValueAtTime(.40, t);
+  ng.gain.setValueAtTime(.44, t);
   ng.gain.exponentialRampToValueAtTime(.0001, t + .05);
   noise.connect(filter); filter.connect(ng); ng.connect(master);
   noise.start(t); noise.stop(t + .055);
@@ -268,16 +278,18 @@ function musicLabel(stageId = state?.stage || 1, boss = music.bossEscalated) {
   return boss ? `BOSS MODE // ${s.name}` : `STAGE ${s.id} // ${s.name}`;
 }
 function refreshMusicUi() {
-  if (UI.musicMute) UI.musicMute.textContent = music.muted ? '♫ SOUND OFF' : '♫ SOUND ON';
+  if (UI.musicMute) UI.musicMute.textContent = music.muted ? '♫ MUSIC OFF' : '♫ MUSIC ON';
   if (UI.nowPlaying) UI.nowPlaying.textContent = musicLabel(music.currentStage || state?.stage || 1, music.bossEscalated);
-  if (UI.volume && String(Math.round(music.volume * 100)) !== UI.volume.value) UI.volume.value = String(Math.round(music.volume * 100));
+  const pct = Math.round(music.volume * 100);
+  if (UI.volume && String(pct) !== UI.volume.value) UI.volume.value = String(pct);
+  if (UI.volumeValue) UI.volumeValue.textContent = `${pct}%`;
 }
 function applyMusicVolume() {
   const bgm = ensureBgm();
-  const bossGain = music.bossEscalated ? .92 : 1;
-  bgm.volume = music.muted ? 0 : clamp(music.volume * music.duckGain * bossGain, 0, 1);
+  const bossGain = music.bossEscalated ? .90 : 1;
+  bgm.volume = music.muted ? 0 : clamp(music.volume * MUSIC_MASTER_GAIN * music.duckGain * bossGain, 0, 1);
 }
-function duckMusic(gain=.24, hold=.14) {
+function duckMusic(gain=.20, hold=.14) {
   music.duckGain = Math.min(music.duckGain, gain);
   music.duckHold = Math.max(music.duckHold, hold);
   applyMusicVolume();
@@ -286,9 +298,9 @@ function updateMusicMix(dt) {
   if (music.duckHold > 0) music.duckHold = Math.max(0, music.duckHold - dt);
   const firing = state.mode==='playing' && (state.fireHeld || keys.KeyX || player.shootPose>0 || player.muzzleFlash>0);
   const stageSting = state.stageClearTimer > 0;
-  const target = firing ? .24 : stageSting ? .44 : 1;
+  const target = firing ? .18 : stageSting ? .38 : 1;
   if (music.duckHold <= 0 || target < music.duckGain) {
-    const speed = target < music.duckGain ? 28 : 7.5;
+    const speed = target < music.duckGain ? 30 : 6.8;
     music.duckGain += (target - music.duckGain) * Math.min(1, dt * speed);
   }
   applyMusicVolume();
@@ -316,26 +328,48 @@ async function startStageMusic(stageId, restart = false) {
 }
 function wakeAudio() {
   ensureAudio();
+  const firstWake = !music.started;
   music.started = true;
-  startStageMusic(state.stage || 1, false);
+  const bgm = ensureBgm();
+  if (firstWake || music.currentStage !== (state.stage || 1) || !bgm.src) {
+    startStageMusic(state.stage || 1, false);
+  } else if (!music.muted && bgm.paused) {
+    bgm.play().catch(() => {});
+  }
+}
+function persistMusicState() {
+  localStorage.setItem(MUSIC_VOLUME_SAVE, String(music.volume));
+  localStorage.setItem(MUSIC_MUTE_SAVE, music.muted ? '1' : '0');
 }
 function setMusicVolume(value) {
   music.volume = clamp(value, 0, 1);
-  localStorage.setItem(MUSIC_VOLUME_SAVE, String(music.volume));
+  if (music.volume > .01) {
+    music.lastAudibleVolume = music.volume;
+    music.muted = false;
+  } else {
+    music.muted = true;
+  }
+  persistMusicState();
   applyMusicVolume();
   refreshMusicUi();
   if (music.started && !music.muted) ensureBgm().play().catch(() => {});
 }
 function toggleMusicMute() {
-  music.muted = !music.muted;
-  localStorage.setItem(MUSIC_MUTE_SAVE, music.muted ? '1' : '0');
+  if (music.muted || music.volume <= .01) {
+    music.muted = false;
+    if (music.volume <= .01) music.volume = clamp(music.lastAudibleVolume || MUSIC_DEFAULT_VOLUME, .12, 1);
+  } else {
+    music.lastAudibleVolume = Math.max(.12, music.volume);
+    music.muted = true;
+  }
+  persistMusicState();
   applyMusicVolume();
   refreshMusicUi();
   if (!music.muted && music.started) ensureBgm().play().catch(() => {});
 }
 function bossPulseCue() {
   if (music.muted) return;
-  duckMusic(.62,.28);
+  duckMusic(.55,.28);
   tone(118,.10,'square',.012);
   setTimeout(() => tone(146,.08,'square',.011), 110);
   setTimeout(() => tone(98,.12,'sawtooth',.011), 210);
@@ -358,7 +392,7 @@ function bossMusicReset() {
   refreshMusicUi();
 }
 function stageClearSting() {
-  duckMusic(.34,.75);
+  duckMusic(.30,.75);
   tone(392,.08,'square',.030);
   setTimeout(() => tone(523,.08,'square',.028), 80);
   setTimeout(() => tone(659,.12,'triangle',.026), 160);
@@ -370,16 +404,16 @@ const STAGES = [
     id:1, name:'JUNGLE RENAL WARZONE', subtitle:'JUNGLE DEPLOYMENT',
     bg:'stage1Hd', procedural:false,
     warriorA:'s1enemyA', warriorB:'s1enemyB', brute:'s1enemyB', animal:'s1enemyC', air:'s1boss',
-    airName:'JUNGLE RENAL COLOSSUS', airHp:32, bossAt:650, length:1000, speed:235,
-    spawn:[.78,1.36], maxGround:7, bossGround:true,
+    airName:'JUNGLE RENAL COLOSSUS', airHp:32, bossAt:650, length:1000, speed:232,
+    spawn:[.90,1.42], maxGround:5, bossGround:true, groundOffset:20,
     brief:'REB has entered a toxic jungle where mutant troops and one grotesquely overqualified renal colossus have made the catastrophic mistake of standing downrange.'
   },
-  { id:2, name:'WAR ZONE', subtitle:'RENAL REVENGE', bg:'s2bg', warriorA:'s2enemyA', warriorB:'s2enemyB', brute:'s2enemyB', animal:'s2enemyC', air:'s2boss', airName:'WAR ZONE JUGGERNAUT', airHp:34, bossAt:500, length:760, speed:246, spawn:[.78,1.24], maxGround:3, bossGround:true, brief:'The jungle was only triage. REB enters a bombed-out war zone packed with toxic assault troops, heavy gunners, rocket units and a bio-armoured juggernaut.' },
-  { id:3, name:'ZOO ESCAPE', subtitle:'ANIMAL CONTROL FAILED', bg:'s3bg', warriorA:'s3enemyA', warriorB:'s3enemyA', brute:'s3enemyB', animal:'s3enemyC', air:'s3boss', airName:'ZOO ALPHA MUTANT', airHp:38, bossAt:490, length:760, speed:254, spawn:[.74,1.18], maxGround:3, bossGround:true, brief:'Titan City Zoo has lost containment. Primal handlers and engineered beasts are loose. The alpha mutant has noticed REB.' },
-  { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4enemyA', warriorB:'s4enemyA', brute:'s4enemyB', animal:'s4enemyC', air:'s4boss', airName:'MED-EVAC OVERSEER', airHp:42, bossAt:485, length:760, speed:262, spawn:[.70,1.12], maxGround:4, bossGround:false, brief:'The nephrology ward has declared REB medically non-compliant. Security, dialysis brutes and renal mutants are enforcing the discharge plan under a hovering med-evac overseer.' },
-  { id:5, name:'CARDIO WARD', subtitle:'HEART RATE: UNACCEPTABLE', bg:'s5bg', warriorA:'s5enemyA', warriorB:'s5enemyC', brute:'s5enemyB', animal:'s5enemyC', air:'s5boss', airName:'CARDIO OVERDRIVE TANK', airHp:46, bossAt:480, length:760, speed:270, spawn:[.67,1.08], maxGround:4, bossGround:true, brief:'Cardiology would like REB to reduce intensity. REB has declined. Sword freaks, heavy lifters and velocity mutants attempt a medically sensible intervention.' },
-  { id:6, name:'BEACH / SEA ASSAULT', subtitle:'HYDRATION OPTIONAL', bg:'s6bg', warriorA:'s6enemyA', warriorB:'s6enemyB', brute:'s6enemyC', animal:'s6enemyC', air:'s6boss', airName:'ABYSSAL RENAL OVERLORD', airHp:52, bossAt:475, length:760, speed:278, spawn:[.64,1.04], maxGround:4, bossGround:true, brief:'REB reaches the coast. Amphibious mercenaries and sea mutants attack from the surf before something much worse climbs out of the toxic water.' },
-  { id:7, name:'TOXIC FACTORY', subtitle:'SUPPLEMENT PRODUCTION LINE', bg:'s7bg', warriorA:'s7enemyA', warriorB:'s7enemyC', brute:'s7enemyB', animal:'s7enemyC', air:'s7boss', airName:'REACTOR BIO-JUGGERNAUT', airHp:58, bossAt:470, length:760, speed:286, spawn:[.61,1.00], maxGround:4, bossGround:true, brief:'The fluorescent nonsense has a source. Factory troops, industrial heavies and toxic operators guard a reactor-grown bio-juggernaut.' },
+  { id:2, name:'WAR ZONE', subtitle:'RENAL REVENGE', bg:'s2bg', warriorA:'s2enemyA', warriorB:'s2enemyB', brute:'s2enemyB', animal:'s2enemyC', air:'s2boss', airName:'WAR ZONE JUGGERNAUT', airHp:34, bossAt:500, length:760, speed:244, spawn:[.82,1.30], maxGround:3, bossGround:true, brief:'The jungle was only triage. REB enters a bombed-out war zone packed with toxic assault troops, heavy gunners, rocket units and a bio-armoured juggernaut.' },
+  { id:3, name:'ZOO ESCAPE', subtitle:'ANIMAL CONTROL FAILED', bg:'s3bg', warriorA:'s3enemyA', warriorB:'s3enemyA', brute:'s3enemyB', animal:'s3enemyC', air:'s3boss', airName:'ZOO ALPHA MUTANT', airHp:38, bossAt:490, length:760, speed:252, spawn:[.78,1.24], maxGround:3, bossGround:true, brief:'Titan City Zoo has lost containment. Primal handlers and engineered beasts are loose. The alpha mutant has noticed REB.' },
+  { id:4, name:'NEPHRO WARD', subtitle:'KIDNEY PANIC PROTOCOL', bg:'s4bg', warriorA:'s4enemyA', warriorB:'s4enemyA', brute:'s4enemyB', animal:'s4enemyC', air:'s4boss', airName:'MED-EVAC OVERSEER', airHp:42, bossAt:485, length:760, speed:260, spawn:[.74,1.18], maxGround:4, bossGround:false, brief:'The nephrology ward has declared REB medically non-compliant. Security, dialysis brutes and renal mutants are enforcing the discharge plan under a hovering med-evac overseer.' },
+  { id:5, name:'CARDIO WARD', subtitle:'HEART RATE: UNACCEPTABLE', bg:'s5bg', warriorA:'s5enemyA', warriorB:'s5enemyC', brute:'s5enemyB', animal:'s5enemyC', air:'s5boss', airName:'CARDIO OVERDRIVE TANK', airHp:46, bossAt:480, length:760, speed:268, spawn:[.70,1.12], maxGround:4, bossGround:true, brief:'Cardiology would like REB to reduce intensity. REB has declined. Sword freaks, heavy lifters and velocity mutants attempt a medically sensible intervention.' },
+  { id:6, name:'BEACH / SEA ASSAULT', subtitle:'HYDRATION OPTIONAL', bg:'s6bg', warriorA:'s6enemyA', warriorB:'s6enemyB', brute:'s6enemyC', animal:'s6enemyC', air:'s6boss', airName:'ABYSSAL RENAL OVERLORD', airHp:52, bossAt:475, length:760, speed:276, spawn:[.66,1.08], maxGround:4, bossGround:true, brief:'REB reaches the coast. Amphibious mercenaries and sea mutants attack from the surf before something much worse climbs out of the toxic water.' },
+  { id:7, name:'TOXIC FACTORY', subtitle:'SUPPLEMENT PRODUCTION LINE', bg:'s7bg', warriorA:'s7enemyA', warriorB:'s7enemyC', brute:'s7enemyB', animal:'s7enemyC', air:'s7boss', airName:'REACTOR BIO-JUGGERNAUT', airHp:58, bossAt:470, length:760, speed:286, spawn:[.62,1.02], maxGround:4, bossGround:true, brief:'The fluorescent nonsense has a source. Factory troops, industrial heavies and toxic operators guard a reactor-grown bio-juggernaut.' },
   { id:8, name:'RENAL FORTRESS', subtitle:'FINAL RENAL COLLAPSE', bg:'s8bg', warriorA:'s8enemyA', warriorB:'s8enemyB', brute:'s8enemyB', animal:'s8enemyC', air:'s8boss', airName:'RENAL OVERLORD', airHp:68, bossAt:500, length:820, speed:296, spawn:[.58,.96], maxGround:4, bossGround:true, brief:'The Renal Fortress is the end of the line. Elite troops, fortress heavies and nightmare beasts stand between REB and the Renal Overlord.' }
 ];
 
@@ -390,8 +424,9 @@ const state = {
   stage:1, kills:0, stageKills:0, bossSpawned:false, bossDefeated:false, stageClearTimer:0,
   emergencyAmmoCooldown:0, cameoTime:0, cameo:null
 };
-const player = { x:148, y:GROUND-84, w:56, h:84, vy:0, onGround:true, invuln:0, shootPose:0, landTime:0, muzzleFlash:0 };
 const stage = () => STAGES[state.stage - 1] || STAGES[0];
+const visualGround = () => GROUND + (stage().groundOffset || 0);
+const player = { x:148, y:visualGround()-84, w:56, h:84, vy:0, onGround:true, invuln:0, shootPose:0, landTime:0, muzzleFlash:0 };
 const keys = {};
 
 function clearWorld() {
@@ -422,7 +457,7 @@ function setStage(id, freshRun = false) {
   }
   clearWorld();
   bossMusicReset();
-  Object.assign(player, { y:GROUND-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0, landTime:0, muzzleFlash:0 });
+  Object.assign(player, { y:visualGround()-player.h, vy:0, onGround:true, invuln:1.0, shootPose:0, landTime:0, muzzleFlash:0 });
   applyStageDom(); startStageMusic(state.stage, true); sync();
   tone(220,.05); setTimeout(()=>tone(330,.06),60); setTimeout(()=>tone(440,.10),125);
 }
@@ -438,8 +473,7 @@ function jump() {
 }
 function playerMuzzle() {
   if (!player.onGround) return { x: player.x + 94, y: player.y + 20 };
-  const stageGroundNudge = state.stage===1 ? 12 : 0;
-  const dx = player.x - 38, dy = GROUND - 276 + stageGroundNudge, dw = 226, dh = 276;
+  const dx = player.x - 38, dy = visualGround() - 276, dw = 226, dh = 276;
   return { x: dx + dw * .76, y: dy + dh * .50 };
 }
 function fireOnce() {
@@ -537,11 +571,35 @@ function installArcadeMode() {
   document.addEventListener('webkitfullscreenchange',updateLabel);
 }
 installArcadeMode();
-if (UI.musicMute) UI.musicMute.addEventListener('pointerdown', e => { e.preventDefault(); wakeAudio(); toggleMusicMute(); UI.musicMute.classList.toggle('active', !music.muted); });
+if (UI.musicMute) UI.musicMute.addEventListener('pointerdown', e => {
+  e.preventDefault(); wakeAudio(); toggleMusicMute(); UI.musicMute.classList.toggle('active', !music.muted);
+});
+function setVolumeFromClientX(clientX) {
+  if (!UI.volume) return;
+  const r = UI.volume.getBoundingClientRect();
+  const pct = clamp((clientX - r.left) / Math.max(1, r.width), 0, 1);
+  UI.volume.value = String(Math.round(pct * 100));
+  wakeAudio(); setMusicVolume(pct);
+}
 if (UI.volume) {
+  UI.volume.style.touchAction = 'none';
   UI.volume.addEventListener('input', e => { wakeAudio(); setMusicVolume(Number(e.target.value || 0) / 100); });
   UI.volume.addEventListener('change', e => { wakeAudio(); setMusicVolume(Number(e.target.value || 0) / 100); });
+  UI.volume.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    try { UI.volume.setPointerCapture(e.pointerId); } catch (_) {}
+    setVolumeFromClientX(e.clientX);
+  });
+  UI.volume.addEventListener('pointermove', e => {
+    if (!UI.volume.hasPointerCapture?.(e.pointerId)) return;
+    e.preventDefault(); setVolumeFromClientX(e.clientX);
+  });
+  for (const ev of ['pointerup','pointercancel','lostpointercapture']) {
+    UI.volume.addEventListener(ev, e => { try { UI.volume.releasePointerCapture?.(e.pointerId); } catch (_) {} });
+  }
 }
+if (UI.volumeDown) UI.volumeDown.addEventListener('pointerdown', e => { e.preventDefault(); wakeAudio(); setMusicVolume(Math.max(0, music.volume - .10)); });
+if (UI.volumeUp) UI.volumeUp.addEventListener('pointerdown', e => { e.preventDefault(); wakeAudio(); setMusicVolume(Math.min(1, music.volume + .10)); });
 refreshMusicUi();
 
 bindTap(UI.jump, jump); bindTap(UI.rageBtn, rage);
@@ -576,27 +634,65 @@ function spawnHitBurst(x, y, boss = false) {
   state.hitBursts.push({ x, y, life: boss ? .26 : .18, max: boss ? .26 : .18, size: boss ? 54 : 34, boss });
 }
 function groundEnemies() { return state.enemies.filter(e => !e.dead && e.type !== 'air'); }
+function enemyRenderPreset(type){
+  const late=state.stage>=7?1.06:state.stage>=5?1.03:1;
+  if(type==='warriorA') return {h:214*late,w:230*late,off:0};
+  if(type==='warriorB') return {h:228*late,w:285*late,off:0};
+  if(type==='brute') return {h:260*late,w:340*late,off:2};
+  return {h:218*late,w:290*late,off:2};
+}
+function enemyArtKey(e, s=stage()) {
+  return e.type==='warriorA'?s.warriorA:e.type==='warriorB'?s.warriorB:e.type==='animal'?s.animal:e.type==='brute'?s.brute:s.air;
+}
+function fittedEnemySize(key, targetH, maxW) {
+  let h=targetH, w=targetH*.78;
+  if (ready(key)) w=h*(ART[key].naturalWidth/ART[key].naturalHeight);
+  if(maxW && w>maxW){ const k=maxW/w; w*=k; h*=k; }
+  return {w,h};
+}
+function enemyVisualRect(e, includeBob=false) {
+  const s=stage();
+  const groundBoss=e.type==='air' && !!s.bossGround;
+  if (e.type==='air') {
+    const targetH = groundBoss ? (state.stage>=8?360:state.stage>=7?344:state.stage>=5?326:310) : 278;
+    const maxW = groundBoss ? (state.stage>=8?350:state.stage>=7?334:state.stage>=5?316:300) : 270;
+    const size=fittedEnemySize(s.air,targetH,maxW);
+    const bottom=groundBoss ? visualGround()+6 : e.y+e.h+28;
+    return {x:e.x+e.w/2-size.w/2, y:bottom-size.h, w:size.w, h:size.h};
+  }
+  const preset=enemyRenderPreset(e.type), key=enemyArtKey(e,s), size=fittedEnemySize(key,preset.h,preset.w);
+  const bob=includeBob?Math.sin((e.phase||0)*5+e.x*.01)*1.25:0;
+  const bottom=visualGround()+bob+preset.off;
+  return {x:e.x+e.w/2-size.w/2, y:bottom-size.h, w:size.w, h:size.h};
+}
+function enemyHitBox(e) {
+  const r=enemyVisualRect(e,false);
+  const px=e.type==='air'?.055:.035;
+  const py=e.type==='air'?.05:.025;
+  return {x:r.x+r.w*px, y:r.y+r.h*py, w:r.w*(1-px*2), h:r.h*(1-py)};
+}
+function enemyVisualRight(e) { const r=enemyVisualRect(e,false); return r.x+r.w; }
 function canSpawnGround() {
   const s = stage();
   const g = groundEnemies();
   if (g.length >= s.maxGround) return false;
   if (state.bossSpawned && !state.bossDefeated) return false;
-  const rightmost = g.reduce((m,e)=>Math.max(m,e.x+e.w), -9999);
-  return rightmost < W - 115;
+  const rightmost = g.reduce((m,e)=>Math.max(m,enemyVisualRight(e)), -9999);
+  return rightmost < W - 85;
 }
 function enemySpec(type) {
   if (state.stage === 1) {
     const part1 = {
-      warriorA:{w:78,h:136,hp:2,extra:rand(-10,45),shoot:rand(1.3,2.8),damage:20,score:350,renal:6},
-      animal:{w:120,h:130,hp:4,extra:120,shoot:999,damage:28,score:900,renal:14}
+      warriorA:{w:78,h:136,hp:2,extra:rand(-10,38),shoot:rand(1.55,2.9),damage:16,score:350,renal:6},
+      animal:{w:120,h:130,hp:4,extra:105,shoot:999,damage:23,score:900,renal:14}
     };
     return part1[type] || part1.warriorA;
   }
   const level = state.stage - 1;
   const table = {
-    warriorA:{w:78,h:136,hp:2+Math.floor(level*.45),extra:rand(-5,30),shoot:rand(1.6,2.7),damage:16,score:350,renal:6},
-    warriorB:{w:82,h:140,hp:3+Math.floor(level*.5),extra:rand(5,45),shoot:rand(1.35,2.35),damage:18,score:450,renal:7},
-    brute:{w:108,h:164,hp:7+level,extra:-35,shoot:rand(1.8,2.8),damage:27,score:1400,renal:18},
+    warriorA:{w:78,h:136,hp:2+Math.floor(level*.45),extra:rand(-5,28),shoot:rand(1.7,2.8),damage:15,score:350,renal:6},
+    warriorB:{w:82,h:140,hp:3+Math.floor(level*.5),extra:rand(4,40),shoot:rand(1.45,2.4),damage:17,score:450,renal:7},
+    brute:{w:108,h:164,hp:7+level,extra:-32,shoot:rand(1.9,2.9),damage:25,score:1400,renal:18},
     animal:{w:120,h:130,hp:4+Math.floor(level*.6),extra:75+level*4,shoot:999,damage:23,score:850,renal:14}
   };
   return table[type] || table.warriorA;
@@ -610,7 +706,7 @@ function spawnEnemy(type) {
     const bossHp = Math.round(s.airHp * hpBoost);
     const groundBoss = !!s.bossGround;
     state.enemies.push({
-      type:'air', x:W+130, y:groundBoss?GROUND-238:120,
+      type:'air', x:W+130, y:groundBoss?visualGround()-238:120,
       w:groundBoss?190:180, h:groundBoss?238:150,
       hp:bossHp, maxHp:bossHp,
       shoot:state.stage===1?.78:.82,
@@ -629,14 +725,14 @@ function spawnEnemy(type) {
     type = r < .42 ? 'warriorA' : r < .70 ? 'warriorB' : r < .86 ? 'animal' : 'brute';
   }
   const sp = enemySpec(type);
-  const lastX = groundEnemies().reduce((m,e)=>Math.max(m,e.x+e.w), W-120);
-  const spawnX = Math.max(W+35, lastX + rand(145,210));
-  state.enemies.push({ type, x:spawnX, y:GROUND-sp.h, w:sp.w, h:sp.h, hp:sp.hp, maxHp:sp.hp, extra:sp.extra, shoot:sp.shoot, damage:sp.damage, score:sp.score, renal:sp.renal, phase:0 });
+  const lastRight = groundEnemies().reduce((m,e)=>Math.max(m,enemyVisualRight(e)), W-100);
+  const spawnX = Math.max(W+115, lastRight + rand(145,205));
+  state.enemies.push({ type, x:spawnX, y:visualGround()-sp.h, w:sp.w, h:sp.h, hp:sp.hp, maxHp:sp.hp, extra:sp.extra, shoot:sp.shoot, damage:sp.damage, score:sp.score, renal:sp.renal, phase:0 });
   return true;
 }
 function spawnPickup(type) {
   if (!type) { const r=Math.random(); type=r<.30?'creatine':r<.54?'serum':'ammo'; }
-  state.pickups.push({type,x:W+45,y:type==='ammo'?GROUND-46:GROUND-60,w:44,h:48,spin:0});
+  state.pickups.push({type,x:W+45,y:type==='ammo'?visualGround()-46:visualGround()-60,w:44,h:48,spin:0});
 }
 function spawnEmergencyAmmo() {
   spawnPickup('ammo'); state.banner='SUPPLY DROP // AMMO INBOUND'; state.bannerTime=.7; state.emergencyAmmoCooldown=14;
@@ -673,7 +769,8 @@ function enemyHit(e,b) {
     e.dead=true; state.kills++; state.stageKills++; state.score += e.score||350;
     state.renal=clamp(state.renal+(e.renal||6),0,100); state.shake=Math.max(state.shake,e.type==='air'?12:e.type==='brute'?7:4);
     if (e.type==='air') { state.bossDefeated=true; state.banner=`${stage().airName} DESTROYED`; state.bannerTime=1.0; bossMusicReset(); }
-    boom(); particles(e.x+e.w/2,e.y+e.h/2,e.type==='air'?'#ffe53b':e.type==='brute'?'#39d7ff':'#ff2d95',e.type==='air'?30:e.type==='brute'?22:14,e.type==='air'?1.7:1.2);
+    const vr=enemyVisualRect(e,false);
+    boom(); particles(vr.x+vr.w/2,vr.y+vr.h/2,e.type==='air'?'#ffe53b':e.type==='brute'?'#39d7ff':'#ff2d95',e.type==='air'?30:e.type==='brute'?22:14,e.type==='air'?1.7:1.2);
   }
 }
 
@@ -703,9 +800,9 @@ function update(dt) {
   const wasGrounded = player.onGround;
   player.muzzleFlash=Math.max(0,player.muzzleFlash-dt);
   player.vy += 1950*dt; player.y += player.vy*dt;
-  if (player.y >= GROUND-player.h) {
+  if (player.y >= visualGround()-player.h) {
     if (!wasGrounded && player.vy > 120) { player.landTime = .22; landSound(); }
-    player.y=GROUND-player.h; player.vy=0; player.onGround=true;
+    player.y=visualGround()-player.h; player.vy=0; player.onGround=true;
   } else player.onGround=false;
 
   const s=stage();
@@ -728,7 +825,7 @@ function update(dt) {
 
   for (const b of state.bullets) {
     b.x += b.vx*dt; b.life -= dt;
-    for (const e of state.enemies) if (!e.dead && b.life>0 && rects(b,e)) { enemyHit(e,b); break; }
+    for (const e of state.enemies) if (!e.dead && b.life>0 && rects(b,enemyHitBox(e))) { enemyHit(e,b); break; }
   }
 
   for (const e of state.enemies) {
@@ -743,30 +840,34 @@ function update(dt) {
       const targetX=xCenter+Math.sin(e.phase*(bossPhase===3?1.15:.78))*xAmp;
       e.x += (targetX-e.x)*Math.min(1,dt*(bossPhase===3?2.15:1.75));
       if (groundBoss) {
-        e.y = GROUND-e.h;
+        e.y = visualGround()-e.h;
       } else {
         const yAmp=bossPhase===1?20:bossPhase===2?30:40;
         e.y = 198 + Math.sin(e.phase*(bossPhase===1?1.30:bossPhase===2?1.65:2.05))*yAmp;
       }
       if (e.shoot<=0 && e.x<W-70) {
-        const baseGap=bossPhase===1?.76:bossPhase===2?.58:.44;
-        e.shoot=Math.max(.34,baseGap-state.stage*.016);
-        const baseDmg=11+Math.floor(state.stage*.65);
-        const shotY=e.y+(groundBoss?Math.min(e.h*.42,105):66);
-        state.enemyShots.push({x:e.x+18,y:shotY,w:22,h:8,vx:-500-state.stage*9,vy:bossPhase>=2?-30:0,life:2.25,damage:baseDmg});
-        state.enemyShots.push({x:e.x+72,y:shotY+20,w:20,h:8,vx:-465-state.stage*8,vy:bossPhase>=2?30:0,life:2.25,damage:Math.max(8,baseDmg-1)});
-        if(bossPhase>=2) state.enemyShots.push({x:e.x+48,y:shotY+10,w:20,h:8,vx:-485-state.stage*8,vy:0,life:2.25,damage:baseDmg});
+        const baseGap=bossPhase===1?.90:bossPhase===2?.70:.52;
+        e.shoot=Math.max(.40,baseGap-state.stage*.012);
+        const baseDmg=9+Math.floor(state.stage*.70);
+        const vr=enemyVisualRect(e,false);
+        const shotX=vr.x+Math.min(vr.w*.18,62);
+        const shotY=vr.y+vr.h*(groundBoss?.42:.55);
+        const shotSpeed=455+state.stage*9+bossPhase*12;
+        state.enemyShots.push({x:shotX,y:shotY,w:22,h:8,vx:-shotSpeed,vy:bossPhase>=2?-28:0,life:2.25,damage:baseDmg});
+        state.enemyShots.push({x:shotX+34,y:shotY+20,w:20,h:8,vx:-(shotSpeed-28),vy:bossPhase>=2?28:0,life:2.25,damage:Math.max(7,baseDmg-1)});
+        if(bossPhase>=2) state.enemyShots.push({x:shotX+18,y:shotY+10,w:20,h:8,vx:-(shotSpeed-12),vy:0,life:2.25,damage:baseDmg});
         if(bossPhase===3 && state.stage>=5){
-          state.enemyShots.push({x:e.x+42,y:shotY+6,w:18,h:7,vx:-480-state.stage*8,vy:-78,life:2.25,damage:baseDmg});
-          state.enemyShots.push({x:e.x+58,y:shotY+14,w:18,h:7,vx:-480-state.stage*8,vy:78,life:2.25,damage:baseDmg});
+          state.enemyShots.push({x:shotX+12,y:shotY+6,w:18,h:7,vx:-(shotSpeed-8),vy:-72,life:2.25,damage:baseDmg});
+          state.enemyShots.push({x:shotX+26,y:shotY+14,w:18,h:7,vx:-(shotSpeed-8),vy:72,life:2.25,damage:baseDmg});
         }
         if(bossPhase===3) state.shake=Math.max(state.shake,3.5);
       }
     } else {
       e.x -= (worldSpeed+(e.extra||0))*dt;
       if ((e.type==='warriorA'||e.type==='warriorB'||e.type==='brute') && e.shoot<=0 && e.x<850 && e.x>360) {
-        e.shoot=e.type==='brute'?rand(1.7,2.6):e.type==='warriorB'?rand(1.35,2.25):rand(1.7,2.8);
-        state.enemyShots.push({x:e.x,y:e.y+Math.min(72,e.h*.46),w:e.type==='brute'?24:18,h:e.type==='brute'?7:5,vx:e.type==='brute'?-410:-445,life:2.1,damage:e.type==='brute'?13:10});
+        e.shoot=e.type==='brute'?rand(1.8,2.7):e.type==='warriorB'?rand(1.45,2.35):rand(1.8,2.9);
+        const vr=enemyVisualRect(e,false);
+        state.enemyShots.push({x:vr.x+Math.min(vr.w*.16,44),y:vr.y+vr.h*.43,w:e.type==='brute'?24:18,h:e.type==='brute'?7:5,vx:e.type==='brute'?-400:-435,life:2.1,damage:e.type==='brute'?12:9});
       }
     }
     if (rects(player,e)) {
@@ -968,7 +1069,7 @@ function drawPlayer(){
   ctx.globalAlpha=.30;
   ctx.fillStyle='#000';
   ctx.beginPath();
-  ctx.ellipse(player.x+30,GROUND+5,70,14,0,0,TWO);
+  ctx.ellipse(player.x+30,visualGround()+5,70,14,0,0,TWO);
   ctx.fill();
   ctx.restore();
 
@@ -1006,15 +1107,14 @@ function drawPlayer(){
     ctx.restore();
   }
 
-  const stageGroundNudge = state.stage===1 ? 12 : 0;
-  let key='rebHdIdle', dw=163, dh=244, dx=player.x-50, dy=GROUND-244+stageGroundNudge;
+  let key='rebHdIdle', dw=163, dh=244, dx=player.x-50, dy=visualGround()-244;
 
   if(!player.onGround){
-    key='rebHdJump'; dw=165; dh=244; dx=player.x-51; dy=player.y-94 + (state.stage===1 ? 6 : 0);
+    key='rebHdJump'; dw=165; dh=244; dx=player.x-51; dy=player.y-94;
   } else if(player.landTime>0){
-    key='rebHdLand'; dw=168; dh=244; dx=player.x-52; dy=GROUND-244+stageGroundNudge;
+    key='rebHdLand'; dw=168; dh=244; dx=player.x-52; dy=visualGround()-244;
   } else if(shooting){
-    key='rebHdFire'; dw=226; dh=276; dx=player.x-38; dy=GROUND-276+stageGroundNudge;
+    key='rebHdFire'; dw=226; dh=276; dx=player.x-38; dy=visualGround()-276;
   }
 
   if(!art(key,dx,dy,dw,dh)){
@@ -1089,18 +1189,8 @@ function artEnemyHD(key,x,y,w,h,flipX=false,alpha=1){
 }
 function drawEnemySprite(key, centerX, bottomY, targetH, maxW, alpha=1) {
   if(!ready(key)) return false;
-  const img=ART[key];
-  let h=targetH;
-  let w=h*(img.naturalWidth/img.naturalHeight);
-  if(maxW && w>maxW){ const k=maxW/w; w*=k; h*=k; }
-  return artEnemyHD(key,centerX-w/2,bottomY-h,w,h,false,alpha);
-}
-function enemyRenderPreset(type){
-  const late=state.stage>=7?1.06:state.stage>=5?1.03:1;
-  if(type==='warriorA') return {h:205*late,w:188*late,off:0};
-  if(type==='warriorB') return {h:218*late,w:205*late,off:0};
-  if(type==='brute') return {h:246*late,w:238*late,off:2};
-  return {h:200*late,w:220*late,off:2};
+  const size=fittedEnemySize(key,targetH,maxW);
+  return artEnemyHD(key,centerX-size.w/2,bottomY-size.h,size.w,size.h,false,alpha);
 }
 function drawHitBursts(){
   for(const h of state.hitBursts){
@@ -1132,10 +1222,11 @@ function drawHitBursts(){
 function drawSpriteHitGlow(e, glow) {
   if (!(e.hitFlash>0)) return;
   const alpha = clamp(e.hitFlash * 4.5, 0, .45);
-  const x = e.x + e.w / 2;
-  const y = e.y + e.h / 2;
-  const rx = e.type === 'air' ? e.w * .75 : e.w * .58;
-  const ry = e.type === 'air' ? e.h * .55 : e.h * .48;
+  const vr=enemyVisualRect(e,false);
+  const x = vr.x + vr.w / 2;
+  const y = vr.y + vr.h / 2;
+  const rx = vr.w * (e.type === 'air' ? .52 : .46);
+  const ry = vr.h * (e.type === 'air' ? .46 : .44);
   ctx.save();
   ctx.globalCompositeOperation='lighter';
   ctx.globalAlpha=alpha;
@@ -1154,14 +1245,14 @@ function drawEnemy(e){
   ctx.save();
   ctx.globalAlpha=.28; ctx.fillStyle='#000';
   ctx.beginPath();
-  const shadowY=groundBoss||e.type!=='air'?GROUND+5:e.y+e.h+8;
+  const shadowY=groundBoss||e.type!=='air'?visualGround()+5:e.y+e.h+8;
   ctx.ellipse(e.x+e.w/2,shadowY,e.type==='air'?(groundBoss?e.w*.92:e.w*.68):e.w*.78,e.type==='air'?12:14,0,0,TWO);
   ctx.fill(); ctx.restore();
 
   if (e.type==='air') {
     const bossH = groundBoss ? (state.stage>=8?360:state.stage>=7?344:state.stage>=5?326:310) : 278;
     const bossW = groundBoss ? (state.stage>=8?350:state.stage>=7?334:state.stage>=5?316:300) : 270;
-    const bottom = groundBoss ? GROUND+6 : e.y+e.h+28;
+    const bottom = groundBoss ? visualGround()+6 : e.y+e.h+28;
     if(!drawEnemySprite(s.air,e.x+e.w/2,bottom,bossH,bossW,1)) {
       const fallback=state.stage===1?'gunship':null;
       if(!fallback || !artEnemyHD(fallback,e.x-48,e.y-42,288,196,false,1)) drawProceduralEnemy(e);
@@ -1172,8 +1263,8 @@ function drawEnemy(e){
 
   const bob=Math.sin((e.phase||0)*5+e.x*.01)*1.25;
   const preset=enemyRenderPreset(e.type);
-  const key=e.type==='warriorA'?s.warriorA:e.type==='warriorB'?s.warriorB:e.type==='animal'?s.animal:s.brute;
-  const ok=drawEnemySprite(key,e.x+e.w/2,GROUND+bob+preset.off,preset.h,preset.w,1);
+  const key=enemyArtKey(e,s);
+  const ok=drawEnemySprite(key,e.x+e.w/2,visualGround()+bob+preset.off,preset.h,preset.w,1);
   if(!ok) drawProceduralEnemy(e);
   drawSpriteHitGlow(e, glow);
 }
@@ -1206,7 +1297,7 @@ function drawHud(){
 function drawTitle(){
   drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
   if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.3',690,266,19,'#39d7ff','center');
+  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.4',690,266,19,'#39d7ff','center');
   ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
 }
 function drawCameo(){

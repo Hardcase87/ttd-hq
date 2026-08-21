@@ -103,15 +103,19 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
 .audio-bar{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.10);border-radius:18px;background:rgba(255,255,255,.03)}
 .audio-bar .audio-label{font:900 .82rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.1em;color:var(--g);text-transform:uppercase}
 .audio-bar .audio-readout{font:900 .92rem "Barlow Condensed",Impact,sans-serif;color:#fff;letter-spacing:.08em}
-.audio-bar input[type=range]{width:100%;accent-color:#8aff2b}
+.volume-stack{min-width:0}.volume-row{display:grid;grid-template-columns:42px minmax(140px,1fr) 42px;gap:8px;align-items:center;margin-top:4px}
+.audio-bar input[type=range]{width:100%;height:34px;accent-color:#8aff2b;touch-action:none;cursor:pointer;-webkit-appearance:none;appearance:none;background:transparent}
+.audio-bar input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:999px;background:linear-gradient(90deg,rgba(138,255,43,.45),rgba(57,215,255,.22));border:1px solid rgba(255,255,255,.16)}
+.audio-bar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:#8aff2b;border:3px solid #10140f;box-shadow:0 0 18px rgba(138,255,43,.55)}
+.volume-step{min-height:38px;border-radius:11px;border:1px solid rgba(57,215,255,.4);background:rgba(57,215,255,.08);color:#fff;font:900 1.3rem "Barlow Condensed",Impact,sans-serif;touch-action:manipulation}.volume-step:active{transform:translateY(1px);filter:brightness(1.25)}
 .audio-btn{min-height:48px;padding:0 16px;border-radius:14px;font:900 .95rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(138,255,43,.45);background:linear-gradient(180deg,rgba(138,255,43,.15),rgba(138,255,43,.04));color:var(--g);cursor:pointer}
 .audio-btn.active{filter:brightness(1.18)}
-@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}.audio-bar{grid-template-columns:1fr;gap:8px}.audio-btn{min-height:44px}}
+@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}.audio-bar{grid-template-columns:1fr;gap:8px}.audio-btn{min-height:44px}.volume-row{grid-template-columns:46px minmax(0,1fr) 46px}.audio-readout{text-align:center}}
 </style>
 </head>
 <body>
 <main class="reb-shell">
-  <div class="reb-top"><strong>REB: RENAL REVENGE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V3.3 // ENEMY ART + AUDIO MIX</span></div>
+  <div class="reb-top"><strong>REB: RENAL REVENGE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V3.4 // 99% POLISH PASS</span></div>
   <section class="cabinet">
     <div class="screen"><canvas id="rebCanvas" width="960" height="540" aria-label="REB Renal Failure arcade game"></canvas></div>
     <div class="chips">
@@ -128,20 +132,24 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
       <button class="btn rage" id="rebRageBtn" type="button" draggable="false" aria-label="Renal Rage">⚡ RENAL RAGE 0%</button>
     </div>
     <div class="audio-bar">
-      <button class="audio-btn" id="rebMusicMute" type="button" aria-label="Mute soundtrack">♫ SOUND ON</button>
-      <div>
-        <div class="audio-label">Mega Drive Renal Mix // Auto Duck</div>
-        <input id="rebVolume" type="range" min="0" max="100" step="1" value="72" aria-label="Music volume">
+      <button class="audio-btn" id="rebMusicMute" type="button" aria-label="Toggle music">♫ MUSIC ON</button>
+      <div class="volume-stack">
+        <div class="audio-label">Mega Drive Renal Mix // iPad Safe <span id="rebVolumeValue">72%</span></div>
+        <div class="volume-row">
+          <button class="volume-step" id="rebVolumeDown" type="button" aria-label="Music volume down">−</button>
+          <input id="rebVolume" type="range" min="0" max="100" step="1" value="72" aria-label="Music volume">
+          <button class="volume-step" id="rebVolumeUp" type="button" aria-label="Music volume up">+</button>
+        </div>
       </div>
       <div class="audio-readout" id="rebNowPlaying">STAGE 1 THEME</div>
     </div>
     <div class="help"><span><strong>iPAD:</strong> hold DRRRRRT // tap JUMP // trigger RENAL RAGE at 100%</span><span><strong>KEYBOARD:</strong> SPACE jump // X fire // V rage // ENTER start</span></div>
   </section>
   <section class="brief">
-    <article class="panel"><p style="color:var(--g);font-weight:900;margin:.1rem 0">MISSION BRIEF</p><h2>JUNGLE RENAL WARZONE</h2><p>REB has entered a toxic jungle where mutant troopers, bio-warhounds and a nephrology gunship have made the catastrophic mistake of standing downrange. Collect ammo. Hoard creatine. Trigger RENAL RAGE. Medical advice has been ignored.</p></article>
+    <article class="panel"><p style="color:var(--g);font-weight:900;margin:.1rem 0">MISSION BRIEF</p><h2>JUNGLE RENAL WARZONE</h2><p>REB has entered a toxic jungle where mutant troopers, bio-warhounds and a renal colossus have made the catastrophic mistake of standing downrange. Collect ammo. Hoard creatine. Trigger RENAL RAGE. Medical advice has been ignored.</p></article>
     <article class="panel cover"><img src="assets/images/reb-renal-failure-2/cover.png" alt="REB Renal Failure cover art"></article>
   </section>
 </main>
 <nav class="bottom-nav"><a href="index.html">HQ</a><a href="arcade.html">ARCADE</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a></nav>
-<script src="reb-renal-failure-2.js?v=33"></script>
+<script src="reb-renal-failure-2.js?v=34"></script>
 </body></html>
