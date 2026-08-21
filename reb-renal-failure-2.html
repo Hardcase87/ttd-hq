@@ -110,12 +110,17 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
 .volume-step{min-height:38px;border-radius:11px;border:1px solid rgba(57,215,255,.4);background:rgba(57,215,255,.08);color:#fff;font:900 1.3rem "Barlow Condensed",Impact,sans-serif;touch-action:manipulation}.volume-step:active{transform:translateY(1px);filter:brightness(1.25)}
 .audio-btn{min-height:48px;padding:0 16px;border-radius:14px;font:900 .95rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(138,255,43,.45);background:linear-gradient(180deg,rgba(138,255,43,.15),rgba(138,255,43,.04));color:var(--g);cursor:pointer}
 .audio-btn.active{filter:brightness(1.18)}
-@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}.audio-bar{grid-template-columns:1fr;gap:8px}.audio-btn{min-height:44px}.volume-row{grid-template-columns:46px minmax(0,1fr) 46px}.audio-readout{text-align:center}}
+
+.difficulty-bar{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:8px;align-items:center;margin-top:10px;padding:9px 11px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025)}
+.difficulty-label{font:900 .78rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.09em;color:#c7cbd0;text-transform:uppercase;white-space:nowrap}.difficulty-label strong{color:var(--y)}
+.diff-btn{min-height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.035);color:#bbb;font:900 .88rem "Barlow Condensed",Impact,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.diff-btn.active{color:#081006;background:var(--g);border-color:var(--g);box-shadow:0 0 16px rgba(138,255,43,.22)}
+.cabinet:fullscreen .difficulty-bar,.cabinet:-webkit-full-screen .difficulty-bar,body.reb-arcade-mode .cabinet .difficulty-bar{display:none}
+@media(max-width:760px){.reb-shell{padding:7px}.cabinet{padding:7px;border-radius:18px}.chips{grid-template-columns:repeat(3,1fr)}.controls{grid-template-columns:1fr 1.25fr}.rage{grid-column:1/-1;min-height:56px}.brief{grid-template-columns:1fr}.reb-top span{font-size:.68rem}.btn{min-height:60px}.bottom-nav a{padding:10px 14px}.audio-bar{grid-template-columns:1fr;gap:8px}.audio-btn{min-height:44px}.volume-row{grid-template-columns:46px minmax(0,1fr) 46px}.audio-readout{text-align:center}.difficulty-bar{grid-template-columns:1fr 1fr 1fr}.difficulty-label{grid-column:1/-1;text-align:center}}
 </style>
 </head>
 <body>
 <main class="reb-shell">
-  <div class="reb-top"><strong>REB: RENAL REVENGE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V3.4 // 99% POLISH PASS</span></div>
+  <div class="reb-top"><strong>REB: RENAL REVENGE</strong><span>STAGE 1 // JUNGLE RENAL WARZONE<br>DRRRRRT ENGINE V3.5 // FINAL CARTRIDGE PASS</span></div>
   <section class="cabinet">
     <div class="screen"><canvas id="rebCanvas" width="960" height="540" aria-label="REB Renal Failure arcade game"></canvas></div>
     <div class="chips">
@@ -130,6 +135,12 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
       <button class="btn jump" id="rebJump" type="button" draggable="false" aria-label="Jump">▲ JUMP</button>
       <button class="btn fire" id="rebFire" type="button" draggable="false" aria-label="Hold to fire">✹ DRRRRRT</button>
       <button class="btn rage" id="rebRageBtn" type="button" draggable="false" aria-label="Renal Rage">⚡ RENAL RAGE 0%</button>
+    </div>
+    <div class="difficulty-bar" aria-label="Difficulty selector">
+      <div class="difficulty-label">DIFFICULTY // <strong id="rebDifficultyReadout">HARD</strong></div>
+      <button class="diff-btn" type="button" data-reb-difficulty="casual" aria-pressed="false">CASUAL</button>
+      <button class="diff-btn active" type="button" data-reb-difficulty="hard" aria-pressed="true">HARD</button>
+      <button class="diff-btn" type="button" data-reb-difficulty="renal" aria-pressed="false">RENAL FAILURE</button>
     </div>
     <div class="audio-bar">
       <button class="audio-btn" id="rebMusicMute" type="button" aria-label="Toggle music">♫ MUSIC ON</button>
@@ -151,5 +162,5 @@ a{color:inherit}.reb-shell{width:min(1120px,100%);margin:auto;padding:12px}.reb-
   </section>
 </main>
 <nav class="bottom-nav"><a href="index.html">HQ</a><a href="arcade.html">ARCADE</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a></nav>
-<script src="reb-renal-failure-2.js?v=34"></script>
+<script src="reb-renal-failure-2.js?v=35"></script>
 </body></html>
