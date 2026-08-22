@@ -13,7 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
-const VERSION_LABEL = 'DRRRRRT ENGINE V3.6 // RELEASE CANDIDATE';
+const VERSION_LABEL = 'DRRRRRT ENGINE V3.7 // FINAL DIFFICULTY LOCK';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -414,9 +414,10 @@ function stageClearSting() {
 
 const DIFFICULTY_SAVE = 'ttd-reb2-difficulty';
 const DIFFICULTIES = {
-  casual:{label:'CASUAL', maxHp:125, startAmmo:100, stageHeal:28, enemyHp:.85, bossHp:.85, shotSpeed:.88, damage:.75, spawnInterval:1.12, fireInterval:1.12, score:.85},
-  hard:{label:'HARD', maxHp:100, startAmmo:80, stageHeal:20, enemyHp:1, bossHp:1, shotSpeed:1, damage:1, spawnInterval:1, fireInterval:1, score:1},
-  renal:{label:'RENAL FAILURE', maxHp:85, startAmmo:70, stageHeal:14, enemyHp:1.20, bossHp:1.25, shotSpeed:1.15, damage:1.20, spawnInterval:.90, fireInterval:.88, score:1.25}
+  // V3.7: three genuinely different campaigns rather than cosmetic multipliers.
+  casual:{label:'CASUAL', maxHp:135, startAmmo:110, stageHeal:34, stageAmmo:44, enemyHp:.78, bossHp:.78, shotSpeed:.82, damage:.62, spawnInterval:1.20, fireInterval:1.22, pickupRate:.86, invuln:1.05, score:.80},
+  hard:{label:'HARD', maxHp:100, startAmmo:78, stageHeal:14, stageAmmo:30, enemyHp:1.12, bossHp:1.18, shotSpeed:1.10, damage:1.12, spawnInterval:.90, fireInterval:.86, pickupRate:1.06, invuln:.78, score:1.15},
+  renal:{label:'RENAL FAILURE', maxHp:72, startAmmo:62, stageHeal:5, stageAmmo:20, enemyHp:1.55, bossHp:1.72, shotSpeed:1.32, damage:1.52, spawnInterval:.70, fireInterval:.60, pickupRate:1.28, invuln:.52, score:1.55}
 };
 let selectedDifficulty = localStorage.getItem(DIFFICULTY_SAVE) || 'hard';
 if (!DIFFICULTIES[selectedDifficulty]) selectedDifficulty = 'hard';
@@ -442,8 +443,9 @@ function setDifficulty(id) {
   sync();
 }
 
-const JUMP_VELOCITY = -1020;
-const PLAYER_GRAVITY = 1650;
+const JUMP_VELOCITY = -1065;
+const PLAYER_GRAVITY = 1480;
+const JUMP_APEX_GRAVITY = .58; // V3.7 arcade hang-time near the top of the leap
 function playerHitBox() {
   // V3.5: collision follows REB's visible torso/legs, not the old tiny logical rectangle.
   if (!player.onGround) {
@@ -507,7 +509,7 @@ function setStage(id, freshRun = false) {
     state.score = 0; state.hp = d.maxHp; state.ammo = d.startAmmo; state.renal = 0; state.kills = 0;
   } else {
     state.hp = clamp(state.hp + d.stageHeal, 0, d.maxHp);
-    state.ammo = clamp(state.ammo + 36, 0, state.maxAmmo);
+    state.ammo = clamp(state.ammo + d.stageAmmo, 0, state.maxAmmo);
     state.score += Math.round(1500 * s.id * d.score);
   }
   clearWorld();
@@ -802,12 +804,12 @@ function spawnPickup(type) {
   state.pickups.push({type,x:W+45,y:type==='ammo'?visualGround()-46:visualGround()-60,w:44,h:48,spin:0});
 }
 function spawnEmergencyAmmo() {
-  spawnPickup('ammo'); state.banner='SUPPLY DROP // AMMO INBOUND'; state.bannerTime=.7; state.emergencyAmmoCooldown=14;
+  spawnPickup('ammo'); state.banner='SUPPLY DROP // AMMO INBOUND'; state.bannerTime=.7; state.emergencyAmmoCooldown=selectedDifficulty==='renal'?22:selectedDifficulty==='hard'?16:11;
 }
 function damage(n,msg) {
   if (player.invuln > 0 || state.rageTime > 0) return;
   const dealt = Math.max(1, Math.round(n * difficulty().damage));
-  state.hp -= dealt; player.invuln = .9; state.shake = 10; state.flash = .15; state.banner = msg; state.bannerTime = .55;
+  state.hp -= dealt; player.invuln = difficulty().invuln; state.shake = 10; state.flash = .15; state.banner = msg; state.bannerTime = .55;
   boom(); particles(player.x+35,player.y+40,'#ff2d95',12,1.1);
   if (state.hp <= 0) gameOver();
 }
@@ -877,7 +879,8 @@ function update(dt) {
 
   const wasGrounded = player.onGround;
   player.muzzleFlash=Math.max(0,player.muzzleFlash-dt);
-  player.vy += PLAYER_GRAVITY*dt; player.y += player.vy*dt;
+  const gravityScale = Math.abs(player.vy) < 190 ? JUMP_APEX_GRAVITY : 1;
+  player.vy += PLAYER_GRAVITY*gravityScale*dt; player.y += player.vy*dt;
   if (player.y >= visualGround()-player.h) {
     if (!wasGrounded && player.vy > 120) { player.landTime = .22; landSound(); }
     player.y=visualGround()-player.h; player.vy=0; player.onGround=true;
@@ -888,7 +891,7 @@ function update(dt) {
   const bossActive=state.bossSpawned&&!state.bossDefeated;
   if (!bossActive || state.distance < s.length-55) state.distance += worldSpeed*dt/26;
   state.distance = Math.min(state.distance, s.length);
-  state.score += worldSpeed*dt*.06;
+  state.score += worldSpeed*dt*.06*difficulty().score;
 
   if (!state.bossSpawned && state.distance >= s.bossAt) spawnEnemy('air');
 
@@ -899,7 +902,7 @@ function update(dt) {
     state.spawnTimer = spawned ? rand(a,b) * difficulty().spawnInterval : .18;
   }
   state.pickupTimer -= dt;
-  if (state.pickupTimer <= 0) { spawnPickup(); state.pickupTimer=rand(4.0,6.3); }
+  if (state.pickupTimer <= 0) { spawnPickup(); state.pickupTimer=rand(4.0,6.3) * difficulty().pickupRate; }
 
   for (const b of state.bullets) {
     b.x += b.vx*dt; b.life -= dt;
@@ -938,6 +941,10 @@ function update(dt) {
           state.enemyShots.push({x:shotX+12,y:shotY+6,w:18,h:7,vx:-(shotSpeed-8),vy:-72,life:2.25,damage:baseDmg});
           state.enemyShots.push({x:shotX+26,y:shotY+14,w:18,h:7,vx:-(shotSpeed-8),vy:72,life:2.25,damage:baseDmg});
         }
+        if(selectedDifficulty==='renal' && state.stage>=4 && bossPhase>=2){
+          state.enemyShots.push({x:shotX+8,y:shotY-5,w:17,h:7,vx:-(shotSpeed+18),vy:-105,life:2.05,damage:baseDmg});
+          state.enemyShots.push({x:shotX+30,y:shotY+25,w:17,h:7,vx:-(shotSpeed+18),vy:105,life:2.05,damage:baseDmg});
+        }
         if(bossPhase===3) state.shake=Math.max(state.shake,3.5);
       }
     } else {
@@ -946,6 +953,9 @@ function update(dt) {
         e.shoot=(e.type==='brute'?rand(1.8,2.7):e.type==='warriorB'?rand(1.45,2.35):rand(1.8,2.9)) * difficulty().fireInterval;
         const vr=enemyVisualRect(e,false);
         state.enemyShots.push({x:vr.x+Math.min(vr.w*.16,44),y:vr.y+vr.h*.43,w:e.type==='brute'?24:18,h:e.type==='brute'?7:5,vx:(e.type==='brute'?-400:-435) * difficulty().shotSpeed,life:2.1,damage:e.type==='brute'?12:9});
+        if(selectedDifficulty==='renal' && state.stage>=5 && e.type!=='brute'){
+          state.enemyShots.push({x:vr.x+Math.min(vr.w*.16,44)+12,y:vr.y+vr.h*.52,w:16,h:5,vx:-470*difficulty().shotSpeed,vy:28,life:1.9,damage:8});
+        }
       }
     }
     if (rects(playerHitBox(),enemyHitBox(e))) {
