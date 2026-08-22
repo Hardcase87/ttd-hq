@@ -6,7 +6,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,rand=(a,b
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const ship={x:0,y:0,vx:0,vy:0,angle:0,shield:100,heat:0};
 const state={mode:'title',time:0,last:performance.now(),score:0,shots:[],particles:[],camX:0,camY:0,sound:true,fireCD:0,shake:0};
-const title=new Image();title.src='assets/power-command-concept.png';
+const title=new Image();title.src='assets/images/ttd-power-command/power-command-concept.png';
 
 let ac=null,master=null;
 function audioInit(){if(ac)return;ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=.45;master.connect(ac.destination)}
@@ -127,7 +127,7 @@ function drawHUD(){
 }
 function render(){
   if(state.mode==='title'){
-    if(title.complete)ctx.drawImage(title,0,0,W,H);else{ctx.fillStyle='#050609';ctx.fillRect(0,0,W,H)}
+    if(title.complete && title.naturalWidth>0){ctx.drawImage(title,0,0,W,H)}else{ctx.fillStyle='#050609';ctx.fillRect(0,0,W,H)}
     ctx.fillStyle='rgba(0,0,0,.50)';ctx.fillRect(0,0,W,H);
     ctx.font='900 80px Impact, sans-serif';ctx.textAlign='center';ctx.fillStyle='#8aff2b';ctx.fillText('TTD POWER COMMAND',W/2,260);
     ctx.font='900 28px monospace';ctx.fillStyle='#ff2d95';ctx.fillText('INFINITE EARTH FOUNDATION',W/2,315);
