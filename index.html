@@ -1,220 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#08070d" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="TTD HQ" />
-  <title>TTD HQ // Titan City Network</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#050609">
+<title>TTD POWER COMMAND // FOUNDATION</title>
 <style>
-.reb-launch{
-  margin-top:1rem;
-  display:grid;
-  grid-template-columns:minmax(220px,.72fr) 1.28fr;
-  gap:1rem;
-  align-items:stretch;
-  overflow:hidden;
-  border-color:rgba(255,45,149,.34)!important;
-  background:
-    radial-gradient(circle at 12% 12%,rgba(255,45,149,.12),transparent 34%),
-    radial-gradient(circle at 90% 20%,rgba(138,255,43,.10),transparent 32%),
-    rgba(8,8,13,.94)!important;
-}
-.reb-launch-art{
-  min-height:280px;
-  border-radius:14px;
-  overflow:hidden;
-  border:1px solid rgba(138,255,43,.20);
-  background:#050608;
-}
-.reb-launch-art img{width:100%;height:100%;object-fit:cover;display:block}
-.reb-launch-copy{padding:1.15rem;display:flex;flex-direction:column;justify-content:center}
-.reb-launch-copy h2{
-  margin:.1rem 0 .45rem;
-  font-family:"Barlow Condensed",sans-serif;
-  font-size:clamp(2.7rem,7vw,5.6rem);
-  line-height:.82;
-  background:linear-gradient(90deg,#ff2d95,#fff,#8aff2b);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.reb-launch-copy p{max-width:720px}
-.reb-launch-tags{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1rem}
-.reb-launch-tags span{
-  padding:.4rem .65rem;border-radius:999px;
-  border:1px solid rgba(255,255,255,.10);
-  font-family:"Barlow Condensed",sans-serif;
-  font-weight:800;letter-spacing:.06em;
-}
-.reb-launch-actions{display:flex;gap:.65rem;flex-wrap:wrap}
-@media(max-width:760px){
-  .reb-launch{grid-template-columns:1fr}
-  .reb-launch-art{min-height:240px;max-height:360px}
-}
+:root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
+*{box-sizing:border-box}
+html,body{margin:0;background:#050609;color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+body{touch-action:none}
+#wrap{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 0%,rgba(138,255,43,.08),transparent 35%),#050609}
+#gameShell{position:relative;width:min(100vw,177.78vh);aspect-ratio:16/9;background:#000;overflow:hidden;box-shadow:0 0 70px #000}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}
+.scan{position:absolute;inset:0;pointer-events:none;z-index:7;background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.025) 4px);mix-blend-mode:screen}
+#touch{position:absolute;z-index:9;inset:auto 0 8px 0;display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:10px;padding:10px;pointer-events:none}
+.pad,.act{pointer-events:auto;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:4px}
+.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.pad button:nth-child(5){grid-column:2;grid-row:3}
+button{border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(0,0,0,.64);color:#fff;font-weight:900;font-size:18px;backdrop-filter:blur(6px);box-shadow:inset 0 -4px rgba(0,0,0,.4)}
+button:active,.active{transform:translateY(2px);filter:brightness(1.4)}
+.move{color:var(--b);border-color:rgba(57,215,255,.45)}
+.fire{color:var(--p);border-color:rgba(255,45,149,.55);font-size:22px}
+.boost{color:var(--g);border-color:rgba(138,255,43,.50)}
+.act{display:grid;grid-template-rows:1fr 1fr;gap:8px}
+.smallnote{position:absolute;z-index:10;right:12px;top:10px;padding:6px 9px;background:rgba(0,0,0,.62);border:1px solid rgba(138,255,43,.2);font:700 10px monospace;color:var(--g)}
+@media(pointer:fine){#touch{opacity:.25}.pad,.act{opacity:.2}.pad:hover,.act:hover{opacity:1}}
+@media(max-width:800px){#touch{grid-template-columns:1.2fr 1fr 1fr}.pad{grid-template-rows:repeat(3,42px)}button{font-size:15px}}
 </style>
-
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="scanlines"></div>
-
-  <header class="hero-banner" id="hq">
-    <img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network featuring Hardcase '87 and Nikki Nitro" />
-    <div class="hero-overlay"></div>
-  </header>
-
-  <main class="app-shell">
-    <section class="network-strip panel">
-      <div>
-        <span class="pulse-dot"></span>
-        <span>LIVE FEED // TITAN CITY // CH 87</span>
-      </div>
-      <div>CORE CHARACTERS // ONLINE</div>
-    </section>
-
-    <section class="intro-grid">
-      <article class="panel intro-copy">
-        <p class="eyebrow">TTD HQ // TITAN CITY NETWORK</p>
-        <h1>ENTER TITAN CITY</h1>
-        <p>Comics, districts, dossiers, TBN broadcasts, arcade insanity and mutant loot — routed through one neon command console.</p>
-        <div class="status-row">
-          <span><b>CORE MODE</b> Classic TTD</span>
-          <span><b>INTERFACE</b> Neon Network</span>
-          <span><b>STATUS</b> City Alive</span>
-        </div>
-      </article>
-
-      <article class="panel brand-card">
-        <img src="assets/images/ttd-logo-app.png" alt="TTD HQ cyber skull logo" />
-        <div>
-          <p class="eyebrow">NETWORK ID</p>
-          <h2>TTD HQ</h2>
-          <p>NO WITNESSES. ONLY LEGENDS.</p>
-        </div>
-      </article>
-    </section>
-
-    <section class="section-head">
-      <div>
-        <p class="eyebrow">COMMAND MODULES</p>
-        <h2>Choose your route</h2>
-      </div>
-      <span class="status-pill">6 SYSTEMS ONLINE</span>
-    </section>
-
-    <section class="module-grid visual-modules">
-      <a class="module-card image-module" href="map.html" aria-label="Open City Map module"><img src="assets/images/module-city-map.png" alt="TTD HQ City Map command module" /></a>
-      <a class="module-card image-module" href="comics.html" aria-label="Open Comics module"><img src="assets/images/module-comics.png" alt="TTD HQ Comics command module" /></a>
-      <a class="module-card image-module" href="dossiers.html" aria-label="Open Dossiers module"><img src="assets/images/module-dossiers.png" alt="TTD HQ Dossiers command module" /></a>
-      <a class="module-card image-module" href="tbn.html" aria-label="Open TBN module"><img src="assets/images/module-tbn.png" alt="TTD HQ TBN command module" /></a>
-      <a class="module-card image-module" href="arcade.html" aria-label="Open Arcade module"><img src="assets/images/module-arcade.png" alt="TTD HQ Arcade command module" /></a>
-      <a class="module-card image-module" href="store.html" aria-label="Open Store module"><img src="assets/images/module-store.png" alt="TTD HQ Store command module" /></a>
-    </section>
-
-    <section class="panel reb-launch" aria-label="REB Renal Revenge featured game">
-      <div class="reb-launch-art">
-        <img src="assets/images/reb-renal-failure-2/title-screen-v36.png" alt="REB Renal Revenge 2 release artwork">
-      </div>
-      <div class="reb-launch-copy">
-        <p class="eyebrow">TTD ARCADE // RELEASE BUILD LOADED</p>
-        <h2>REB: RENAL REVENGE</h2>
-        <p>Eight stages. Three difficulty modes. Mega Drive renal soundtrack. Heavy minigun fire, mutant bosses, Renal Rage and absolutely no respect for medical advice.</p>
-        <div class="reb-launch-tags">
-          <span>8 STAGES</span><span>V3.7 RELEASE BUILD</span><span>CASUAL / HARD / RENAL FAILURE</span><span>iPAD READY</span>
-        </div>
-        <div class="reb-launch-actions">
-          <a class="read-comic-btn" href="reb-renal-failure-2.html?v=37">PLAY RENAL REVENGE →</a>
-          <a class="action-link" href="arcade.html">OPEN TTD ARCADE →</a>
-        </div>
-      </div>
-    </section>
-
-<section class="dashboard-grid">
-      <article class="panel feature-panel" id="map">
-        <div class="panel-head"><div><p class="eyebrow">CITY MAP</p><h2>Titan City District Grid</h2></div><span>LIVE</span></div>
-        <div class="district-grid">
-          <div>VHS QUARTER<small>Analog neon // street chaos</small></div>
-          <div>NUTRITION DISTRICT<small>Skull Juice // Mutant Loops</small></div>
-          <div>TITAN HEIGHTS<small>High-rise mutant territory</small></div>
-          <div>TITAN SPIRE<small>Network command landmark</small></div>
-          <div>FINANCIAL DISTRICT<small>Grim Ledger territory</small></div>
-          <div>MILITARY DISTRICT<small>Hangars // TDI // DEFCON</small></div>
-        </div>
-      </article>
-
-      <article class="panel comics-panel" id="comics">
-        <div class="panel-head"><div><p class="eyebrow">COMICS SHELF</p><h2>Titan City Issues</h2></div><span>3 FILES</span></div>
-        <div class="comic-grid">
-          <a class="home-comic-link" href="issue-1.html"><figure><span class="comic-status-badge free">FREE</span><img src="assets/images/titan-city-issue-1-cover.png" alt="Titan City issue 1 cover"><figcaption><b>ISSUE #1</b><span>Disaster in the Skies</span></figcaption></figure></a>
-          <a class="home-comic-link" href="issue-2.html"><figure><span class="comic-status-badge free">FREE</span><img src="assets/images/titan-city-issue-2-cover.png" alt="Titan City issue 2 cover"><figcaption><b>ISSUE #2</b><span>The Ooze Below</span></figcaption></figure></a>
-          <a class="home-comic-link" href="issue-3.html"><figure><span class="comic-status-badge free">FREE</span><img src="assets/images/titan-city-issue-3-cover.png" alt="Titan City issue 3 cover"><figcaption><b>ISSUE #3</b><span>Jungle Death Command</span></figcaption></figure></a>
-        </div>
-      </article>
-
-      <article class="panel feature-panel" id="dossiers">
-        <div class="panel-head"><div><p class="eyebrow">CORE DOSSIERS</p><h2>Roster Online</h2></div><span>87</span></div>
-        <div class="roster-list">
-          <div><strong>HARDCASE ’87</strong><span>Enforcer // TTD-87</span></div>
-          <div><strong>NIKKI NITRO</strong><span>Speed Demon // TTD-NN</span></div>
-          <div><strong>VEXXA BLAZE</strong><span>Firebrand // Heavy Ordnance</span></div>
-          <div><strong>GRIM LEDGER</strong><span>Finance Warlord // TDI</span></div>
-          <div><strong>VIPER</strong><span>Toxic Assassin</span></div>
-          <div><strong>CAPTAIN CALORIE</strong><span>Nutrition War Commander</span></div>
-        </div>
-      </article>
-
-      <article class="panel feed-panel" id="tbn">
-        <div class="panel-head"><div><p class="eyebrow">TBN NEWS FEED</p><h2>Broadcast Queue</h2></div><span>ON AIR</span></div>
-        <ul class="feed-list">
-          <li><b>EMERGENCY BROADCAST</b><span>Power surge detected in VHS Quarter.</span></li>
-          <li><b>TITAN SPIRE ALERT</b><span>Security protocol DELTA activated.</span></li>
-          <li><b>NUTRITION DISTRICT</b><span>Skull Juice shipment complete. Casualties unknown.</span></li>
-          <li><b>TITAN BALL</b><span>Dex Volt cleared for excessive contact.</span></li>
-        </ul>
-      </article>
-
-      <article class="panel feature-panel" id="arcade">
-        <div class="panel-head"><div><p class="eyebrow">ARCADE</p><h2>TTD Arcade</h2></div><span>4 CABINETS LIVE</span></div>
-        <p>Titan Ball '92. Titan Ball '94. REB: Renal Failure. REB: Renal Revenge. Four browser cabinets are now deployed inside Titan City.</p>
-        <div class="issue-actions">
-          <a class="read-comic-btn" href="arcade.html">OPEN ARCADE →</a>
-          <a class="action-link" href="reb-renal-failure-2.html?v=37">PLAY RENAL REVENGE →</a>
-        </div>
-      </article>
-
-      <article class="panel feature-panel" id="store">
-        <div class="panel-head"><div><p class="eyebrow">STORE</p><h2>Mutant Loot Vault</h2></div><span>NEW DROP</span></div>
-        <p>Posters, sticker packs, roster cards, action-figure boxes and future digital comic drops.</p><div class="issue-actions"><a class="read-comic-btn" href="store.html">ENTER LOOT VAULT →</a></div>
-        <button class="coming-soon">PHYSICAL LOOT // COMING SOON</button>
-      </article>
-    </section>
-
-    <section class="panel comic-support-strip hq-payments-strip">
-      <div>
-        <p class="eyebrow">TTD COMMERCE</p>
-        <h2>SUPPORT THE CITY // FUTURE DIGITAL DROPS</h2>
-      </div>
-      <a class="read-comic-btn" href="payments.html">OPEN SUPPORT GRID →</a>
-    </section>
-
-</main>
-
-  <nav class="bottom-nav" aria-label="TTD HQ navigation">
-  <a href="index.html">HQ</a>
-  <a href="map.html">MAP</a>
-  <a href="comics.html">COMICS</a>
-  <a href="dossiers.html">CREW</a>
-  <a href="tbn.html">TBN</a>
-</nav>
-
-  <script src="app.js"></script>
+<div id="wrap">
+<div id="gameShell">
+<canvas id="game" width="1280" height="720"></canvas>
+<div class="scan"></div>
+<div class="smallnote">FOUNDATION BUILD // INFINITE EARTH</div>
+<div id="touch">
+  <div class="pad">
+    <button class="move" id="up">▲</button>
+    <button class="move" id="left">◀</button>
+    <button class="move" id="stop">●</button>
+    <button class="move" id="right">▶</button>
+    <button class="move" id="down">▼</button>
+  </div>
+  <div class="act">
+    <button class="fire" id="fire">✹ DRRRRRT</button>
+    <button class="boost" id="boost">➤ BOOST</button>
+  </div>
+  <div class="act">
+    <button id="start">START</button>
+    <button id="sound">SOUND ON</button>
+  </div>
+</div>
+</div>
+</div>
+<script src="power-command.js"></script>
 </body>
 </html>
