@@ -13,7 +13,7 @@ const H = canvas.height;
 const GROUND = 438;
 const TWO = Math.PI * 2;
 const SAVE = 'ttd-reb-renal-failure-v2-highscore';
-const VERSION_LABEL = 'DRRRRRT ENGINE V3.5 // FINAL CARTRIDGE PASS';
+const VERSION_LABEL = 'DRRRRRT ENGINE V3.6 // RELEASE CANDIDATE';
 
 const UI = {
   score: document.getElementById('rebScore'),
@@ -53,8 +53,10 @@ const ART_SRC = {
   rebHdJump: EXP + 'reb-hd-jump.png',
   rebHdLand: EXP + 'reb-hd-land.png',
   stage1Hd: EXP + 'stage-1-jungle-hd.jpg',
-  hardcaseCard: EXP + 'intermission-hardcase-v3.png',
-  nikkiCard: EXP + 'intermission-nikki-v3.png',
+  hardcaseCard: EXP + 'intermission-hardcase-v36.png',
+  nikkiCard: EXP + 'intermission-nikki-v36.png',
+  titleScreen: EXP + 'title-screen-v36.png',
+  loadingScreen: EXP + 'loading-screen-v36.png',
 
   // V3.3 cropped roster: clean transparent sprites, all oriented toward REB.
   s1enemyA: EXP + 'bonus-jungle-roster-enemy-a.png',
@@ -440,14 +442,14 @@ function setDifficulty(id) {
   sync();
 }
 
-const JUMP_VELOCITY = -900;
-const PLAYER_GRAVITY = 1700;
+const JUMP_VELOCITY = -1020;
+const PLAYER_GRAVITY = 1650;
 function playerHitBox() {
   // V3.5: collision follows REB's visible torso/legs, not the old tiny logical rectangle.
   if (!player.onGround) {
-    return {x:player.x-22, y:player.y-72, w:96, h:190};
+    return {x:player.x-34, y:player.y-82, w:122, h:202};
   }
-  return {x:player.x-18, y:visualGround()-222, w:98, h:218};
+  return {x:player.x-34, y:visualGround()-232, w:124, h:228};
 }
 
 const STAGES = [
@@ -473,7 +475,7 @@ const state = {
   fireHeld:false, fireCooldown:0, time:0, last:performance.now(), spawnTimer:1, pickupTimer:2.5,
   shake:0, flash:0, banner:'', bannerTime:0, bullets:[], enemies:[], pickups:[], enemyShots:[], particles:[], hitBursts:[],
   stage:1, kills:0, stageKills:0, bossSpawned:false, bossDefeated:false, stageClearTimer:0,
-  emergencyAmmoCooldown:0, cameoTime:0, cameo:null, stageIntroTimer:0
+  emergencyAmmoCooldown:0, cameoTime:0, cameo:null, stageIntroTimer:0, loadingTimer:0
 };
 const stage = () => STAGES[state.stage - 1] || STAGES[0];
 const visualGround = () => GROUND + (stage().groundOffset || 0);
@@ -515,7 +517,16 @@ function setStage(id, freshRun = false) {
   tone(220,.05); setTimeout(()=>tone(330,.06),60); setTimeout(()=>tone(440,.10),125);
 }
 function reset() { setStage(1, true); }
-function start() { wakeAudio(); if (['title','gameover','victory'].includes(state.mode)) reset(); }
+function beginLoading() {
+  wakeAudio();
+  clearWorld();
+  state.mode='loading'; state.loadingTimer=1.45; state.fireHeld=false; state.banner=''; state.bannerTime=0;
+  bossMusicReset(); sync();
+}
+function start() {
+  wakeAudio();
+  if (['title','gameover','victory'].includes(state.mode)) beginLoading();
+}
 
 function jump() {
   wakeAudio();
@@ -835,6 +846,11 @@ function update(dt) {
   state.time += dt; state.flash=Math.max(0,state.flash-dt); state.shake=Math.max(0,state.shake-44*dt); state.bannerTime=Math.max(0,state.bannerTime-dt);
   state.fireCooldown=Math.max(0,state.fireCooldown-dt); player.invuln=Math.max(0,player.invuln-dt); player.shootPose=Math.max(0,player.shootPose-dt); player.landTime=Math.max(0,player.landTime-dt); state.cameoTime=Math.max(0,state.cameoTime-dt);
   updateMusicMix(dt);
+  if (state.mode === 'loading') {
+    state.loadingTimer = Math.max(0, state.loadingTimer-dt);
+    if (state.loadingTimer <= 0) setStage(1, true);
+    return;
+  }
   if (state.mode !== 'playing') return;
 
   if (state.stageClearTimer > 0) {
@@ -1136,7 +1152,10 @@ function drawPlayer(){
   ctx.restore();
 
   if(rageOn){
-    const cx=player.x+44, cy=player.y+36, pulse=1+Math.sin(state.time*11)*.08;
+    // V3.6: center the Renal Rage field on REB's visible body, not his legacy logic rectangle.
+    const cx=player.x+31;
+    const cy=player.onGround ? visualGround()-126 : player.y+28;
+    const pulse=1+Math.sin(state.time*11)*.08;
     ctx.save();
     const grad=ctx.createRadialGradient(cx,cy,16,cx,cy,188*pulse);
     grad.addColorStop(0,'rgba(255,255,255,.04)');
@@ -1144,14 +1163,14 @@ function drawPlayer(){
     grad.addColorStop(.55,'rgba(138,255,43,.24)');
     grad.addColorStop(.78,'rgba(57,215,255,.13)');
     grad.addColorStop(1,'rgba(138,255,43,0)');
-    ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(cx,cy,152*pulse,176*pulse,0,0,TWO); ctx.fill();
+    ctx.fillStyle=grad; ctx.beginPath(); ctx.ellipse(cx,cy,126*pulse,154*pulse,0,0,TWO); ctx.fill();
 
     ctx.lineWidth=5; ctx.shadowColor='#8aff2b'; ctx.shadowBlur=46;
     for(let i=0;i<3;i++){
       ctx.globalAlpha=.68-i*.15;
       ctx.strokeStyle=i===1?'#39d7ff':'#8aff2b';
       ctx.beginPath();
-      ctx.ellipse(cx,cy,100+i*18,124+i*16,state.time*(i%2?.55:-.42),0,TWO);
+      ctx.ellipse(cx,cy,86+i*16,110+i*15,state.time*(i%2?.55:-.42),0,TWO);
       ctx.stroke();
     }
     ctx.restore();
@@ -1159,8 +1178,8 @@ function drawPlayer(){
     ctx.save();
     for(let i=0;i<12;i++){
       const a=state.time*(3.4+i*.025)+i*TWO/12;
-      const radius=92+(i%3)*24;
-      const rx=Math.cos(a)*radius, ry=Math.sin(a*1.13)*(58+(i%4)*9);
+      const radius=80+(i%3)*21;
+      const rx=Math.cos(a)*radius, ry=Math.sin(a*1.13)*(54+(i%4)*8);
       ctx.globalAlpha=.48+.22*Math.sin(state.time*7+i);
       ctx.fillStyle=i%3===0?'#39d7ff':i%2===0?'#8aff2b':'#ffe53b';
       ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=14;
@@ -1357,11 +1376,19 @@ function drawHud(){
   if(state.bannerTime>0){ctx.globalAlpha=clamp(state.bannerTime*2,0,1);ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(W/2-300,112,600,55);shadow(state.banner,W/2,140,24,state.banner.includes('RENAL')?'#ffe53b':'#fff','center');ctx.globalAlpha=1;}
 }
 function drawTitle(){
-  drawBackground();ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(0,0,W,H);
-  if(!art('cover',32,46,400,400,.98)){ctx.fillStyle='#12091d';ctx.fillRect(32,46,400,400);shadow('RENAL REVENGE',232,246,40,'#8aff2b','center');}
-  shadow('REB',690,105,82,'#ff2d95','center');shadow('RENAL REVENGE',690,172,48,'#8aff2b','center');shadow('8 STAGE CAMPAIGN',690,226,28,'#ffe53b','center');shadow('DRRRRRT ENGINE V3.5',690,258,19,'#39d7ff','center');
-  text(`DIFFICULTY // ${difficulty().label}`,690,286,17,'#ffe53b','center');
-  ctx.fillStyle='rgba(5,8,7,.93)';ctx.fillRect(470,316,440,94);ctx.strokeStyle='rgba(255,229,59,.60)';ctx.lineWidth=2;ctx.strokeRect(470,316,440,94);shadow('TAP SCREEN OR PRESS ENTER',690,348,25,'#ffe53b','center');text(`HIGH SCORE ${pad(high)}`,690,383,18,'#39d7ff','center');
+  if(!drawCoverImage('titleScreen',0,0,W,H,1)) drawBackground();
+  const shade=ctx.createLinearGradient(0,H*.58,0,H);shade.addColorStop(0,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,0,.78)');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(5,8,7,.88)';ctx.fillRect(W/2-235,420,470,82);ctx.strokeStyle='rgba(138,255,43,.72)';ctx.lineWidth=2;ctx.strokeRect(W/2-235,420,470,82);
+  shadow('TAP SCREEN OR PRESS ENTER',W/2,449,25,'#ffe53b','center');
+  text(`DIFFICULTY // ${difficulty().label}   HIGH // ${pad(high)}`,W/2,482,16,'#39d7ff','center');
+}
+function drawLoading(){
+  if(!drawCoverImage('loadingScreen',0,0,W,H,1)){drawBackground();ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(0,0,W,H);}
+  const p=clamp(1-(state.loadingTimer/1.45),0,1);
+  ctx.fillStyle='rgba(5,8,7,.88)';ctx.fillRect(540,370,360,105);ctx.strokeStyle='rgba(255,45,149,.68)';ctx.lineWidth=2;ctx.strokeRect(540,370,360,105);
+  text('TTD DEPLOYMENT',560,396,16,'#ff2d95');
+  ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(560,418,315,16);ctx.fillStyle='#8aff2b';ctx.fillRect(563,421,309*p,10);
+  shadow(`LOADING ${Math.min(99,Math.floor(p*100))}%`,718,455,22,'#8aff2b','center');
 }
 function drawCameo(){
   if(state.cameoTime<=0||!state.cameo)return;
@@ -1444,7 +1471,7 @@ function drawEnd(victoryMode){
 function render(){
   const sx=state.shake>0?Math.round(rand(-state.shake,state.shake)):0,sy=state.shake>0?Math.round(rand(-state.shake*.5,state.shake*.5)):0;
   ctx.save();ctx.translate(sx,sy);
-  if(state.mode==='title')drawTitle();else{
+  if(state.mode==='title')drawTitle();else if(state.mode==='loading')drawLoading();else{
     drawBackground();for(const p of state.pickups)drawPickup(p);for(const s of state.enemyShots)drawEnemyShot(s);for(const b of state.bullets)drawBullet(b);for(const e of state.enemies)drawEnemy(e);drawHitBursts();drawPlayer();drawParticles();drawHud();
     drawStageIntro();drawStageClear();if(state.mode==='gameover')drawEnd(false);if(state.mode==='victory')drawEnd(true);
   }
