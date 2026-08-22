@@ -11,110 +11,19 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<title>Titan Ball '94 // TTD HQ</title>
+<title>Titan Ball '94 V6 // TTD HQ</title>
 <style>
-:root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b;--bg:#07080b}
-.tb94-wrap{margin-top:1rem}
-.tb94-cabinet{max-width:1120px;margin:auto;padding:14px;border:1px solid rgba(138,255,43,.28);border-radius:28px;background:
-radial-gradient(circle at 15% 0%,rgba(255,45,149,.09),transparent 34%),
-radial-gradient(circle at 86% 0%,rgba(57,215,255,.08),transparent 31%),#050609;box-shadow:0 0 60px rgba(138,255,43,.08)}
-.tb94-marquee{display:flex;align-items:end;justify-content:space-between;gap:1rem;padding:8px 10px 12px;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase}
-.tb94-marquee strong{font-size:clamp(1.8rem,6vw,4rem);line-height:.85;letter-spacing:.02em;background:linear-gradient(90deg,#fff,var(--p),var(--g));-webkit-background-clip:text;background-clip:text;color:transparent}
-.tb94-marquee span{font-size:.8rem;font-weight:900;letter-spacing:.11em;color:var(--g);text-align:right}
-.tb94-screen{position:relative;overflow:hidden;border:2px solid rgba(57,215,255,.22);border-radius:18px;background:#030604;box-shadow:inset 0 0 38px rgba(0,0,0,.9)}
-#tb94Canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;background:#07110b}
-.tb94-screen:after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 4px);mix-blend-mode:screen;opacity:.35}
-.tb94-hud{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:9px}
-.tb94-chip{padding:7px 9px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);font-family:"Barlow Condensed",sans-serif}
-.tb94-chip b{display:block;font-size:.62rem;color:#8b949e;letter-spacing:.09em}.tb94-chip span{font-weight:900;color:#fff;font-size:1rem}
-.tb94-controls{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.15fr;gap:9px;margin-top:11px;user-select:none;-webkit-user-select:none}
-.tb94-dpad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,48px);gap:4px}
-.tb94-dpad button:nth-child(1){grid-column:2}.tb94-dpad button:nth-child(2){grid-column:1;grid-row:2}.tb94-dpad button:nth-child(3){grid-column:2;grid-row:2}.tb94-dpad button:nth-child(4){grid-column:3;grid-row:2}.tb94-dpad button:nth-child(5){grid-column:2;grid-row:3}
-.tb94-btn{border:1px solid rgba(255,255,255,.12);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.018));color:white;font-family:"Barlow Condensed",sans-serif;font-weight:900;letter-spacing:.07em;text-transform:uppercase;touch-action:manipulation;box-shadow:inset 0 -4px 0 rgba(0,0,0,.28)}
-.tb94-btn:active,.tb94-btn.active{transform:translateY(2px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.25)}
-.tb94-btn.move{color:var(--b);border-color:rgba(57,215,255,.35)}.tb94-btn.smash{color:var(--p);border-color:rgba(255,45,149,.48)}
-.tb94-btn.dash{color:var(--g);border-color:rgba(138,255,43,.45)}.tb94-btn.special{color:var(--y);border-color:rgba(255,229,59,.45)}
-.tb94-action{min-height:148px;font-size:1.05rem}.tb94-special.ready{animation:tbPulse .5s infinite alternate;background:rgba(255,229,59,.1)}
-@keyframes tbPulse{to{box-shadow:0 0 25px rgba(255,229,59,.25),inset 0 -4px 0 rgba(0,0,0,.28)}}
-.tb94-help{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin:10px 2px 0;color:#8b949e;font-size:.76rem}.tb94-help strong{color:var(--g)}
-.tb94-roster{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}.tb94-roster article{padding:1rem}.tb94-roster h2{font-family:"Barlow Condensed";font-size:2rem;margin:.15rem 0}.tb94-tag{display:inline-flex;padding:.3rem .5rem;border-radius:999px;border:1px solid rgba(138,255,43,.25);font-size:.7rem;font-weight:900;letter-spacing:.08em;color:var(--g)}
-@media(max-width:800px){.tb94-hud{grid-template-columns:repeat(3,1fr)}.tb94-controls{grid-template-columns:1.3fr 1fr 1fr}.tb94-special{grid-column:1/-1;min-height:54px}.tb94-action{min-height:112px}.tb94-dpad{grid-template-rows:repeat(3,36px)}.tb94-roster{grid-template-columns:1fr}}
-
-/* ===== TB94 V5 OVERKILL ===== */
-.tb94-cabinet{
-  position:relative;
-  border:2px solid rgba(138,255,43,.32);
-  background:
-    linear-gradient(135deg,rgba(255,45,149,.06),transparent 28%),
-    linear-gradient(315deg,rgba(57,215,255,.05),transparent 28%),
-    #030406;
-  box-shadow:
-    0 30px 100px rgba(0,0,0,.55),
-    0 0 0 1px rgba(255,255,255,.025) inset,
-    0 0 45px rgba(255,45,149,.06),
-    0 0 65px rgba(138,255,43,.05);
-}
-.tb94-cabinet:before,.tb94-cabinet:after{
-  content:"";position:absolute;top:42px;width:7px;height:70%;
-  border-radius:20px;opacity:.65;pointer-events:none;
-}
-.tb94-cabinet:before{left:-5px;background:linear-gradient(var(--p),transparent,var(--g));box-shadow:0 0 18px var(--p)}
-.tb94-cabinet:after{right:-5px;background:linear-gradient(var(--g),transparent,var(--b));box-shadow:0 0 18px var(--g)}
-.tb94-screen{
-  border:2px solid rgba(255,255,255,.08);
-  background:#010203;
-  box-shadow:
-    inset 0 0 55px #000,
-    0 0 0 5px rgba(0,0,0,.42),
-    0 0 40px rgba(255,45,149,.10);
-}
-.tb94-bezel-label{
-  position:absolute;z-index:4;left:14px;top:10px;
-  padding:4px 7px;border:1px solid rgba(138,255,43,.22);border-radius:5px;
-  color:rgba(138,255,43,.72);background:rgba(0,0,0,.52);
-  font:800 10px/1 "Barlow Condensed",sans-serif;letter-spacing:.12em;
-  pointer-events:none;
-}
-.tb94-glass{
-  position:absolute;inset:0;z-index:3;pointer-events:none;
-  background:
-    radial-gradient(circle at 50% 35%,transparent 45%,rgba(0,0,0,.38) 100%),
-    linear-gradient(115deg,rgba(255,255,255,.045),transparent 18%,transparent 74%,rgba(255,255,255,.018));
-  mix-blend-mode:screen;
-}
-.tb94-screen:after{z-index:5;opacity:.25}
-.tb94-hud{padding:7px;border-radius:15px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.045)}
-.tb94-chip{
-  position:relative;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(0,0,0,.18));
-  box-shadow:inset 0 1px rgba(255,255,255,.045);
-}
-.tb94-chip:after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
-  background:linear-gradient(90deg,var(--p),var(--g),var(--b));opacity:.55;
-}
-.tb94-controls{
-  padding:10px;border-radius:18px;background:rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.045);
-}
-.tb94-btn{
-  min-height:44px;
-  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.02));
-  backdrop-filter:blur(6px);
-  -webkit-tap-highlight-color:transparent;
-}
-.tb94-btn.smash{box-shadow:inset 0 -4px rgba(0,0,0,.3),0 0 14px rgba(255,45,149,.06)}
-.tb94-btn.dash{box-shadow:inset 0 -4px rgba(0,0,0,.3),0 0 14px rgba(138,255,43,.06)}
-.tb94-btn.special{box-shadow:inset 0 -4px rgba(0,0,0,.3),0 0 14px rgba(255,229,59,.06)}
-.tb94-special.ready{animation:tbPulse .32s infinite alternate}
-@media(max-width:800px){
-  .tb94-cabinet{padding:8px;border-radius:18px}
-  .tb94-marquee strong{font-size:2.3rem}
-  .tb94-marquee span{font-size:.62rem}
-  .tb94-controls{gap:6px;padding:6px}
-  .tb94-help{font-size:.67rem}
-}
-
+:root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
+.tb94-wrap{margin-top:1rem}.tb94-cabinet{max-width:1120px;margin:auto;padding:14px;border:2px solid rgba(138,255,43,.32);border-radius:28px;position:relative;background:linear-gradient(135deg,rgba(255,45,149,.06),transparent 28%),linear-gradient(315deg,rgba(57,215,255,.05),transparent 28%),#030406;box-shadow:0 30px 100px rgba(0,0,0,.55),0 0 45px rgba(255,45,149,.06),0 0 65px rgba(138,255,43,.05)}
+.tb94-cabinet:before,.tb94-cabinet:after{content:"";position:absolute;top:42px;width:7px;height:70%;border-radius:20px;opacity:.65;pointer-events:none}.tb94-cabinet:before{left:-5px;background:linear-gradient(var(--p),transparent,var(--g));box-shadow:0 0 18px var(--p)}.tb94-cabinet:after{right:-5px;background:linear-gradient(var(--g),transparent,var(--b));box-shadow:0 0 18px var(--g)}
+.tb94-marquee{display:flex;align-items:end;justify-content:space-between;gap:1rem;padding:8px 10px 12px;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase}.tb94-marquee strong{font-size:clamp(1.8rem,6vw,4rem);line-height:.85;background:linear-gradient(90deg,#fff,var(--p),var(--g));-webkit-background-clip:text;background-clip:text;color:transparent}.tb94-marquee span{font-size:.8rem;font-weight:900;letter-spacing:.11em;color:var(--g);text-align:right}
+.tb94-screen{position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.08);border-radius:18px;background:#010203;box-shadow:inset 0 0 55px #000,0 0 0 5px rgba(0,0,0,.42),0 0 40px rgba(255,45,149,.10)}#tb94Canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;background:#07110b}.tb94-screen:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 4px);mix-blend-mode:screen;opacity:.25}.tb94-glass{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 50% 35%,transparent 45%,rgba(0,0,0,.38) 100%),linear-gradient(115deg,rgba(255,255,255,.045),transparent 18%,transparent 74%,rgba(255,255,255,.018));mix-blend-mode:screen}.tb94-bezel-label{position:absolute;z-index:4;left:14px;top:10px;padding:4px 7px;border:1px solid rgba(138,255,43,.22);border-radius:5px;color:rgba(138,255,43,.72);background:rgba(0,0,0,.52);font:800 10px/1 "Barlow Condensed",sans-serif;letter-spacing:.12em;pointer-events:none}
+.tb94-hud{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:9px;padding:7px;border-radius:15px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.045)}.tb94-chip{position:relative;overflow:hidden;padding:7px 9px;border-radius:11px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(0,0,0,.18));font-family:"Barlow Condensed",sans-serif}.tb94-chip:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--p),var(--g),var(--b));opacity:.55}.tb94-chip b{display:block;font-size:.62rem;color:#8b949e;letter-spacing:.09em}.tb94-chip span{font-weight:900;color:#fff;font-size:1rem}
+.tb94-controls{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.15fr;gap:9px;margin-top:11px;padding:10px;border-radius:18px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.045);user-select:none;-webkit-user-select:none}.tb94-dpad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,48px);gap:4px}.tb94-dpad button:nth-child(1){grid-column:2}.tb94-dpad button:nth-child(2){grid-column:1;grid-row:2}.tb94-dpad button:nth-child(3){grid-column:2;grid-row:2}.tb94-dpad button:nth-child(4){grid-column:3;grid-row:2}.tb94-dpad button:nth-child(5){grid-column:2;grid-row:3}
+.tb94-btn{min-height:44px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.02));color:white;font-family:"Barlow Condensed",sans-serif;font-weight:900;letter-spacing:.07em;text-transform:uppercase;touch-action:manipulation;box-shadow:inset 0 -4px 0 rgba(0,0,0,.28);-webkit-tap-highlight-color:transparent}.tb94-btn:active,.tb94-btn.active{transform:translateY(2px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.25)}.tb94-btn.move{color:var(--b);border-color:rgba(57,215,255,.35)}.tb94-btn.smash{color:var(--p);border-color:rgba(255,45,149,.48)}.tb94-btn.dash{color:var(--g);border-color:rgba(138,255,43,.45)}.tb94-btn.special{color:var(--y);border-color:rgba(255,229,59,.45)}.tb94-action{min-height:148px;font-size:1.05rem}.tb94-special.ready{animation:tbPulse .32s infinite alternate;background:rgba(255,229,59,.1)}@keyframes tbPulse{to{box-shadow:0 0 25px rgba(255,229,59,.25),inset 0 -4px 0 rgba(0,0,0,.28)}}
+.tb94-difficulty{display:grid;grid-template-columns:auto repeat(3,1fr);gap:8px;margin-top:10px;padding:9px 11px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025)}.tb94-difficulty span{display:flex;align-items:center;color:#aaa;font:900 .8rem "Barlow Condensed",sans-serif;letter-spacing:.09em}.tb94-diff{min-height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.035);color:#bbb;font:900 .88rem "Barlow Condensed",sans-serif;letter-spacing:.08em}.tb94-diff.active{color:#081006;background:var(--g);border-color:var(--g);box-shadow:0 0 16px rgba(138,255,43,.22)}
+.tb94-help{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin:10px 2px 0;color:#8b949e;font-size:.76rem}.tb94-help strong{color:var(--g)}.tb94-roster{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}.tb94-roster article{padding:1rem}.tb94-roster h2{font-family:"Barlow Condensed";font-size:2rem;margin:.15rem 0}.tb94-tag{display:inline-flex;padding:.3rem .5rem;border-radius:999px;border:1px solid rgba(138,255,43,.25);font-size:.7rem;font-weight:900;letter-spacing:.08em;color:var(--g)}
+@media(max-width:800px){.tb94-cabinet{padding:8px;border-radius:18px}.tb94-hud{grid-template-columns:repeat(4,1fr)}.tb94-controls{grid-template-columns:1.3fr 1fr 1fr;gap:6px;padding:6px}.tb94-special{grid-column:1/-1;min-height:54px}.tb94-action{min-height:112px}.tb94-dpad{grid-template-rows:repeat(3,36px)}.tb94-roster{grid-template-columns:1fr}.tb94-difficulty{grid-template-columns:repeat(3,1fr)}.tb94-difficulty span{grid-column:1/-1;justify-content:center}.tb94-marquee strong{font-size:2.3rem}.tb94-marquee span{font-size:.62rem}}
 </style>
 </head>
 <body>
@@ -122,78 +31,50 @@ radial-gradient(circle at 86% 0%,rgba(57,215,255,.08),transparent 31%),#050609;b
 <header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ"></a></header>
 
 <main class="app-shell page-shell">
-<section class="network-strip panel"><div><span class="pulse-dot"></span><span>ARCADE // TITAN BALL '94</span></div><div>16-BIT MUTATION ENGINE // V5 OVERKILL</div></section>
-
-<section class="panel" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-  <div>
-    <p class="eyebrow">TITAN CITY ARCADE</p>
-    <h2 style="margin:.1rem 0">SELECT CABINET</h2>
-  </div>
-  <div class="issue-actions" style="margin:0">
-    <a class="read-comic-btn" href="arcade.html">← TITAN BALL '92</a>
-    <a class="read-comic-btn" href="titanball94.html">TITAN BALL '94 // ACTIVE</a>
-  </div>
-</section>
+<section class="network-strip panel"><div><span class="pulse-dot"></span><span>ARCADE // TITAN BALL '94</span></div><div>V6 // ACTUAL FUCKING GAME EDITION</div></section>
 
 <section class="panel titanball-hero">
   <img src="assets/images/module-arcade.png" alt="Titan Ball arcade module">
-  <div>
-    <p class="eyebrow">TITAN CITY SPORTS DIVISION // 1994</p>
-    <h1>TITAN BALL '94</h1>
-    <p>Bigger field. Bigger hits. Three playable mutants. Proper downs. Zero concern for player welfare.</p>
-    <div class="status-row">
-      <span><b>ENGINE</b> TB94 16-BIT</span><span><b>MODE</b> MUTANT DRIVE</span><span><b>RULES</b> OPTIONAL</span>
-    </div>
-  </div>
+  <div><p class="eyebrow">TITAN CITY SPORTS DIVISION // 1994</p><h1>TITAN BALL '94</h1>
+  <p>Four quarters. Real opponent score. Real clock. Real turnovers. Real final whistle. Win the fucking game.</p>
+  <div class="status-row"><span><b>ENGINE</b> TB94 V6</span><span><b>MODE</b> FULL MATCH</span><span><b>RULES</b> STILL OPTIONAL</span></div></div>
 </section>
 
-<section class="tb94-wrap">
-<div class="tb94-cabinet">
-  <div class="tb94-marquee"><strong>TITAN BALL '94</strong><span>V5 OVERKILL // MEGA DRIVE MUTATION ENGINE</span></div>
-  <div class="tb94-screen">
-      <div class="tb94-bezel-label">TTD // 16-BIT SPORTS VIOLENCE SYSTEM</div>
-      <canvas id="tb94Canvas" width="960" height="540" aria-label="Titan Ball '94 browser game"></canvas>
-      <div class="tb94-glass"></div>
-    </div>
+<section class="tb94-wrap"><div class="tb94-cabinet">
+  <div class="tb94-marquee"><strong>TITAN BALL '94</strong><span>V6 // MEGA DRIVE MATCH ENGINE</span></div>
+  <div class="tb94-screen"><div class="tb94-bezel-label">TTD // 16-BIT SPORTS VIOLENCE SYSTEM</div><canvas id="tb94Canvas" width="960" height="540" aria-label="Titan Ball '94 browser game"></canvas><div class="tb94-glass"></div></div>
 
   <div class="tb94-hud">
-    <div class="tb94-chip"><b>SCORE</b><span id="tb94Score">000000</span></div>
+    <div class="tb94-chip"><b>YOU</b><span id="tb94You">0</span></div>
+    <div class="tb94-chip"><b>THEM</b><span id="tb94Them">0</span></div>
+    <div class="tb94-chip"><b>QUARTER</b><span id="tb94Quarter">Q1</span></div>
+    <div class="tb94-chip"><b>CLOCK</b><span id="tb94Clock">1:15</span></div>
     <div class="tb94-chip"><b>DOWN</b><span id="tb94Down">1 & 20</span></div>
     <div class="tb94-chip"><b>FIELD</b><span id="tb94Field">0 YD</span></div>
     <div class="tb94-chip"><b>HP</b><span id="tb94Hp">100</span></div>
     <div class="tb94-chip"><b>MUTATION</b><span id="tb94Meter">0%</span></div>
-    <div class="tb94-chip"><b>STATUS</b><span id="tb94Status">READY</span></div>
   </div>
 
   <div class="tb94-controls">
-    <div class="tb94-dpad">
-      <button class="tb94-btn move" id="tb94Up">▲</button>
-      <button class="tb94-btn move" id="tb94Left">◀</button>
-      <button class="tb94-btn move" id="tb94Center">●</button>
-      <button class="tb94-btn move" id="tb94Right">▶</button>
-      <button class="tb94-btn move" id="tb94DownBtn">▼</button>
-    </div>
+    <div class="tb94-dpad"><button class="tb94-btn move" id="tb94Up">▲</button><button class="tb94-btn move" id="tb94Left">◀</button><button class="tb94-btn move" id="tb94Center">●</button><button class="tb94-btn move" id="tb94Right">▶</button><button class="tb94-btn move" id="tb94DownBtn">▼</button></div>
     <button class="tb94-btn smash tb94-action" id="tb94Smash">✹ SMASH</button>
     <button class="tb94-btn dash tb94-action" id="tb94Dash">➤ DASH</button>
-    <button class="tb94-btn special tb94-action" id="tb94Special">⚡ MUTATION</button>
+    <button class="tb94-btn special tb94-action tb94-special" id="tb94Special">⚡ MUTATION</button>
   </div>
 
-  <div class="tb94-help">
-    <span><strong>KEYBOARD:</strong> WASD/arrows move // X smash // C dash // V special // ENTER start // P pause</span>
-    <span><strong>GAMEPAD:</strong> stick/D-pad // A dash // X smash // Y special // Start pause</span>
-  </div>
-</div>
-</section>
+  <div class="tb94-difficulty"><span>DIFFICULTY // LOCKS AT KICKOFF</span><button class="tb94-diff" data-diff="casual">CASUAL</button><button class="tb94-diff active" data-diff="hard">HARD</button><button class="tb94-diff" data-diff="titan">TITAN</button></div>
+
+  <div class="tb94-help"><span><strong>iPAD:</strong> tap controls // character/difficulty on screen</span><span><strong>KEYBOARD:</strong> arrows/WASD // X smash // C dash // V mutation // ENTER start // P pause</span></div>
+</div></section>
 
 <section class="tb94-roster">
-<article class="panel"><span class="tb94-tag">POWER / VOLTAGE</span><h2>DEX VOLT #7</h2><p>Balanced speed and power. Special: VOLTAGE STORM — electrified charge that wrecks tackles and chains bonus score.</p></article>
-<article class="panel"><span class="tb94-tag">SPEED / AGILITY</span><h2>NIKKI NITRO #87</h2><p>Crop football jersey, maximum acceleration. Special: NITRO BREAK — extreme burst speed, dodge window and score multiplier.</p></article>
-<article class="panel"><span class="tb94-tag">HEAVY / DAMAGE</span><h2>MACK MAUL #99</h2><p>New Titan City mutant bruiser. Slowest runner, biggest hitbox, highest HP. Special: EARTHQUAKE — shockwave clears defenders nearby.</p></article>
+<article class="panel"><span class="tb94-tag">POWER / VOLTAGE</span><h2>DEX VOLT #7</h2><p>Balanced speed and power. VOLTAGE STORM wrecks tackles and chains score.</p></article>
+<article class="panel"><span class="tb94-tag">SPEED / AGILITY</span><h2>NIKKI NITRO #87</h2><p>Maximum acceleration and dodge. NITRO BREAK turns lanes into a blur.</p></article>
+<article class="panel"><span class="tb94-tag">HEAVY / DAMAGE</span><h2>MACK MAUL #99</h2><p>Slow tank, huge HP and monstrous contact. EARTHQUAKE clears the postcode.</p></article>
 </section>
 </main>
-
-<nav class="bottom-nav"><a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a></nav>
+<nav class="bottom-nav"><a href="index.html">HQ</a><a href="arcade.html">ARCADE</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a></nav>
 <script src="app.js"></script>
-<script src="titanball94.js"></script>
+<script src="titanball94.js?v=6"></script>
 </body>
 </html>
