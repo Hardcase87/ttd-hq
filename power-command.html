@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#050609">
+<title>TTD POWER COMMAND // FOUNDATION</title>
+<style>
+:root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
+*{box-sizing:border-box}
+html,body{margin:0;background:#050609;color:#fff;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+body{touch-action:none}
+#wrap{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 0%,rgba(138,255,43,.08),transparent 35%),#050609}
+#gameShell{position:relative;width:min(100vw,177.78vh);aspect-ratio:16/9;background:#000;overflow:hidden;box-shadow:0 0 70px #000}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none}
+.scan{position:absolute;inset:0;pointer-events:none;z-index:7;background:repeating-linear-gradient(to bottom,transparent 0 3px,rgba(255,255,255,.025) 4px);mix-blend-mode:screen}
+#touch{position:absolute;z-index:9;inset:auto 0 8px 0;display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:10px;padding:10px;pointer-events:none}
+.pad,.act{pointer-events:auto;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:4px}
+.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.pad button:nth-child(5){grid-column:2;grid-row:3}
+button{border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(0,0,0,.64);color:#fff;font-weight:900;font-size:18px;backdrop-filter:blur(6px);box-shadow:inset 0 -4px rgba(0,0,0,.4)}
+button:active,.active{transform:translateY(2px);filter:brightness(1.4)}
+.move{color:var(--b);border-color:rgba(57,215,255,.45)}
+.fire{color:var(--p);border-color:rgba(255,45,149,.55);font-size:22px}
+.boost{color:var(--g);border-color:rgba(138,255,43,.50)}
+.act{display:grid;grid-template-rows:1fr 1fr;gap:8px}
+.smallnote{position:absolute;z-index:10;right:12px;top:10px;padding:6px 9px;background:rgba(0,0,0,.62);border:1px solid rgba(138,255,43,.2);font:700 10px monospace;color:var(--g)}
+@media(pointer:fine){#touch{opacity:.25}.pad,.act{opacity:.2}.pad:hover,.act:hover{opacity:1}}
+@media(max-width:800px){#touch{grid-template-columns:1.2fr 1fr 1fr}.pad{grid-template-rows:repeat(3,42px)}button{font-size:15px}}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="gameShell">
+<canvas id="game" width="1280" height="720"></canvas>
+<div class="scan"></div>
+<div class="smallnote">FOUNDATION BUILD // INFINITE EARTH</div>
+<div id="touch">
+  <div class="pad">
+    <button class="move" id="up">▲</button>
+    <button class="move" id="left">◀</button>
+    <button class="move" id="stop">●</button>
+    <button class="move" id="right">▶</button>
+    <button class="move" id="down">▼</button>
+  </div>
+  <div class="act">
+    <button class="fire" id="fire">✹ DRRRRRT</button>
+    <button class="boost" id="boost">➤ BOOST</button>
+  </div>
+  <div class="act">
+    <button id="start">START</button>
+    <button id="sound">SOUND ON</button>
+  </div>
+</div>
+</div>
+</div>
+<script src="power-command.js?v=1"></script>
+</body>
+</html>
