@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V5 TILED EARTH</title>
+<title>TTD POWER COMMAND // V6 MAYHEM MACHINE</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box}
@@ -23,27 +23,118 @@ button{border:1px solid rgba(255,255,255,.18);border-radius:15px;background:rgba
 .boost{color:var(--g);border-color:rgba(138,255,43,.65)}
 button.active,button:active{transform:translateY(2px);filter:brightness(1.45)}
 @media(max-width:700px){#controls{grid-template-columns:1.2fr 1fr 1fr;gap:6px;padding:6px}.pad{grid-template-rows:repeat(3,38px)}button{font-size:15px;min-height:38px}.fire{font-size:17px}}
+
+#pilotPanel{position:absolute;z-index:7;left:12px;top:max(78px,calc(env(safe-area-inset-top) + 70px));width:190px;padding:9px 10px;border:1px solid rgba(57,215,255,.45);border-radius:12px;background:rgba(0,0,0,.72);font:800 12px monospace;pointer-events:none}
+#pilotPanel strong{display:block;color:var(--g);font-size:15px;margin-bottom:4px}
+#pilotPanel .row{display:flex;justify-content:space-between;gap:8px;color:#fff;margin-top:4px}
+#pilotPanel .bar{height:7px;border-radius:999px;background:#111;margin-top:4px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+#pilotPanel .bar i{display:block;height:100%;width:86%;background:linear-gradient(90deg,var(--p),#ba38ff)}
+#craftPanel{position:absolute;z-index:7;right:12px;top:max(78px,calc(env(safe-area-inset-top) + 70px));width:230px;padding:10px;border:1px solid rgba(255,45,149,.52);border-radius:13px;background:rgba(0,0,0,.76);font:800 11px monospace;pointer-events:none}
+#craftPanel h3{margin:0;color:var(--g);font-size:13px}
+#craftPanel h2{margin:3px 0 8px;color:var(--p);font:900 20px Impact,Arial Black,sans-serif;letter-spacing:.04em}
+#craftPanel .mini{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;color:#ddd}
+#craftPanel .quote{margin-top:8px;padding-top:7px;border-top:1px solid rgba(138,255,43,.25);color:var(--g);font-size:10px}
+#bottomHud{position:absolute;z-index:7;left:12px;right:12px;bottom:max(112px,calc(env(safe-area-inset-bottom) + 102px));height:42px;display:grid;grid-template-columns:150px 110px 110px 1fr 220px;gap:6px;pointer-events:none}
+.hudChip{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid rgba(57,215,255,.30);background:rgba(0,0,0,.72);border-radius:9px;font:800 11px monospace}
+.hudChip b{color:#aaa}.hudChip strong{color:var(--g);font-size:14px}
+.powerBar{height:10px;flex:1;border:1px solid rgba(255,255,255,.16);background:#111}
+.powerBar i{display:block;height:100%;width:92%;background:linear-gradient(90deg,var(--p),#c32cff)}
+#controls{position:absolute;z-index:8;left:12px;right:12px;bottom:max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:250px minmax(260px,1fr) 210px;gap:12px;align-items:end;padding:0;pointer-events:none}
+.controlBlock{pointer-events:auto}
+.pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,48px);gap:5px;justify-content:start}
+.pad button{font-size:20px}
+.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.pad button:nth-child(5){grid-column:2;grid-row:3}
+.centerControls{display:grid;grid-template-columns:minmax(220px,1fr) 86px 86px;grid-template-rows:54px 54px;gap:8px}
+.centerControls .fire{grid-column:1;grid-row:1/3;font-size:24px}
+.weapon{border-radius:50%;font-size:12px;min-height:54px}
+.weapon.missile{color:var(--p);border-color:rgba(255,45,149,.65)}
+.weapon.nuke{color:var(--g);border-color:rgba(138,255,43,.65)}
+.weapon.bomb{color:#ff59bd;border-color:rgba(255,89,189,.65)}
+.weapon.rage{color:#ffe53b;border-color:rgba(255,229,59,.65)}
+.rightControls{display:grid;grid-template-columns:1fr;grid-template-rows:54px 54px;gap:8px}
+.rightControls .boost{font-size:16px}
+button{border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(0,0,0,.78);color:#fff;font-weight:900;font-size:17px;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.32)}
+button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box-shadow:inset 0 -1px 0 rgba(0,0,0,.4)}
+.move{color:var(--b);border-color:rgba(57,215,255,.55)}
+.fire{color:var(--p);border-color:rgba(255,45,149,.72)}
+.boost{color:var(--g);border-color:rgba(138,255,43,.65)}
+@media(max-width:1100px){
+ #pilotPanel{width:158px;font-size:10px}
+ #craftPanel{width:190px;font-size:9px}
+ #craftPanel h2{font-size:17px}
+ #bottomHud{grid-template-columns:125px 90px 90px 1fr 165px;bottom:108px}
+ #controls{grid-template-columns:205px minmax(240px,1fr) 170px;gap:8px}
+ .pad{grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,42px)}
+ .centerControls{grid-template-columns:minmax(170px,1fr) 70px 70px;grid-template-rows:48px 48px}
+ .rightControls{grid-template-rows:48px 48px}
+}
+@media(max-width:850px){
+ #pilotPanel,#craftPanel{display:none}
+ #bottomHud{display:none}
+ #controls{left:7px;right:7px;grid-template-columns:150px 1fr 120px;gap:6px}
+ .pad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,36px);gap:3px}
+ .centerControls{grid-template-columns:minmax(130px,1fr) 54px 54px;grid-template-rows:40px 40px;gap:4px}
+ .rightControls{grid-template-rows:40px 40px;gap:4px}
+ button{min-height:36px;font-size:13px}
+ .centerControls .fire{font-size:17px}
+ .weapon{font-size:9px;min-height:40px}
+}
+
 </style>
 </head>
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V5 TILED EARTH</div>
+<div id="badge">POWER COMMAND // V6 MAYHEM</div>
+<div id="pilotPanel">
+  <strong>HARDCASE '87 // PILOT</strong>
+  <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
+  <div class="row"><span>LIVES</span><span>☠ ☠ ☠</span></div>
+  <div class="row"><span>BOMBS</span><span id="bombReadout">3</span></div>
+  <div class="row"><span>POWER</span><span>92%</span></div>
+  <div class="bar"><i></i></div>
+</div>
+
+<div id="craftPanel">
+  <h3>TTD ATTACK CRAFT</h3>
+  <h2>MAYHEM MACHINE</h2>
+  <div class="mini">
+    <span>CLASS</span><span>MAYHEM</span>
+    <span>ROLE</span><span>TOTAL DESTRUCTION</span>
+    <span>ENGINE</span><span>4× SKULL JUICE</span>
+    <span>ARMOR</span><span>WHO CARES</span>
+    <span>WEAPON</span><span>DRRRRRT</span>
+    <span>RAGE</span><span id="rageReadout">0%</span>
+  </div>
+  <div class="quote">NO TARGET TOO BIG.<br>NO PLAN TOO STUPID.</div>
+</div>
+
+<div id="bottomHud">
+  <div class="hudChip"><b>SCORE</b><strong id="scoreBottom">0875300</strong></div>
+  <div class="hudChip"><b>BOMBS</b><strong id="bombBottom">3</strong></div>
+  <div class="hudChip"><b>LIVES</b><strong>☠☠☠</strong></div>
+  <div class="hudChip"><b>POWER</b><div class="powerBar"><i></i></div></div>
+  <div class="hudChip"><b>OBJECTIVE</b><strong>DESTROY COMMAND</strong></div>
+</div>
+
 <div id="controls">
-  <div class="pad">
+  <div class="controlBlock pad">
     <button class="move" id="up">▲</button>
     <button class="move" id="left">◀</button>
     <button class="move" id="stop">●</button>
     <button class="move" id="right">▶</button>
     <button class="move" id="down">▼</button>
   </div>
-  <div class="group">
-    <button class="fire" id="fire">✹ DRRRRRT</button>
-    <button class="boost" id="boost">➤ BOOST</button>
+  <div class="controlBlock centerControls">
+    <button class="fire" id="fire">✹ DRRRRRT ✹</button>
+    <button class="weapon missile" id="missile">MISSILE</button>
+    <button class="weapon nuke" id="nuke">NUKE</button>
+    <button class="weapon bomb" id="bomb">BOMB</button>
+    <button class="weapon rage" id="rage">RAGE</button>
   </div>
-  <div class="group">
-    <button id="start">START</button>
-    <button id="sound">SOUND ON</button>
+  <div class="controlBlock rightControls">
+    <button class="boost" id="boost">➤ BOOST</button>
+    <button id="sound">♫ SOUND ON</button>
   </div>
 </div>
 </div>
@@ -65,7 +156,7 @@ addEventListener('resize',resize,{passive:true}); resize();
 
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
-const state={mode:'title',t:0,last:performance.now(),camX:0,camY:0,shots:[],parts:[],fireCD:0,sound:true};
+const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0};
 const WORLD={
   tileSize:512, cols:3, rows:2, width:1536, height:1024,
   base:'assets/images/ttd-power-command/world/',
@@ -151,28 +242,90 @@ function drawWorld(){
   }
 }
 function drawShip(){
-  ctx.save();ctx.translate(W/2,H/2);ctx.rotate(ship.a);
-  const flame=20+Math.sin(state.t*30)*7+(input.boost?24:0);
-  ctx.shadowColor='#ff2d95';ctx.shadowBlur=18;ctx.fillStyle='#ff2d95';
-  ctx.beginPath();ctx.moveTo(-55,-17);ctx.lineTo(-55-flame,-10);ctx.lineTo(-55,-4);ctx.fill();
-  ctx.beginPath();ctx.moveTo(-55,17);ctx.lineTo(-55-flame,10);ctx.lineTo(-55,4);ctx.fill();
+  ctx.save();
+  ctx.translate(W/2,H/2);
+  ctx.rotate(ship.a);
+  const S=.68; // deliberately smaller than V5 so the world remains readable
+  ctx.scale(S,S);
+
+  const flame=18+Math.sin(state.t*34)*6+(input.boost?20:0);
+  ctx.shadowColor='#ff2d95';ctx.shadowBlur=14;
+  ctx.fillStyle='#ff2d95';
+  for(const oy of [-15,15]){
+    ctx.beginPath();ctx.moveTo(-54,oy-5);ctx.lineTo(-54-flame,oy);ctx.lineTo(-54,oy+5);ctx.fill();
+  }
   ctx.shadowBlur=0;
-  ctx.fillStyle='#10151a';ctx.strokeStyle='#8aff2b';ctx.lineWidth=4;
-  ctx.beginPath();ctx.moveTo(72,0);ctx.lineTo(28,-16);ctx.lineTo(6,-42);ctx.lineTo(-12,-27);ctx.lineTo(-58,-34);ctx.lineTo(-43,-10);ctx.lineTo(-70,0);ctx.lineTo(-43,10);ctx.lineTo(-58,34);ctx.lineTo(-12,27);ctx.lineTo(6,42);ctx.lineTo(28,16);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.strokeStyle='#ff2d95';ctx.lineWidth=3;ctx.strokeRect(-18,-37,34,10);ctx.strokeRect(-18,27,34,10);
-  ctx.fillStyle='#39d7ff';ctx.shadowColor='#39d7ff';ctx.shadowBlur=14;ctx.beginPath();ctx.ellipse(22,0,17,10,0,0,TAU);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='#8aff2b';ctx.beginPath();ctx.arc(-18,0,10,0,TAU);ctx.fill();
-  ctx.fillStyle='#030506';ctx.fillRect(-24,-3,4,4);ctx.fillRect(-16,-3,4,4);ctx.fillRect(-20,4,4,4);
-  ctx.fillStyle='#ff2d95';ctx.fillRect(43,-11,34,4);ctx.fillRect(43,7,34,4);
+
+  // Main armored fuselage
+  ctx.fillStyle='#101218';ctx.strokeStyle='#ff2d95';ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(66,0);ctx.lineTo(34,-12);ctx.lineTo(22,-27);ctx.lineTo(-2,-18);
+  ctx.lineTo(-28,-31);ctx.lineTo(-24,-13);ctx.lineTo(-60,-21);ctx.lineTo(-45,0);
+  ctx.lineTo(-60,21);ctx.lineTo(-24,13);ctx.lineTo(-28,31);ctx.lineTo(-2,18);
+  ctx.lineTo(22,27);ctx.lineTo(34,12);ctx.closePath();ctx.fill();ctx.stroke();
+
+  // Twin upper/lower blade fins
+  ctx.fillStyle='#24131f';ctx.strokeStyle='#8aff2b';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(-8,-20);ctx.lineTo(8,-48);ctx.lineTo(21,-24);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-8,20);ctx.lineTo(8,48);ctx.lineTo(21,24);ctx.closePath();ctx.fill();ctx.stroke();
+
+  // Side missile pods
+  ctx.fillStyle='#15171d';ctx.strokeStyle='#39d7ff';ctx.lineWidth=2;
+  for(const oy of [-30,30]){
+    ctx.fillRect(-20,oy-6,39,12);ctx.strokeRect(-20,oy-6,39,12);
+    ctx.fillStyle='#ffe53b';ctx.fillRect(13,oy-3,8,6);ctx.fillStyle='#15171d';
+  }
+
+  // Cockpit / reactor
+  ctx.shadowColor='#39d7ff';ctx.shadowBlur=12;ctx.fillStyle='#39d7ff';
+  ctx.beginPath();ctx.ellipse(22,0,16,9,0,0,TAU);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle='#8aff2b';ctx.beginPath();ctx.arc(-15,0,9,0,TAU);ctx.fill();
+  ctx.fillStyle='#050608';ctx.fillRect(-20,-2,3,3);ctx.fillRect(-13,-2,3,3);ctx.fillRect(-17,3,3,3);
+
+  // Nose guns
+  ctx.fillStyle='#ff2d95';ctx.fillRect(43,-11,30,4);ctx.fillRect(43,7,30,4);
+  ctx.fillStyle='#8aff2b';ctx.fillRect(65,-10,9,2);ctx.fillRect(65,8,9,2);
+
+  // TTD skull plate
+  ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(-2,0,6,0,TAU);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.fillRect(-5,-1,2,2);ctx.fillRect(1,-1,2,2);
+
   ctx.restore();
 }
 function fire(){
   if(state.fireCD>0)return;
   state.fireCD=.11;
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
-  for(const off of [-9,9]) state.shots.push({x:ship.x+cs*70-sn*off,y:ship.y+sn*70+cs*off,vx:cs*900,vy:sn*900,life:1});
+  for(const off of [-6,6]) state.shots.push({x:ship.x+cs*48-sn*off,y:ship.y+sn*48+cs*off,vx:cs*940,vy:sn*940,life:1});
+  state.score+=4; state.rage=Math.min(100,state.rage+.45); updateStatusUi();
   gun();
 }
+
+function updateStatusUi(){
+  const score=String(Math.floor(state.score)).padStart(7,'0');
+  for(const id of ['scoreReadout','scoreBottom']){const el=document.getElementById(id);if(el)el.textContent=score}
+  for(const id of ['bombReadout','bombBottom']){const el=document.getElementById(id);if(el)el.textContent=state.bombs}
+  const rr=document.getElementById('rageReadout'); if(rr)rr.textContent=Math.round(state.rage)+'%';
+}
+function launchMissile(){
+  const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
+  state.missiles.push({x:ship.x+cs*48,y:ship.y+sn*48,vx:cs*560,vy:sn*560,life:2.4});
+  tone(155,.10,'sawtooth',.06);state.score+=120;state.rage=Math.min(100,state.rage+5);updateStatusUi();
+}
+function useBomb(){
+  if(state.bombs<=0)return;
+  state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);updateStatusUi();
+}
+function useNuke(){
+  if(state.bombs<=0)return;
+  state.bombs--;state.flash=.55;state.score+=1400;
+  tone(39,.45,'square',.14);setTimeout(()=>tone(68,.32,'sawtooth',.10),70);updateStatusUi();
+}
+function useRage(){
+  if(state.rage<25){tone(120,.05,'square',.025);return}
+  state.rage=Math.max(0,state.rage-25);state.flash=.18;state.score+=350;tone(330,.08,'square',.08);setTimeout(()=>tone(520,.10,'sawtooth',.07),75);updateStatusUi();
+}
+
 function update(dt){
   state.t+=dt;state.fireCD=Math.max(0,state.fireCD-dt);
   if(state.mode!=='play')return;
@@ -191,6 +344,9 @@ function update(dt){
   if(input.fire)fire();
   for(const s of state.shots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt}
   state.shots=state.shots.filter(s=>s.life>0);
+  for(const m of state.missiles){m.x+=m.vx*dt;m.y+=m.vy*dt;m.life-=dt}
+  state.missiles=state.missiles.filter(m=>m.life>0);
+  state.flash=Math.max(0,state.flash-dt);
   if(input.boost&&Math.random()<.6)state.parts.push({x:ship.x-Math.cos(ship.a)*65,y:ship.y-Math.sin(ship.a)*65,vx:-Math.cos(ship.a)*rnd(100,220),vy:-Math.sin(ship.a)*rnd(100,220),life:.35});
   for(const p of state.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
   state.parts=state.parts.filter(p=>p.life>0);
@@ -202,11 +358,15 @@ function drawFX(){
   ctx.save();ctx.strokeStyle='#ff2d95';ctx.shadowColor='#ff2d95';ctx.shadowBlur=12;ctx.lineWidth=5;
   for(const s of state.shots){const x=W/2+s.x-state.camX,y=H/2+s.y-state.camY;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-Math.cos(ship.a)*22,y-Math.sin(ship.a)*22);ctx.stroke()}
   ctx.restore();
+  ctx.save();ctx.strokeStyle='#8aff2b';ctx.shadowColor='#8aff2b';ctx.shadowBlur=14;ctx.lineWidth=6;
+  for(const m of state.missiles){const x=W/2+m.x-state.camX,y=H/2+m.y-state.camY;ctx.beginPath();ctx.moveTo(x-22,y);ctx.lineTo(x,y);ctx.stroke();}
+  ctx.restore();
+  if(state.flash>0){ctx.save();ctx.globalAlpha=Math.min(.52,state.flash*1.2);ctx.fillStyle=state.flash>.4?'#fff':'#ff2d95';ctx.fillRect(0,0,W,H);ctx.restore();}
 }
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V5 // TILED INFINITE EARTH',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V6 // MAYHEM MACHINE',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
@@ -239,8 +399,13 @@ function hold(id,key){
 }
 ['up','down','left','right','fire','boost'].forEach(id=>hold(id,id));
 document.getElementById('stop').addEventListener('pointerdown',()=>{ship.vx=ship.vy=0});
-document.getElementById('start').addEventListener('pointerdown',startGame);
 document.getElementById('sound').addEventListener('pointerdown',e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?'SOUND ON':'SOUND OFF';if(state.sound)tone(440,.07)});
+document.getElementById('missile').addEventListener('pointerdown',e=>{e.preventDefault();launchMissile()});
+document.getElementById('bomb').addEventListener('pointerdown',e=>{e.preventDefault();useBomb()});
+document.getElementById('nuke').addEventListener('pointerdown',e=>{e.preventDefault();useNuke()});
+document.getElementById('rage').addEventListener('pointerdown',e=>{e.preventDefault();useRage()});
+updateStatusUi();
+
 c.addEventListener('pointerdown',()=>{if(state.mode==='title')startGame()});
 addEventListener('keydown',e=>{
  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
