@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V7 OFFICIAL MAYHEM MACHINE</title>
+<title>TTD POWER COMMAND // V8 BASES & BUNKERS</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box}
@@ -85,13 +85,13 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V7 MAYHEM</div>
+<div id="badge">POWER COMMAND // V8 STRUCTURES</div>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
   <div class="row"><span>LIVES</span><span>☠ ☠ ☠</span></div>
   <div class="row"><span>BOMBS</span><span id="bombReadout">3</span></div>
-  <div class="row"><span>POWER</span><span>92%</span></div>
+  <div class="row"><span>POWER</span><span id="powerReadout">100%</span></div>
   <div class="bar"><i></i></div>
 </div>
 
@@ -113,7 +113,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
   <div class="hudChip"><b>SCORE</b><strong id="scoreBottom">0875300</strong></div>
   <div class="hudChip"><b>BOMBS</b><strong id="bombBottom">3</strong></div>
   <div class="hudChip"><b>LIVES</b><strong>☠☠☠</strong></div>
-  <div class="hudChip"><b>POWER</b><div class="powerBar"><i></i></div></div>
+  <div class="hudChip"><b>POWER</b><div class="powerBar"><i id="powerBarFill"></i></div></div>
   <div class="hudChip"><b>OBJECTIVE</b><strong>DESTROY COMMAND</strong></div>
 </div>
 
@@ -156,7 +156,7 @@ addEventListener('resize',resize,{passive:true}); resize();
 
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
-const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0};
+const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,kills:0};
 const WORLD={
   tileSize:512, cols:3, rows:2, width:1536, height:1024,
   base:'assets/images/ttd-power-command/world/',
@@ -176,6 +176,126 @@ const mod=(n,m)=>((n%m)+m)%m;
 const MAYHEM=new Image();
 MAYHEM.decoding='async';
 MAYHEM.src='assets/images/ttd-power-command/mayhem-machine.png?v=7';
+
+const STRUCT_ROOT='assets/images/ttd-power-command/structures/';
+const BASE_FILES=Array.from({length:9},(_,i)=>STRUCT_ROOT+`base-${String(i+1).padStart(2,'0')}.png`);
+const BUNKER_FILES=Array.from({length:8},(_,i)=>STRUCT_ROOT+`bunker-${String(i+1).padStart(2,'0')}.png`);
+const STRUCT_IMG={};
+for(const src of [...BASE_FILES,...BUNKER_FILES]){
+  const im=new Image(); im.decoding='async'; im.src=src; STRUCT_IMG[src]=im;
+}
+
+const structures=[];
+const enemyShots=[];
+function addStructure(x,y,type='bunker',variant=0){
+  const base=type==='base', files=base?BASE_FILES:BUNKER_FILES;
+  structures.push({
+    x,y,type,img:files[variant%files.length],
+    hp:base?900:300,maxHp:base?900:300,
+    radius:base?72:54,
+    fireRate:base?.62:.92,
+    range:base?640:470,
+    lastFire:Math.random(),
+    dead:false,
+    flash:0
+  });
+}
+(function seedStructures(){
+  // First cluster sits close enough to the starting area for immediate testing.
+  [
+    [390,-120,'base',0], [640,110,'bunker',0], [180,360,'bunker',1],
+    [-410,230,'bunker',2], [-620,-240,'base',1], [85,-640,'bunker',3],
+    [760,-520,'bunker',4], [-860,-720,'base',2], [1180,-880,'bunker',5],
+    [-1250,-980,'bunker',6], [1520,-1250,'base',3], [-1620,-1380,'bunker',7],
+    [1850,-1680,'base',4], [-2050,-1860,'bunker',0], [2250,-2150,'base',5],
+    [-2450,-2400,'bunker',2], [2650,-2700,'base',6], [-2850,-3000,'bunker',5]
+  ].forEach(p=>addStructure(...p));
+})();
+
+function damageStructureAt(x,y,amount){
+  for(const s of structures){
+    if(s.dead) continue;
+    if(Math.hypot(x-s.x,y-s.y)<=s.radius){
+      s.hp-=amount; s.flash=.12;
+      if(s.hp<=0){
+        s.dead=true; state.score+=s.type==='base'?5000:900; state.kills++;
+        state.rage=Math.min(100,state.rage+(s.type==='base'?22:8));
+        state.flash=.22; tone(s.type==='base'?48:82,.18,'sawtooth',.09);
+        updateStatusUi();
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+function updateStructures(dt){
+  for(const s of structures){
+    if(s.dead) continue;
+    s.flash=Math.max(0,s.flash-dt);
+    const dx=ship.x-s.x,dy=ship.y-s.y,d=Math.hypot(dx,dy);
+    s.lastFire-=dt;
+    if(d<s.range && s.lastFire<=0){
+      s.lastFire=s.fireRate*(.86+Math.random()*.28);
+      const nx=dx/(d||1),ny=dy/(d||1), speed=s.type==='base'?350:285;
+      // Twin defensive fire for bases; single heavier shot for bunkers.
+      const count=s.type==='base'?2:1;
+      for(let i=0;i<count;i++){
+        const spread=(i-(count-1)/2)*.055;
+        const ca=Math.cos(spread),sa=Math.sin(spread);
+        enemyShots.push({
+          x:s.x,y:s.y,
+          vx:(nx*ca-ny*sa)*speed,
+          vy:(nx*sa+ny*ca)*speed,
+          life:3.1,
+          r:s.type==='base'?5.5:6.5
+        });
+      }
+      tone(s.type==='base'?96:78,.035,'square',.022);
+    }
+  }
+  for(const b of enemyShots){
+    b.x+=b.vx*dt; b.y+=b.vy*dt; b.life-=dt;
+    if(Math.hypot(b.x-ship.x,b.y-ship.y)<27){
+      b.life=0; state.hull=Math.max(0,state.hull-(b.r>6?8:5)); state.flash=.12;
+      tone(55,.05,'sawtooth',.05); updateStatusUi();
+      if(state.hull<=0){
+        state.hull=100; state.flash=.5; ship.vx=ship.vy=0;
+        state.score=Math.max(0,state.score-2500); updateStatusUi();
+      }
+    }
+  }
+  for(let i=enemyShots.length-1;i>=0;i--) if(enemyShots[i].life<=0) enemyShots.splice(i,1);
+}
+
+function drawStructures(){
+  for(const s of structures){
+    if(s.dead) continue;
+    const x=W/2+(s.x-state.camX), y=H/2+(s.y-state.camY);
+    if(x<-170||x>W+170||y<-170||y>H+170) continue;
+    const size=s.type==='base'?150:118; // intentionally slightly larger than Mayhem Machine
+    const im=STRUCT_IMG[s.img];
+    ctx.save();
+    if(s.flash>0){ctx.shadowColor='#fff';ctx.shadowBlur=28;}
+    else {ctx.shadowColor=s.type==='base'?'#ff2d95':'#ffe53b';ctx.shadowBlur=8;}
+    if(im?.complete&&im.naturalWidth) ctx.drawImage(im,x-size/2,y-size/2,size,size);
+    ctx.shadowBlur=0;
+    // health strip
+    ctx.fillStyle='rgba(0,0,0,.82)'; ctx.fillRect(x-size/2,y-size/2-10,size,6);
+    ctx.fillStyle=s.type==='base'?'#ff2d95':'#ffe53b';
+    ctx.fillRect(x-size/2+1,y-size/2-9,(size-2)*(s.hp/s.maxHp),4);
+    ctx.restore();
+  }
+  ctx.save();
+  ctx.fillStyle='#ff9b32';ctx.shadowColor='#ff5a00';ctx.shadowBlur=10;
+  for(const b of enemyShots){
+    const x=W/2+(b.x-state.camX),y=H/2+(b.y-state.camY);
+    if(x<-20||x>W+20||y<-20||y>H+20) continue;
+    ctx.beginPath();ctx.arc(x,y,b.r,0,TAU);ctx.fill();
+  }
+  ctx.restore();
+}
+
 
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -301,6 +421,8 @@ function updateStatusUi(){
   for(const id of ['scoreReadout','scoreBottom']){const el=document.getElementById(id);if(el)el.textContent=score}
   for(const id of ['bombReadout','bombBottom']){const el=document.getElementById(id);if(el)el.textContent=state.bombs}
   const rr=document.getElementById('rageReadout'); if(rr)rr.textContent=Math.round(state.rage)+'%';
+  const pr=document.getElementById('powerReadout'); if(pr)pr.textContent=Math.round(state.hull)+'%';
+  const pb=document.getElementById('powerBarFill'); if(pb)pb.style.width=state.hull+'%';
 }
 function launchMissile(){
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
@@ -309,16 +431,20 @@ function launchMissile(){
 }
 function useBomb(){
   if(state.bombs<=0)return;
-  state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);updateStatusUi();
+  state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);
+  for(const s of structures) if(!s.dead&&Math.hypot(s.x-ship.x,s.y-ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
+  updateStatusUi();
 }
 function useNuke(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.55;state.score+=1400;
+  for(const s of structures) if(!s.dead&&Math.hypot(s.x-ship.x,s.y-ship.y)<760){s.hp-=520;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
   tone(39,.45,'square',.14);setTimeout(()=>tone(68,.32,'sawtooth',.10),70);updateStatusUi();
 }
 function useRage(){
   if(state.rage<25){tone(120,.05,'square',.025);return}
-  state.rage=Math.max(0,state.rage-25);state.flash=.18;state.score+=350;tone(330,.08,'square',.08);setTimeout(()=>tone(520,.10,'sawtooth',.07),75);updateStatusUi();
+  state.rage=Math.max(0,state.rage-25);state.flash=.18;state.score+=350;
+  for(const s of structures) if(!s.dead&&Math.hypot(s.x-ship.x,s.y-ship.y)<520){s.hp-=180;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}tone(330,.08,'square',.08);setTimeout(()=>tone(520,.10,'sawtooth',.07),75);updateStatusUi();
 }
 
 function update(dt){
@@ -337,10 +463,17 @@ function update(dt){
   ship.x+=ship.vx*dt;ship.y+=ship.vy*dt;
   state.camX=lerp(state.camX,ship.x,.12);state.camY=lerp(state.camY,ship.y,.12);
   if(input.fire)fire();
-  for(const s of state.shots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt}
+  for(const s of state.shots){
+    s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
+    if(s.life>0 && damageStructureAt(s.x,s.y,42)) s.life=0;
+  }
   state.shots=state.shots.filter(s=>s.life>0);
-  for(const m of state.missiles){m.x+=m.vx*dt;m.y+=m.vy*dt;m.life-=dt}
+  for(const m of state.missiles){
+    m.x+=m.vx*dt;m.y+=m.vy*dt;m.life-=dt;
+    if(m.life>0 && damageStructureAt(m.x,m.y,150)) m.life=0;
+  }
   state.missiles=state.missiles.filter(m=>m.life>0);
+  updateStructures(dt);
   state.flash=Math.max(0,state.flash-dt);
   if(input.boost&&Math.random()<.6)state.parts.push({x:ship.x-Math.cos(ship.a)*65,y:ship.y-Math.sin(ship.a)*65,vx:-Math.cos(ship.a)*rnd(100,220),vy:-Math.sin(ship.a)*rnd(100,220),life:.35});
   for(const p of state.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
@@ -361,10 +494,12 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V7 // OFFICIAL MAYHEM MACHINE',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V8 // HOSTILE STRUCTURES',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
+  const alive=structures.reduce((n,s)=>n+(!s.dead?1:0),0);
+  ctx.fillStyle='#ffe53b';ctx.font='800 12px monospace';ctx.fillText(`HOSTILES ${alive}/${structures.length}`,Math.max(18,W-160),62);
 }
 function title(){
   const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#051311');g.addColorStop(.48,'#07111a');g.addColorStop(1,'#120511');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -381,7 +516,7 @@ function render(){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,W,H);
     if(state.mode==='title'){title();return}
-    drawWorld();drawFX();drawShip();hud();
+    drawWorld();drawStructures();drawFX();drawShip();hud();
   }catch(err){
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#300';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='16px monospace';ctx.fillText('RENDER ERROR: '+String(err.message||err),20,40);
   }
