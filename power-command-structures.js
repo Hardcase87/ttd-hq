@@ -1,0 +1,13 @@
+(()=>{"use strict";
+const R="assets/images/power-command/structures/";
+const BASES=Array.from({length:9},(_,i)=>R+"base-"+String(i+1).padStart(2,"0")+".png");
+const BUNKERS=Array.from({length:8},(_,i)=>R+"bunker-"+String(i+1).padStart(2,"0")+".png");
+const IMG={};[...BASES,...BUNKERS].forEach(s=>{let i=new Image();i.src=s;IMG[s]=i});
+window.TTDStructures={structures:[],bullets:[],
+install(canvas,worldToScreen,getPlayer){this.canvas=canvas;this.ctx=canvas.getContext("2d");this.worldToScreen=worldToScreen;this.getPlayer=getPlayer},
+spawn(x,y,type="bunker",variant=0){let base=type==="base",files=base?BASES:BUNKERS;this.structures.push({x,y,type,img:files[variant%files.length],hp:base?850:260,maxHp:base?850:260,r:base?74:54,rate:base?700:1050,range:base?650:480,last:Math.random()*700,dead:false})},
+seed(){if(this.structures.length)return;[[500,-450,"base",0],[1200,-900,"bunker",0],[-850,-1300,"bunker",1],[1850,-1750,"base",1],[-1650,-2200,"bunker",2],[300,-2700,"bunker",3],[1100,-3300,"base",2],[-900,-3900,"bunker",4],[2100,-4500,"bunker",5],[-1800,-5100,"base",3],[500,-5700,"bunker",6],[1600,-6300,"bunker",7],[-400,-6900,"base",4],[2200,-7500,"bunker",0],[-1900,-8100,"bunker",2],[900,-8700,"base",5],[0,-9300,"bunker",5],[-1100,-9900,"base",6]].forEach(p=>this.spawn(...p))},
+update(dt,now){let p=this.getPlayer?.();if(!p)return;for(let s of this.structures){if(s.dead)continue;let dx=p.x-s.x,dy=p.y-s.y,d=Math.hypot(dx,dy);if(d<s.range&&now-s.last>s.rate){s.last=now;let v=s.type==="base"?330:270;this.bullets.push({x:s.x,y:s.y,vx:dx/(d||1)*v,vy:dy/(d||1)*v,life:2600})}}for(let b of this.bullets){b.x+=b.vx*dt/1000;b.y+=b.vy*dt/1000;b.life-=dt}this.bullets=this.bullets.filter(b=>b.life>0)},
+damageAt(x,y,n=50){for(let s of this.structures)if(!s.dead&&Math.hypot(x-s.x,y-s.y)<s.r){s.hp-=n;if(s.hp<=0)s.dead=true;return s}return null},
+draw(){if(!this.ctx||!this.worldToScreen)return;let c=this.ctx;for(let s of this.structures){if(s.dead)continue;let q=this.worldToScreen(s.x,s.y);if(!q)continue;let z=s.type==="base"?142:112,i=IMG[s.img];if(i?.complete)c.drawImage(i,q.x-z/2,q.y-z/2,z,z);c.fillStyle="#111";c.fillRect(q.x-z/2,q.y-z/2-9,z,5);c.fillStyle=s.type==="base"?"#ff2b9b":"#a6ff32";c.fillRect(q.x-z/2,q.y-z/2-9,z*s.hp/s.maxHp,5)}c.fillStyle="#ff9b32";for(let b of this.bullets){let q=this.worldToScreen(b.x,b.y);if(q){c.beginPath();c.arc(q.x,q.y,5,0,Math.PI*2);c.fill()}}}
+};})();
