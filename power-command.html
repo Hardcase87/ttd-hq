@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V4 FOUNDATION</title>
+<title>TTD POWER COMMAND // V5 TILED EARTH</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box}
@@ -28,7 +28,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.45)}
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V4 SELF-CONTAINED</div>
+<div id="badge">POWER COMMAND // V5 TILED EARTH</div>
 <div id="controls">
   <div class="pad">
     <button class="move" id="up">▲</button>
@@ -66,6 +66,23 @@ addEventListener('resize',resize,{passive:true}); resize();
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
 const state={mode:'title',t:0,last:performance.now(),camX:0,camY:0,shots:[],parts:[],fireCD:0,sound:true};
+const WORLD={
+  tileSize:512, cols:3, rows:2, width:1536, height:1024,
+  base:'assets/images/ttd-power-command/world/',
+  tiles:[], ready:0
+};
+for(let ty=0;ty<WORLD.rows;ty++){
+  WORLD.tiles[ty]=[];
+  for(let tx=0;tx<WORLD.cols;tx++){
+    const im=new Image();
+    im.decoding='async';
+    im.onload=()=>WORLD.ready++;
+    im.src=WORLD.base+`tile-${tx}-${ty}.svg`;
+    WORLD.tiles[ty][tx]=im;
+  }
+}
+const mod=(n,m)=>((n%m)+m)%m;
+
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -97,23 +114,41 @@ function terrain(wx,wy){
   return Math.sin(wx*.0011)+Math.cos(wy*.0010)+Math.sin((wx+wy)*.00055)*.7+(hash(Math.floor(wx/120),Math.floor(wy/120))-.5)*.55;
 }
 function drawWorld(){
+  // V5: actual art-backed infinite Earth. The 3x2 world wraps in both axes.
+  if(WORLD.ready>=WORLD.cols*WORLD.rows){
+    const ts=WORLD.tileSize;
+    const left=state.camX-W/2, top=state.camY-H/2;
+    const gx0=Math.floor(left/ts)-1, gx1=Math.ceil((left+W)/ts)+1;
+    const gy0=Math.floor(top/ts)-1, gy1=Math.ceil((top+H)/ts)+1;
+    for(let gy=gy0;gy<=gy1;gy++){
+      for(let gx=gx0;gx<=gx1;gx++){
+        const tx=mod(gx,WORLD.cols), ty=mod(gy,WORLD.rows);
+        const im=WORLD.tiles[ty][tx];
+        if(!im || !im.complete || !im.naturalWidth) continue;
+        const sx=Math.round(gx*ts-left), sy=Math.round(gy*ts-top);
+        ctx.drawImage(im,sx,sy,ts+1,ts+1);
+      }
+    }
+    // light atmospheric pass keeps the terrain moving like a living planet.
+    ctx.save();ctx.globalAlpha=.08;ctx.fillStyle='#fff';
+    for(let i=0;i<12;i++){
+      const x=((i*191-state.camX*.045)%((W+360))+W+360)%(W+360)-150;
+      const y=((i*137-state.camY*.035)%((H+260))+H+260)%(H+260)-120;
+      ctx.beginPath();ctx.ellipse(x,y,85+(i%3)*32,18+(i%2)*12,0,0,TAU);ctx.fill();
+    }
+    ctx.restore();
+    return;
+  }
+
+  // Safe procedural fallback while art is loading.
   const tile=46;
   for(let sy=-tile;sy<H+tile;sy+=tile){
     for(let sx=-tile;sx<W+tile;sx+=tile){
       const wx=state.camX-W/2+sx, wy=state.camY-H/2+sy, t=terrain(wx,wy);
       let col=t<-.78?'#073c6c':t<-.50?'#076a9b':t<-.30?'#1aa7b3':t<-.16?'#c3a14d':t<.32?'#1f6f32':t<.66?'#486a2c':'#7a7350';
       ctx.fillStyle=col;ctx.fillRect(sx,sy,tile+1,tile+1);
-      const q=hash(Math.floor(wx/tile),Math.floor(wy/tile));
-      if(q>.72){ctx.fillStyle='rgba(10,20,12,.22)';ctx.fillRect(sx+8+(q*21)%24,sy+8+(q*33)%24,4,4)}
     }
   }
-  ctx.save();ctx.globalAlpha=.13;ctx.fillStyle='#fff';
-  for(let i=0;i<14;i++){
-    const x=((i*191-state.camX*.06)%((W+300))+W+300)%(W+300)-130;
-    const y=((i*137-state.camY*.05)%((H+220))+H+220)%(H+220)-100;
-    ctx.beginPath();ctx.ellipse(x,y,80+(i%3)*35,20+(i%2)*13,0,0,TAU);ctx.fill();
-  }
-  ctx.restore();
 }
 function drawShip(){
   ctx.save();ctx.translate(W/2,H/2);ctx.rotate(ship.a);
@@ -171,9 +206,10 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V4 // INFINITE EARTH',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V5 // TILED INFINITE EARTH',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
+  ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
 }
 function title(){
   const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#051311');g.addColorStop(.48,'#07111a');g.addColorStop(1,'#120511');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
