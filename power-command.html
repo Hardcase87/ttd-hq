@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V6 MAYHEM MACHINE</title>
+<title>TTD POWER COMMAND // V7 OFFICIAL MAYHEM MACHINE</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box}
@@ -34,12 +34,12 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.45)}
 #craftPanel h2{margin:3px 0 8px;color:var(--p);font:900 20px Impact,Arial Black,sans-serif;letter-spacing:.04em}
 #craftPanel .mini{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;color:#ddd}
 #craftPanel .quote{margin-top:8px;padding-top:7px;border-top:1px solid rgba(138,255,43,.25);color:var(--g);font-size:10px}
-#bottomHud{position:absolute;z-index:7;left:12px;right:12px;bottom:max(112px,calc(env(safe-area-inset-bottom) + 102px));height:42px;display:grid;grid-template-columns:150px 110px 110px 1fr 220px;gap:6px;pointer-events:none}
+#bottomHud{position:absolute;z-index:7;left:12px;right:12px;bottom:max(208px,calc(env(safe-area-inset-bottom) + 198px));height:42px;display:grid;grid-template-columns:150px 110px 110px 1fr 220px;gap:6px;pointer-events:none}
 .hudChip{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid rgba(57,215,255,.30);background:rgba(0,0,0,.72);border-radius:9px;font:800 11px monospace}
 .hudChip b{color:#aaa}.hudChip strong{color:var(--g);font-size:14px}
 .powerBar{height:10px;flex:1;border:1px solid rgba(255,255,255,.16);background:#111}
 .powerBar i{display:block;height:100%;width:92%;background:linear-gradient(90deg,var(--p),#c32cff)}
-#controls{position:absolute;z-index:8;left:12px;right:12px;bottom:max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:250px minmax(260px,1fr) 210px;gap:12px;align-items:end;padding:0;pointer-events:none}
+#controls{position:absolute;z-index:8;left:12px;right:12px;bottom:max(42px,calc(env(safe-area-inset-bottom) + 30px));display:grid;grid-template-columns:250px minmax(260px,1fr) 210px;gap:12px;align-items:end;padding:0;pointer-events:none}
 .controlBlock{pointer-events:auto}
 .pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,48px);gap:5px;justify-content:start}
 .pad button{font-size:20px}
@@ -62,7 +62,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
  #pilotPanel{width:158px;font-size:10px}
  #craftPanel{width:190px;font-size:9px}
  #craftPanel h2{font-size:17px}
- #bottomHud{grid-template-columns:125px 90px 90px 1fr 165px;bottom:108px}
+ #bottomHud{grid-template-columns:125px 90px 90px 1fr 165px;bottom:max(198px,calc(env(safe-area-inset-bottom) + 188px))}
  #controls{grid-template-columns:205px minmax(240px,1fr) 170px;gap:8px}
  .pad{grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,42px)}
  .centerControls{grid-template-columns:minmax(170px,1fr) 70px 70px;grid-template-rows:48px 48px}
@@ -71,7 +71,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 @media(max-width:850px){
  #pilotPanel,#craftPanel{display:none}
  #bottomHud{display:none}
- #controls{left:7px;right:7px;grid-template-columns:150px 1fr 120px;gap:6px}
+ #controls{left:7px;right:7px;bottom:max(34px,calc(env(safe-area-inset-bottom) + 24px));grid-template-columns:150px 1fr 120px;gap:6px}
  .pad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,36px);gap:3px}
  .centerControls{grid-template-columns:minmax(130px,1fr) 54px 54px;grid-template-rows:40px 40px;gap:4px}
  .rightControls{grid-template-rows:40px 40px;gap:4px}
@@ -85,7 +85,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V6 MAYHEM</div>
+<div id="badge">POWER COMMAND // V7 MAYHEM</div>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
@@ -173,6 +173,10 @@ for(let ty=0;ty<WORLD.rows;ty++){
   }
 }
 const mod=(n,m)=>((n%m)+m)%m;
+const MAYHEM=new Image();
+MAYHEM.decoding='async';
+MAYHEM.src='assets/images/ttd-power-command/mayhem-machine.png?v=7';
+
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -245,58 +249,49 @@ function drawShip(){
   ctx.save();
   ctx.translate(W/2,H/2);
   ctx.rotate(ship.a);
-  const S=.68; // deliberately smaller than V5 so the world remains readable
-  ctx.scale(S,S);
 
-  const flame=18+Math.sin(state.t*34)*6+(input.boost?20:0);
-  ctx.shadowColor='#ff2d95';ctx.shadowBlur=14;
-  ctx.fillStyle='#ff2d95';
-  for(const oy of [-15,15]){
-    ctx.beginPath();ctx.moveTo(-54,oy-5);ctx.lineTo(-54-flame,oy);ctx.lineTo(-54,oy+5);ctx.fill();
+  // Official Mayhem Machine artwork. Sprite is authored pointing RIGHT,
+  // which matches ship.a = 0 and the projectile/flight vector.
+  if(MAYHEM.complete && MAYHEM.naturalWidth>0){
+    const pulse=1+Math.sin(state.t*8)*0.012;
+    const drawW=164*pulse;
+    const drawH=drawW*(MAYHEM.naturalHeight/MAYHEM.naturalWidth);
+
+    if(input.boost){
+      ctx.save();
+      ctx.globalCompositeOperation='lighter';
+      ctx.globalAlpha=.58;
+      const flame=38+Math.sin(state.t*34)*10;
+      const grad=ctx.createLinearGradient(-drawW*.50-flame,0,-drawW*.40,0);
+      grad.addColorStop(0,'rgba(255,45,149,0)');
+      grad.addColorStop(.55,'rgba(255,45,149,.8)');
+      grad.addColorStop(1,'rgba(57,215,255,.9)');
+      ctx.fillStyle=grad;
+      ctx.beginPath();
+      ctx.moveTo(-drawW*.43,-drawH*.18);
+      ctx.lineTo(-drawW*.50-flame,0);
+      ctx.lineTo(-drawW*.43,drawH*.18);
+      ctx.closePath();ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.shadowColor='#ff2d95';
+    ctx.shadowBlur=input.boost?18:9;
+    ctx.drawImage(MAYHEM,-drawW/2,-drawH/2,drawW,drawH);
+    ctx.shadowBlur=0;
+  }else{
+    // Tiny safe fallback until PNG arrives.
+    ctx.fillStyle='#111';ctx.strokeStyle='#ff2d95';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(54,0);ctx.lineTo(-34,-26);ctx.lineTo(-20,0);ctx.lineTo(-34,26);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#8aff2b';ctx.fillRect(5,-5,18,10);
   }
-  ctx.shadowBlur=0;
-
-  // Main armored fuselage
-  ctx.fillStyle='#101218';ctx.strokeStyle='#ff2d95';ctx.lineWidth=3;
-  ctx.beginPath();
-  ctx.moveTo(66,0);ctx.lineTo(34,-12);ctx.lineTo(22,-27);ctx.lineTo(-2,-18);
-  ctx.lineTo(-28,-31);ctx.lineTo(-24,-13);ctx.lineTo(-60,-21);ctx.lineTo(-45,0);
-  ctx.lineTo(-60,21);ctx.lineTo(-24,13);ctx.lineTo(-28,31);ctx.lineTo(-2,18);
-  ctx.lineTo(22,27);ctx.lineTo(34,12);ctx.closePath();ctx.fill();ctx.stroke();
-
-  // Twin upper/lower blade fins
-  ctx.fillStyle='#24131f';ctx.strokeStyle='#8aff2b';ctx.lineWidth=2.5;
-  ctx.beginPath();ctx.moveTo(-8,-20);ctx.lineTo(8,-48);ctx.lineTo(21,-24);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.beginPath();ctx.moveTo(-8,20);ctx.lineTo(8,48);ctx.lineTo(21,24);ctx.closePath();ctx.fill();ctx.stroke();
-
-  // Side missile pods
-  ctx.fillStyle='#15171d';ctx.strokeStyle='#39d7ff';ctx.lineWidth=2;
-  for(const oy of [-30,30]){
-    ctx.fillRect(-20,oy-6,39,12);ctx.strokeRect(-20,oy-6,39,12);
-    ctx.fillStyle='#ffe53b';ctx.fillRect(13,oy-3,8,6);ctx.fillStyle='#15171d';
-  }
-
-  // Cockpit / reactor
-  ctx.shadowColor='#39d7ff';ctx.shadowBlur=12;ctx.fillStyle='#39d7ff';
-  ctx.beginPath();ctx.ellipse(22,0,16,9,0,0,TAU);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='#8aff2b';ctx.beginPath();ctx.arc(-15,0,9,0,TAU);ctx.fill();
-  ctx.fillStyle='#050608';ctx.fillRect(-20,-2,3,3);ctx.fillRect(-13,-2,3,3);ctx.fillRect(-17,3,3,3);
-
-  // Nose guns
-  ctx.fillStyle='#ff2d95';ctx.fillRect(43,-11,30,4);ctx.fillRect(43,7,30,4);
-  ctx.fillStyle='#8aff2b';ctx.fillRect(65,-10,9,2);ctx.fillRect(65,8,9,2);
-
-  // TTD skull plate
-  ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(-2,0,6,0,TAU);ctx.stroke();
-  ctx.fillStyle='#fff';ctx.fillRect(-5,-1,2,2);ctx.fillRect(1,-1,2,2);
-
   ctx.restore();
 }
 function fire(){
   if(state.fireCD>0)return;
   state.fireCD=.11;
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
-  for(const off of [-6,6]) state.shots.push({x:ship.x+cs*48-sn*off,y:ship.y+sn*48+cs*off,vx:cs*940,vy:sn*940,life:1});
+  for(const off of [-6,6]) state.shots.push({x:ship.x+cs*76-sn*off,y:ship.y+sn*76+cs*off,vx:cs*940,vy:sn*940,life:1});
   state.score+=4; state.rage=Math.min(100,state.rage+.45); updateStatusUi();
   gun();
 }
@@ -309,7 +304,7 @@ function updateStatusUi(){
 }
 function launchMissile(){
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
-  state.missiles.push({x:ship.x+cs*48,y:ship.y+sn*48,vx:cs*560,vy:sn*560,life:2.4});
+  state.missiles.push({x:ship.x+cs*76,y:ship.y+sn*76,vx:cs*560,vy:sn*560,life:2.4});
   tone(155,.10,'sawtooth',.06);state.score+=120;state.rage=Math.min(100,state.rage+5);updateStatusUi();
 }
 function useBomb(){
@@ -366,7 +361,7 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V6 // MAYHEM MACHINE',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V7 // OFFICIAL MAYHEM MACHINE',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
