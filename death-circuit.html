@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>TTD DEATH CIRCUIT // PROTOTYPE V1</title>
+<style>
+:root{--p:#ff2d95;--c:#39d7ff;--g:#8aff2b;--y:#ffe53b}
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#05030a;color:#fff;font-family:Arial,sans-serif;touch-action:none}
+#shell{position:relative;width:100vw;height:100vh;overflow:hidden;background:#05030a}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#badge{position:absolute;z-index:4;left:12px;top:max(10px,env(safe-area-inset-top));padding:8px 11px;border:1px solid rgba(57,215,255,.5);background:rgba(0,0,0,.65);font:900 12px monospace;color:var(--c)}
+#hud{position:absolute;z-index:4;right:12px;top:max(10px,env(safe-area-inset-top));display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:65vw}
+.chip{padding:7px 9px;background:rgba(0,0,0,.68);border:1px solid rgba(255,45,149,.45);font:900 11px monospace;border-radius:10px}
+.chip b{color:var(--g)}
+#controls{position:absolute;z-index:5;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));display:grid;grid-template-columns:150px minmax(220px,1fr) 170px;gap:10px;align-items:end;pointer-events:none}
+.ctrl{pointer-events:auto}.steer,.pedals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{min-height:66px;border-radius:18px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.76);color:#fff;font-weight:900;font-size:18px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
+button:active,.active{transform:translateY(2px);filter:brightness(1.4)}
+#left,#right{color:var(--c);border-color:rgba(57,215,255,.55);font-size:28px}
+#throttle{color:var(--g);border-color:rgba(138,255,43,.55)}
+#brake{color:var(--p);border-color:rgba(255,45,149,.65)}
+#start{color:var(--y);border-color:rgba(255,229,59,.6);width:100%}
+@media(max-width:760px){#controls{grid-template-columns:120px 1fr 130px;gap:6px}button{min-height:58px;font-size:15px}#left,#right{font-size:24px}.chip{font-size:9px}}
+</style>
+</head>
+<body>
+<div id="shell">
+<canvas id="game"></canvas>
+<div id="badge">TTD DEATH CIRCUIT // PROTOTYPE V1</div>
+<div id="hud"><div class="chip">SPD <b id="spd">0</b></div><div class="chip">GEAR <b id="gear">1</b></div><div class="chip">ROAD <b>TITAN RUN</b></div></div>
+<div id="controls">
+  <div class="ctrl steer"><button id="left">◀</button><button id="right">▶</button></div>
+  <div class="ctrl pedals"><button id="brake">BRAKE / DRIFT</button><button id="throttle">THROTTLE</button></div>
+  <div class="ctrl"><button id="start">START / RESET</button></div>
+</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const c=document.getElementById('game'),ctx=c.getContext('2d');
+let W=0,H=0,dpr=1;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=Math.floor(W*dpr);c.height=Math.floor(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize,{passive:true});resize();
+const concept=new Image();concept.src='assets/death-circuit-concept.png';
+const input={left:0,right:0,gas:0,brake:0};
+const state={mode:'title',speed:0,pos:0,x:0,last:performance.now(),time:0};
+const ROAD={segments:[],segLen:180,roadWidth:2100,cameraHeight:900,cameraDepth:1.15,drawDistance:170};
+function addRoad(n,curve=0,hill=0){const start=ROAD.segments.length;for(let i=0;i<n;i++){const t=i/Math.max(1,n-1);ROAD.segments.push({curve:curve*Math.sin(Math.PI*t),hill:hill*Math.sin(Math.PI*t),stripe:(start+i)%2})}}
+addRoad(45);addRoad(50,.75,.08);addRoad(35,-.45,-.03);addRoad(60,-.95,.06);addRoad(45,.55,-.05);addRoad(70,0,.02);addRoad(55,.85,.03);addRoad(55,-.65,-.03);
+function segAt(z){return ROAD.segments[Math.floor(z/ROAD.segLen)%ROAD.segments.length]}
+function project(worldX,worldY,worldZ,cameraX,cameraY,cameraZ){const dz=worldZ-cameraZ,scale=ROAD.cameraDepth/Math.max(1,dz);return{scale,x:W/2+scale*(worldX-cameraX)*W/2,y:H/2-scale*(worldY-cameraY)*H/2}}
+function drawCar(){
+ const x=W/2+state.x*W*.20,y=H*.78,s=Math.max(.72,Math.min(1.05,W/1200));ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+ ctx.globalAlpha=.28;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(0,30,90,26,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ ctx.shadowColor='#ff2d95';ctx.shadowBlur=18;ctx.fillStyle='#11131a';ctx.strokeStyle='#ff2d95';ctx.lineWidth=4;ctx.beginPath();
+ ctx.moveTo(-92,26);ctx.lineTo(-78,-18);ctx.lineTo(-52,-42);ctx.lineTo(52,-42);ctx.lineTo(78,-18);ctx.lineTo(92,26);ctx.lineTo(62,42);ctx.lineTo(-62,42);ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+ ctx.fillStyle='#232935';ctx.strokeStyle='#39d7ff';ctx.lineWidth=3;ctx.fillRect(-108,2,30,26);ctx.strokeRect(-108,2,30,26);ctx.fillRect(78,2,30,26);ctx.strokeRect(78,2,30,26);
+ ctx.fillStyle='#0c1927';ctx.strokeStyle='#8aff2b';ctx.fillRect(-46,-31,92,34);ctx.strokeRect(-46,-31,92,34);
+ ctx.fillStyle='#8aff2b';ctx.beginPath();ctx.arc(0,10,15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#050609';ctx.fillRect(-8,6,5,4);ctx.fillRect(4,6,5,4);ctx.fillRect(-2,15,4,5);
+ ctx.shadowColor='#ff2d95';ctx.shadowBlur=16;ctx.fillStyle='#ff2d95';ctx.fillRect(-68,16,30,10);ctx.fillRect(38,16,30,10);ctx.shadowBlur=0;
+ ctx.fillStyle='#fff';ctx.font='900 18px Impact,Arial Black';ctx.textAlign='center';ctx.fillText('TTD // MAYHEM',0,39);
+ if(input.gas&&state.speed>40){const len=22+Math.sin(state.time*30)*8+(state.speed/280)*18;ctx.fillStyle='#39d7ff';ctx.shadowColor='#39d7ff';ctx.shadowBlur=14;for(const ex of [-47,47]){ctx.beginPath();ctx.moveTo(ex,42);ctx.lineTo(ex-10,42+len);ctx.lineTo(ex+10,42);ctx.fill()}}
+ ctx.restore();
+}
+function drawWorld(){
+ const sky=ctx.createLinearGradient(0,0,0,H*.62);sky.addColorStop(0,'#13042b');sky.addColorStop(.36,'#7f145d');sky.addColorStop(.72,'#ff6a54');sky.addColorStop(1,'#ffc45c');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ const sunY=H*.28,sunR=Math.min(W,H)*.12;ctx.fillStyle='#ffe53b';ctx.beginPath();ctx.arc(W*.5,sunY,sunR,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,45,149,.48)';for(let i=0;i<8;i++)ctx.fillRect(W*.5-sunR,sunY-sunR+i*sunR*.25,sunR*2,4+i);
+ ctx.fillStyle='#13061b';for(let i=0;i<28;i++){const bw=18+(i%4)*8,bh=45+(i*37)%130,x=(i/27)*W-bw/2;ctx.fillRect(x,H*.39-bh,bw,bh)}
+ const base=Math.floor(state.pos/ROAD.segLen),cameraZ=state.pos;let x=0,dx=0;const drawn=[];
+ for(let n=0;n<ROAD.drawDistance;n++){const idx=(base+n)%ROAD.segments.length,s=ROAD.segments[idx],z=(base+n)*ROAD.segLen;dx+=s.curve*.00012;x+=dx;const p1=project(x*ROAD.roadWidth,ROAD.cameraHeight+s.hill*2200,z,state.x*ROAD.roadWidth*.35,ROAD.cameraHeight,cameraZ);drawn.push({s,p1})}
+ for(let i=drawn.length-2;i>=0;i--){const a=drawn[i],b=drawn[i+1];if(a.p1.y>=H||b.p1.y<0)continue;const r1=a.p1.scale*ROAD.roadWidth*W/2,r2=b.p1.scale*ROAD.roadWidth*W/2,g1=r1*1.28,g2=r2*1.28;
+  ctx.fillStyle=a.s.stripe?'#17091d':'#090711';ctx.beginPath();ctx.moveTo(a.p1.x-g1,a.p1.y);ctx.lineTo(a.p1.x+g1,a.p1.y);ctx.lineTo(b.p1.x+g2,b.p1.y);ctx.lineTo(b.p1.x-g2,b.p1.y);ctx.fill();
+  ctx.fillStyle=a.s.stripe?'#24192f':'#1b1426';ctx.beginPath();ctx.moveTo(a.p1.x-r1,a.p1.y);ctx.lineTo(a.p1.x+r1,a.p1.y);ctx.lineTo(b.p1.x+r2,b.p1.y);ctx.lineTo(b.p1.x-r2,b.p1.y);ctx.fill();
+  ctx.strokeStyle=a.s.stripe?'#ff2d95':'#39d7ff';ctx.lineWidth=Math.max(1,a.p1.scale*80);ctx.beginPath();ctx.moveTo(a.p1.x-r1,a.p1.y);ctx.lineTo(b.p1.x-r2,b.p1.y);ctx.moveTo(a.p1.x+r1,a.p1.y);ctx.lineTo(b.p1.x+r2,b.p1.y);ctx.stroke();
+  if(a.s.stripe){const m1=r1*.03,m2=r2*.03;ctx.fillStyle='#ffe53b';ctx.beginPath();ctx.moveTo(a.p1.x-m1,a.p1.y);ctx.lineTo(a.p1.x+m1,a.p1.y);ctx.lineTo(b.p1.x+m2,b.p1.y);ctx.lineTo(b.p1.x-m2,b.p1.y);ctx.fill()}
+ }
+}
+function update(dt){
+ state.time+=dt;if(state.mode!=='play')return;
+ state.speed+=((input.gas?94:0)-(input.brake?185:0)-18)*dt;state.speed=Math.max(0,Math.min(285,state.speed));
+ const steer=input.right-input.left;state.x+=steer*(input.brake?.022:.012)*(state.speed/120+.35);state.x*=Math.pow(.992,dt*60);state.x=Math.max(-1.45,Math.min(1.45,state.x));
+ const seg=segAt(state.pos);state.x-=seg.curve*(state.speed/285)*dt*.55;state.pos+=state.speed*dt*5.3;const total=ROAD.segments.length*ROAD.segLen;if(state.pos>=total)state.pos-=total;
+ document.getElementById('spd').textContent=Math.round(state.speed);document.getElementById('gear').textContent=Math.max(1,Math.min(6,Math.floor(state.speed/48)+1));
+}
+function render(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);if(state.mode==='title'){if(concept.complete&&concept.naturalWidth)ctx.drawImage(concept,0,0,W,H);else{ctx.fillStyle='#13042b';ctx.fillRect(0,0,W,H)}ctx.fillStyle='rgba(0,0,0,.34)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.shadowColor='#ff2d95';ctx.shadowBlur=24;ctx.fillStyle='#ff2d95';ctx.font=`900 ${Math.max(44,Math.min(90,W*.075))}px Impact,Arial Black`;ctx.fillText('TTD DEATH CIRCUIT',W/2,H*.22);ctx.shadowBlur=0;ctx.fillStyle='#39d7ff';ctx.font='900 20px monospace';ctx.fillText('PROTOTYPE // TITAN RUN',W/2,H*.28);ctx.fillStyle='#ffe53b';ctx.font='900 17px monospace';ctx.fillText('1 ROAD // 1 CAR // NO BRAKES CERTIFIED',W/2,H*.34);ctx.textAlign='left';return}drawWorld();drawCar()}
+function loop(now){const dt=Math.min(.033,(now-state.last)/1000||0);state.last=now;update(dt);render();requestAnimationFrame(loop)}
+function hold(id,key){const el=document.getElementById(id),off=()=>{input[key]=0;el.classList.remove('active')};el.addEventListener('pointerdown',e=>{e.preventDefault();input[key]=1;el.classList.add('active');try{el.setPointerCapture(e.pointerId)}catch(_){}});['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,off))}
+hold('left','left');hold('right','right');hold('throttle','gas');hold('brake','brake');
+document.getElementById('start').addEventListener('pointerdown',e=>{e.preventDefault();state.mode='play';state.speed=0;state.pos=0;state.x=0});
+['contextmenu','selectstart','dragstart','dblclick','gesturestart'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space'].includes(e.code))e.preventDefault();if(e.code==='ArrowLeft'||e.code==='KeyA')input.left=1;if(e.code==='ArrowRight'||e.code==='KeyD')input.right=1;if(e.code==='ArrowUp'||e.code==='KeyW')input.gas=1;if(e.code==='ArrowDown'||e.code==='KeyS'||e.code==='Space')input.brake=1;if(e.code==='Enter')state.mode='play'});
+addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA')input.left=0;if(e.code==='ArrowRight'||e.code==='KeyD')input.right=0;if(e.code==='ArrowUp'||e.code==='KeyW')input.gas=0;if(e.code==='ArrowDown'||e.code==='KeyS'||e.code==='Space')input.brake=0});
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
