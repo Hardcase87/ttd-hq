@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>TTD DEATH CIRCUIT // MAX DAMAGE V5</title>
+<title>TTD DEATH CIRCUIT // MAX DAMAGE V5.1 HD ASSETS</title>
 <style>
 :root{--p:#ff2d95;--c:#39d7ff;--g:#8aff2b;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -14,7 +14,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 #hud{position:absolute;z-index:4;right:12px;top:max(10px,env(safe-area-inset-top));display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:65vw}
 .chip{padding:7px 9px;background:rgba(0,0,0,.68);border:1px solid rgba(255,45,149,.45);font:900 11px monospace;border-radius:10px}
 .chip b{color:var(--g)}
-#controls{position:absolute;z-index:5;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));display:grid;grid-template-columns:150px minmax(220px,1fr) 170px;gap:10px;align-items:end;pointer-events:none}
+#controls{position:absolute;z-index:5;left:10px;right:10px;bottom:max(14px,calc(env(safe-area-inset-bottom) + 10px));display:grid;grid-template-columns:150px minmax(220px,1fr) 170px;gap:10px;align-items:end;pointer-events:none}
 .ctrl{pointer-events:auto}.steer,.pedals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 button{min-height:66px;border-radius:18px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.76);color:#fff;font-weight:900;font-size:18px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
 button:active,.active{transform:translateY(2px);filter:brightness(1.4)}
@@ -22,15 +22,15 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.4)}
 #throttle{color:var(--g);border-color:rgba(138,255,43,.55)}
 #brake{color:var(--p);border-color:rgba(255,45,149,.65)}
 #start{color:var(--y);border-color:rgba(255,229,59,.6);width:100%}
-#nitro{position:absolute;z-index:6;right:156px;bottom:94px;min-height:38px;padding:8px 12px;border-radius:12px;color:var(--g);border-color:rgba(138,255,43,.55);font:900 11px monospace}
-#music{position:absolute;z-index:6;right:12px;bottom:94px;min-height:38px;padding:8px 12px;border-radius:12px;color:var(--c);border-color:rgba(57,215,255,.55);font:900 11px monospace}
+#nitro{position:absolute;z-index:6;right:156px;bottom:max(96px,calc(env(safe-area-inset-bottom) + 92px));min-height:38px;padding:8px 12px;border-radius:12px;color:var(--g);border-color:rgba(138,255,43,.55);font:900 11px monospace}
+#music{position:absolute;z-index:6;right:12px;bottom:max(96px,calc(env(safe-area-inset-bottom) + 92px));min-height:38px;padding:8px 12px;border-radius:12px;color:var(--c);border-color:rgba(57,215,255,.55);font:900 11px monospace}
 @media(max-width:760px){#controls{grid-template-columns:120px 1fr 130px;gap:6px}button{min-height:58px;font-size:15px}#left,#right{font-size:24px}.chip{font-size:9px}}
 </style>
 </head>
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">TTD DEATH CIRCUIT // MAX DAMAGE V5</div>
+<div id="badge">TTD DEATH CIRCUIT // MAX DAMAGE V5.1 HD ASSETS</div>
 <div id="hud"><div class="chip">SPD <b id="spd">0</b></div><div class="chip">GEAR <b id="gear">1</b></div><div class="chip">ROAD <b id="district">TITAN RUN</b></div><div class="chip">POS <b id="racepos">1/6</b></div><div class="chip">CHECK <b id="check">0/5</b></div><div class="chip">LAP <b id="lap">1/3</b></div><div class="chip">SCORE <b id="score">000000</b></div><div class="chip">NITRO <b id="nitroVal">100</b></div></div>
 <div id="controls">
   <div class="ctrl steer"><button id="left">◀</button><button id="right">▶</button></div>
@@ -49,6 +49,17 @@ addEventListener('resize',resize,{passive:true});resize();
 const concept=new Image();concept.src='assets/death-circuit-concept.png';
 const bg1=new Image();bg1.src='assets/background-view-1.png';
 const carImg=new Image();carImg.src='assets/mayhem-car-rear.png';
+const HD={
+ playerIdle:new Image(),playerBoost:new Image(),
+ rivals:[],traffic:[]
+};
+HD.playerIdle.src='assets/death-circuit-v5/mayhem-rear-idle.png';
+HD.playerBoost.src='assets/death-circuit-v5/mayhem-rear-boost.png';
+['enforcer.png','neon-runner.png','credit-viper.png','military-interceptor.png','alien-drifter.png']
+ .forEach(n=>{const im=new Image();im.src='assets/death-circuit-v5/'+n;HD.rivals.push(im)});
+['credit-viper.png','nutri-haul.png','enforcer.png','neon-runner.png']
+ .forEach(n=>{const im=new Image();im.src='assets/death-circuit-v5/'+n;HD.traffic.push(im)});
+
 const input={left:0,right:0,gas:0,brake:0};
 const state={
  mode:'title',speed:0,pos:0,x:0,last:performance.now(),time:0,
@@ -101,58 +112,37 @@ addRoad(45);addRoad(50,.75,.08);addRoad(35,-.45,-.03);addRoad(60,-.95,.06);addRo
 function segAt(z){return ROAD.segments[Math.floor(z/ROAD.segLen)%ROAD.segments.length]}
 function project(worldX,worldY,worldZ,cameraX,cameraY,cameraZ){const dz=worldZ-cameraZ,scale=ROAD.cameraDepth/Math.max(1,dz);return{scale,x:W/2+scale*(worldX-cameraX)*W/2,y:H/2-scale*(worldY-cameraY)*H/2}}
 function drawCar(){
- const x=W/2+state.x*W*.18;
- const y=H*.815;
- const s=Math.max(.82,Math.min(1.16,W/1300));
- ctx.save();ctx.translate(x,y);
-
- // shadow + road contact
- ctx.globalAlpha=.34;ctx.fillStyle='#000';
- ctx.beginPath();ctx.ellipse(0,38,145,34,0,0,Math.PI*2);ctx.fill();
- ctx.globalAlpha=1;
-
- // slight OutRun-style body lean / turn pose
+ const x=W/2+state.x*W*.18,y=H*.815;
  const steer=input.right-input.left;
- const lean=steer*.065;
- ctx.rotate(lean);
+ const s=Math.max(.78,Math.min(1.10,W/1420));
+ ctx.save();ctx.translate(x,y);
+ ctx.rotate(steer*.055);
 
- if(carImg.complete&&carImg.naturalWidth){
-   // Crop top source-label region; keep only the proper vehicle.
-   const sx=0;
-   const sy=Math.floor(carImg.naturalHeight*.18);
-   const sw=carImg.naturalWidth;
-   const sh=Math.floor(carImg.naturalHeight*.82);
+ ctx.globalAlpha=.34;ctx.fillStyle='#000';
+ ctx.beginPath();ctx.ellipse(0,42,150,32,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
 
-   const w=420*s;
-   const h=w*(sh/sw);
-
-   // Wider apparent car on turn, with small lateral offset for arcade animation.
-   const xoff=steer*16;
-   ctx.shadowColor='#ff2d95';ctx.shadowBlur=24;
-   ctx.drawImage(carImg,sx,sy,sw,sh,-w/2+xoff,-h*.78,w,h);
+ const source=(state.nitroOn&&state.nitro>0&&HD.playerBoost.complete)?HD.playerBoost:HD.playerIdle;
+ if(source&&source.complete&&source.naturalWidth){
+   const w=(state.nitroOn?430:408)*s;
+   const h=w*(source.naturalHeight/source.naturalWidth);
+   ctx.shadowColor=state.nitroOn?'#ff2d95':'#39d7ff';
+   ctx.shadowBlur=state.nitroOn?28:16;
+   ctx.drawImage(source,-w/2+steer*14,-h*.78,w,h);
    ctx.shadowBlur=0;
- } else {
-   ctx.fillStyle='#11131a';ctx.strokeStyle='#ff2d95';ctx.lineWidth=5;
-   ctx.beginPath();
-   ctx.moveTo(-132,30);ctx.lineTo(-105,-24);ctx.lineTo(-72,-55);ctx.lineTo(72,-55);
-   ctx.lineTo(105,-24);ctx.lineTo(132,30);ctx.lineTo(90,52);ctx.lineTo(-90,52);
-   ctx.closePath();ctx.fill();ctx.stroke();
+ }else if(carImg.complete&&carImg.naturalWidth){
+   const w=390*s,h=w*(carImg.naturalHeight/carImg.naturalWidth);
+   ctx.drawImage(carImg,-w/2,-h*.78,w,h);
  }
 
- // thruster bloom
- if(input.gas&&state.speed>35){
-   const len=24+Math.sin(state.time*32)*8+(state.speed/285)*30;
+ // extra turbo pulse to make boost feel alive even on static PNG
+ if(state.nitroOn&&state.nitro>0){
+   const pulse=1+.12*Math.sin(state.time*26);
+   ctx.save();ctx.globalAlpha=.45+.20*Math.sin(state.time*30);
    ctx.fillStyle='#ff2d95';ctx.shadowColor='#ff2d95';ctx.shadowBlur=22;
    for(const ex of [-62,62]){
-     ctx.beginPath();
-     ctx.moveTo(ex,24);ctx.lineTo(ex-12,24+len);ctx.lineTo(ex+12,24);ctx.fill();
+     ctx.beginPath();ctx.moveTo(ex,26);ctx.lineTo(ex-16,26+68*pulse);ctx.lineTo(ex+16,26);ctx.fill();
    }
-   ctx.fillStyle='#39d7ff';ctx.shadowColor='#39d7ff';ctx.shadowBlur=15;
-   for(const ex of [-62,62]){
-     ctx.beginPath();
-     ctx.moveTo(ex,25);ctx.lineTo(ex-6,25+len*.62);ctx.lineTo(ex+6,25);ctx.fill();
-   }
-   ctx.shadowBlur=0;
+   ctx.restore();
  }
  ctx.restore();
 }
@@ -297,13 +287,19 @@ function wrapDist(z){
  const total=TRACK_LEN();let d=z-state.pos;
  while(d<0)d+=total;while(d>=total)d-=total;return d;
 }
-function drawRivalCar(x,y,scale,color,lean=0){
+function drawRivalCar(x,y,scale,color,lean=0,img=null){
  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.rotate(lean);
- ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(0,18,45,12,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- ctx.shadowColor=color;ctx.shadowBlur=10;ctx.fillStyle='#11131a';ctx.strokeStyle=color;ctx.lineWidth=2.5;
- ctx.beginPath();ctx.moveTo(-48,14);ctx.lineTo(-37,-16);ctx.lineTo(-20,-28);ctx.lineTo(20,-28);ctx.lineTo(37,-16);ctx.lineTo(48,14);ctx.lineTo(33,27);ctx.lineTo(-33,27);ctx.closePath();ctx.fill();ctx.stroke();
- ctx.shadowBlur=0;ctx.fillStyle='#ff2d95';ctx.fillRect(-31,9,16,6);ctx.fillRect(15,9,16,6);
- ctx.fillStyle='#8aff2b';ctx.fillRect(-5,-4,10,8);ctx.restore();
+ ctx.globalAlpha=.24;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(0,20,48,12,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+ if(img&&img.complete&&img.naturalWidth){
+   const w=126,h=w*(img.naturalHeight/img.naturalWidth);
+   ctx.shadowColor=color;ctx.shadowBlur=7;
+   ctx.drawImage(img,-w/2,-h*.76,w,h);
+   ctx.shadowBlur=0;
+ }else{
+   ctx.fillStyle='#11131a';ctx.strokeStyle=color;ctx.lineWidth=2.5;
+   ctx.beginPath();ctx.moveTo(-48,14);ctx.lineTo(-37,-16);ctx.lineTo(-20,-28);ctx.lineTo(20,-28);ctx.lineTo(37,-16);ctx.lineTo(48,14);ctx.lineTo(33,27);ctx.lineTo(-33,27);ctx.closePath();ctx.fill();ctx.stroke();
+ }
+ ctx.restore();
 }
 function drawTrafficAndRivals(horizon,bottom,curve){
  const prof=roadProfile(horizon,bottom,curve),maxD=5600,list=[];
@@ -314,7 +310,7 @@ function drawTrafficAndRivals(horizon,bottom,curve){
    const depth=1-it.d/maxD,p=.05+.95*depth*depth;
    const y=horizon+(bottom-horizon)*p,c=prof.center(p),h=prof.half(p);
    const x=c+it.o.lane*h*.72,sc=.22+1.12*p;
-   drawRivalCar(x,y,sc,it.type==='rival'?it.o.color:'#777',it.type==='rival'?Math.sin(it.o.phase+state.time)*.025:0);
+   drawRivalCar(x,y,sc,it.type==='rival'?it.o.color:'#777',it.type==='rival'?Math.sin(it.o.phase+state.time)*.025:0,it.type==='rival'?HD.rivals[(it.o.phase*10|0)%HD.rivals.length]:HD.traffic[(it.o.kind||0)%HD.traffic.length]);
  }
 }
 function updateRaceObjects(dt){
@@ -514,7 +510,7 @@ function update(dt){
  document.getElementById('spd').textContent=Math.round(state.speed);
  document.getElementById('gear').textContent=Math.max(1,Math.min(6,Math.floor(state.speed/48)+1));
 }
-function render(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);if(state.mode==='title'){if(concept.complete&&concept.naturalWidth)ctx.drawImage(concept,0,0,W,H);else{ctx.fillStyle='#13042b';ctx.fillRect(0,0,W,H)}ctx.fillStyle='rgba(0,0,0,.34)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.shadowColor='#ff2d95';ctx.shadowBlur=24;ctx.fillStyle='#ff2d95';ctx.font=`900 ${Math.max(44,Math.min(90,W*.075))}px Impact,Arial Black`;ctx.fillText('TTD DEATH CIRCUIT',W/2,H*.22);ctx.shadowBlur=0;ctx.fillStyle='#39d7ff';ctx.font='900 20px monospace';ctx.fillText('MAX DAMAGE V5 // TITAN RUN',W/2,H*.28);ctx.fillStyle='#ffe53b';ctx.font='900 17px monospace';ctx.fillText('1 ROAD // 1 CAR // FULL MAYHEM ROAD',W/2,H*.34);ctx.textAlign='left';return}drawWorld();drawCar();drawRaceHUD();if(state.crash>0){ctx.fillStyle=`rgba(255,45,149,${state.crash*.22})`;ctx.fillRect(0,0,W,H)}if(state.flash>0){ctx.fillStyle=`rgba(255,229,59,${state.flash*.20})`;ctx.fillRect(0,0,W,H)}}
+function render(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);if(state.mode==='title'){if(concept.complete&&concept.naturalWidth)ctx.drawImage(concept,0,0,W,H);else{ctx.fillStyle='#13042b';ctx.fillRect(0,0,W,H)}ctx.fillStyle='rgba(0,0,0,.34)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.shadowColor='#ff2d95';ctx.shadowBlur=24;ctx.fillStyle='#ff2d95';ctx.font=`900 ${Math.max(44,Math.min(90,W*.075))}px Impact,Arial Black`;ctx.fillText('TTD DEATH CIRCUIT',W/2,H*.22);ctx.shadowBlur=0;ctx.fillStyle='#39d7ff';ctx.font='900 20px monospace';ctx.fillText('MAX DAMAGE V5.1 HD ASSETS // TITAN RUN',W/2,H*.28);ctx.fillStyle='#ffe53b';ctx.font='900 17px monospace';ctx.fillText('1 ROAD // 1 CAR // FULL MAYHEM ROAD',W/2,H*.34);ctx.textAlign='left';return}drawWorld();drawCar();drawRaceHUD();if(state.crash>0){ctx.fillStyle=`rgba(255,45,149,${state.crash*.22})`;ctx.fillRect(0,0,W,H)}if(state.flash>0){ctx.fillStyle=`rgba(255,229,59,${state.flash*.20})`;ctx.fillRect(0,0,W,H)}}
 function loop(now){const dt=Math.min(.033,(now-state.last)/1000||0);state.last=now;update(dt);render();requestAnimationFrame(loop)}
 function hold(id,key){const el=document.getElementById(id),off=()=>{input[key]=0;el.classList.remove('active')};el.addEventListener('pointerdown',e=>{e.preventDefault();input[key]=1;el.classList.add('active');try{el.setPointerCapture(e.pointerId)}catch(_){}});['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,off))}
 hold('left','left');hold('right','right');hold('throttle','gas');hold('brake','brake');
