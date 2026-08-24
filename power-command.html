@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V10 WORLD WAR</title>
+<title>TTD POWER COMMAND // V10.1 OVERLOAD FIX</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -15,7 +15,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background
 #controls{position:absolute;z-index:8;left:0;right:0;bottom:max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:10px;padding:10px;pointer-events:none}
 .group,.pad{pointer-events:auto}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,48px);gap:5px}
-#upleft{grid-column:1;grid-row:1}#up{grid-column:2;grid-row:1}#upright{grid-column:3;grid-row:1}#left{grid-column:1;grid-row:2}#stop{grid-column:2;grid-row:2}#right{grid-column:3;grid-row:2}#downleft{grid-column:1;grid-row:3}#down{grid-column:2;grid-row:3}#downright{grid-column:3;grid-row:3}
+.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.pad button:nth-child(5){grid-column:2;grid-row:3}
 .group{display:grid;grid-template-rows:1fr 1fr;gap:8px}
 button{border:1px solid rgba(255,255,255,.18);border-radius:15px;background:rgba(0,0,0,.72);color:#fff;font-weight:900;font-size:18px;min-height:48px;-webkit-tap-highlight-color:transparent}
 .move{color:var(--b);border-color:rgba(57,215,255,.55)}
@@ -39,19 +39,19 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.45)}
 .hudChip b{color:#aaa}.hudChip strong{color:var(--g);font-size:14px}
 .powerBar{height:10px;flex:1;border:1px solid rgba(255,255,255,.16);background:#111}
 .powerBar i{display:block;height:100%;width:92%;background:linear-gradient(90deg,var(--p),#c32cff)}
-#controls{position:absolute;z-index:8;left:12px;right:12px;bottom:max(42px,calc(env(safe-area-inset-bottom) + 30px));display:grid;grid-template-columns:250px minmax(260px,1fr) 210px;gap:12px;align-items:end;padding:0;pointer-events:none}
+#controls{position:absolute;z-index:8;left:12px;right:12px;bottom:max(42px,calc(env(safe-area-inset-bottom) + 30px));display:grid;grid-template-columns:292px minmax(290px,1fr) 230px;gap:12px;align-items:end;padding:0;pointer-events:none}
 .controlBlock{pointer-events:auto}
-.pad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,48px);gap:5px;justify-content:start}
-.pad button{font-size:20px}
-#upleft{grid-column:1;grid-row:1}#up{grid-column:2;grid-row:1}#upright{grid-column:3;grid-row:1}#left{grid-column:1;grid-row:2}#stop{grid-column:2;grid-row:2}#right{grid-column:3;grid-row:2}#downleft{grid-column:1;grid-row:3}#down{grid-column:2;grid-row:3}#downright{grid-column:3;grid-row:3}
-.centerControls{display:grid;grid-template-columns:minmax(220px,1fr) 86px 86px;grid-template-rows:54px 54px;gap:8px}
+.pad{display:grid;grid-template-columns:repeat(3,68px);grid-template-rows:repeat(3,58px);gap:6px;justify-content:start}
+.pad button{font-size:25px;min-width:68px;min-height:58px}
+.pad button:nth-child(1){grid-column:2}.pad button:nth-child(2){grid-column:1;grid-row:2}.pad button:nth-child(3){grid-column:2;grid-row:2}.pad button:nth-child(4){grid-column:3;grid-row:2}.pad button:nth-child(5){grid-column:2;grid-row:3}
+.centerControls{display:grid;grid-template-columns:minmax(230px,1fr) 92px 92px;grid-template-rows:60px 60px;gap:8px}
 .centerControls .fire{grid-column:1;grid-row:1/3;font-size:24px}
 .weapon{border-radius:50%;font-size:12px;min-height:54px}
 .weapon.missile{color:var(--p);border-color:rgba(255,45,149,.65)}
 .weapon.nuke{color:var(--g);border-color:rgba(138,255,43,.65)}
 .weapon.bomb{color:#ff59bd;border-color:rgba(255,89,189,.65)}
 .weapon.rage{color:#ffe53b;border-color:rgba(255,229,59,.65)}
-.rightControls{display:grid;grid-template-columns:1fr;grid-template-rows:54px 54px;gap:8px}
+.rightControls{display:grid;grid-template-columns:1fr;grid-template-rows:60px 60px;gap:8px}
 .rightControls .boost{font-size:16px}
 button{border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(0,0,0,.78);color:#fff;font-weight:900;font-size:17px;min-height:48px;-webkit-tap-highlight-color:transparent;touch-action:none;box-shadow:inset 0 -4px 0 rgba(0,0,0,.32)}
 button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box-shadow:inset 0 -1px 0 rgba(0,0,0,.4)}
@@ -63,19 +63,19 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
  #craftPanel{width:190px;font-size:9px}
  #craftPanel h2{font-size:17px}
  #bottomHud{grid-template-columns:125px 90px 90px 1fr 165px;bottom:max(198px,calc(env(safe-area-inset-bottom) + 188px))}
- #controls{grid-template-columns:205px minmax(240px,1fr) 170px;gap:8px}
- .pad{grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,42px)}
- .centerControls{grid-template-columns:minmax(170px,1fr) 70px 70px;grid-template-rows:48px 48px}
- .rightControls{grid-template-rows:48px 48px}
+ #controls{grid-template-columns:232px minmax(250px,1fr) 184px;gap:8px}
+ .pad{grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,50px)}
+ .centerControls{grid-template-columns:minmax(180px,1fr) 76px 76px;grid-template-rows:52px 52px}
+ .rightControls{grid-template-rows:52px 52px}
 }
 @media(max-width:850px){
  #pilotPanel,#craftPanel{display:none}
  #bottomHud{display:none}
- #controls{left:7px;right:7px;bottom:max(34px,calc(env(safe-area-inset-bottom) + 24px));grid-template-columns:150px 1fr 120px;gap:6px}
- .pad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,36px);gap:3px}
+ #controls{left:7px;right:7px;bottom:max(34px,calc(env(safe-area-inset-bottom) + 24px));grid-template-columns:166px 1fr 128px;gap:6px}
+ .pad{grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,42px);gap:4px}
  .centerControls{grid-template-columns:minmax(130px,1fr) 54px 54px;grid-template-rows:40px 40px;gap:4px}
  .rightControls{grid-template-rows:40px 40px;gap:4px}
- button{min-height:36px;font-size:13px}
+ button{min-height:42px;font-size:14px}
  .centerControls .fire{font-size:17px}
  .weapon{font-size:9px;min-height:40px}
 }
@@ -85,7 +85,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V10 WORLD WAR</div>
+<div id="badge">POWER COMMAND // V10.1</div>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
@@ -118,16 +118,12 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 </div>
 
 <div id="controls">
-  <div class="controlBlock pad" aria-label="8-way flight controls">
-    <button class="move" id="upleft">↖</button>
+  <div class="controlBlock pad">
     <button class="move" id="up">▲</button>
-    <button class="move" id="upright">↗</button>
     <button class="move" id="left">◀</button>
     <button class="move" id="stop">●</button>
     <button class="move" id="right">▶</button>
-    <button class="move" id="downleft">↙</button>
     <button class="move" id="down">▼</button>
-    <button class="move" id="downright">↘</button>
   </div>
   <div class="controlBlock centerControls">
     <button class="fire" id="fire">✹ DRRRRRT ✹</button>
@@ -159,7 +155,6 @@ function resize(){
 addEventListener('resize',resize,{passive:true}); resize();
 
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
-const touchVec={x:0,y:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
 const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,distance:0};
 const WORLD={
@@ -178,16 +173,6 @@ for(let ty=0;ty<WORLD.rows;ty++){
   }
 }
 const mod=(n,m)=>((n%m)+m)%m;
-const wrapDelta=(d,size)=>((d+size/2)%size+size)%size-size/2;
-function structurePosNear(s,ax,ay){
-  if(!s.wrap)return {x:s.x,y:s.y};
-  return {x:ax+wrapDelta(s.x-ax,WORLD.width),y:ay+wrapDelta(s.y-ay,WORLD.height)};
-}
-function structureDistanceTo(s,x,y){
-  const p=structurePosNear(s,x,y);
-  return Math.hypot(p.x-x,p.y-y);
-}
-
 const MAYHEM=new Image();
 MAYHEM.decoding='async';
 MAYHEM.src='assets/images/ttd-power-command/mayhem-machine.png?v=7';
@@ -216,11 +201,11 @@ for(const src of [...ENEMY_FILES.fighter,...ENEMY_FILES.bomber,...ENEMY_FILES.in
 }
 const enemies=[];
 const TIERS=[
-  {name:'PATROL',need:0,density:2,fire:.90,speed:125},
-  {name:'ASSAULT',need:9000,density:4,fire:.74,speed:150},
-  {name:'WARZONE',need:24000,density:6,fire:.58,speed:180},
-  {name:'MAYHEM',need:48000,density:8,fire:.44,speed:210},
-  {name:'TTD OVERRIDE',need:82000,density:10,fire:.32,speed:245}
+  {name:'PATROL',need:0,density:2,fire:1.00,speed:125},
+  {name:'ASSAULT',need:9000,density:3,fire:.84,speed:150},
+  {name:'WARZONE',need:24000,density:4,fire:.68,speed:180},
+  {name:'MAYHEM',need:48000,density:5,fire:.54,speed:210},
+  {name:'TTD OVERRIDE',need:82000,density:6,fire:.42,speed:245}
 ];
 let enemySpawnClock=0;
 
@@ -254,16 +239,10 @@ function spawnSquad(){
   if(state.gameWon)return;
   const tier=TIERS[state.tier], desired=tier.density;
   const alive=enemies.reduce((n,e)=>n+(!e.dead?1:0),0);
-  if(alive>=desired*2)return;
+  if(alive>=desired+3)return;
   const roll=Math.random();
-  const mx=mod(ship.x,WORLD.width), my=mod(ship.y,WORLD.height);
-  const tileX=Math.floor(mx/512), tileY=Math.floor(my/512);
-  const biome=tileY*3+tileX;
-  let type='fighter';
-  if((biome===1||biome===5) && state.tier>=1 && roll>.36) type='bomber';
-  if((biome===2||biome===4||biome===5) && state.tier>=2 && roll>.62) type='interceptor';
-  if(state.tier>=3 && roll>.82) type='interceptor';
-  const count=type==='bomber'?2:3+Math.min(3,state.tier);
+  const type=state.tier>=2 && roll>.70?'interceptor':state.tier>=1 && roll>.42?'bomber':'fighter';
+  const count=type==='bomber'?1:2+Math.min(2,state.tier);
   const baseAng=Math.random()*TAU;
   for(let i=0;i<count;i++)spawnEnemy(type,baseAng+(i-(count-1)/2)*.12,520+i*18);
 }
@@ -271,7 +250,7 @@ function updateEnemies(dt){
   enemySpawnClock-=dt;
   if(enemySpawnClock<=0){
     spawnSquad();
-    enemySpawnClock=Math.max(.72,2.2-state.tier*.28);
+    enemySpawnClock=Math.max(1.05,2.65-state.tier*.25);
   }
   const tier=TIERS[state.tier];
   for(const e of enemies){
@@ -283,9 +262,30 @@ function updateEnemies(dt){
     let tx=nx,ty=ny;
     if(e.type==='interceptor'){tx=nx*.65-ny*.75;ty=ny*.65+nx*.75;}
     if(e.type==='bomber'&&d<300){tx=-nx;ty=-ny;}
-    e.vx=lerp(e.vx,tx*desired,.035+state.tier*.005);
-    e.vy=lerp(e.vy,ty*desired,.035+state.tier*.005);
+
+    // Keep hostile aircraft out from under Mayhem Machine.
+    const avoidRadius=e.type==='bomber'?135:115;
+    if(d<avoidRadius){
+      const push=(avoidRadius-d)/avoidRadius;
+      const side=e.phase%TAU>Math.PI?1:-1;
+      tx=-nx*(1.25+push*1.6)+(-ny)*.70*side;
+      ty=-ny*(1.25+push*1.6)+( nx)*.70*side;
+      desired*=1.35;
+    }else if(d<avoidRadius+90){
+      const side=e.phase%TAU>Math.PI?1:-1;
+      tx=tx*.55+(-ny)*.65*side;
+      ty=ty*.55+( nx)*.65*side;
+    }
+    e.vx=lerp(e.vx,tx*desired,.055+state.tier*.006);
+    e.vy=lerp(e.vy,ty*desired,.055+state.tier*.006);
     e.x+=e.vx*dt;e.y+=e.vy*dt;
+    const postDx=e.x-ship.x,postDy=e.y-ship.y,postD=Math.hypot(postDx,postDy);
+    const minSep=e.type==='bomber'?92:78;
+    if(postD<minSep){
+      const px=postDx/(postD||1),py=postDy/(postD||1);
+      e.x=ship.x+px*minSep;e.y=ship.y+py*minSep;
+      e.vx+=px*120;e.vy+=py*120;
+    }
     e.a=Math.atan2(e.vy,e.vx);
     e.fire-=dt;
     const fireRange=e.type==='bomber'?520:430;
@@ -331,16 +331,15 @@ function drawEnemies(){
 }
 function spawnBoss(){
   state.bossSpawned=true;
-  addStructure(ship.x+760,ship.y-120,'base',8,false);
+  addStructure(ship.x+760,ship.y-120,'base',8);
   const b=structures[structures.length-1];
   b.isBoss=true;b.hp=b.maxHp=5200;b.radius=112;b.range=840;b.fireRate=.28;
   tone(44,.35,'sawtooth',.11);
 }
 
-function addStructure(x,y,type='bunker',variant=0,wrap=true){
+function addStructure(x,y,type='bunker',variant=0){
   const base=type==='base', files=base?BASE_FILES:BUNKER_FILES;
   structures.push({
-    wrap,
     x,y,type,img:files[variant%files.length],
     hp:base?900:300,maxHp:base?900:300,
     radius:base?72:54,
@@ -352,21 +351,20 @@ function addStructure(x,y,type='bunker',variant=0,wrap=true){
   });
 }
 (function seedStructures(){
-  const tileSites=[
-    [120,110,'bunker',0],[260,190,'base',0],[410,95,'bunker',1],[90,380,'bunker',2],[300,395,'base',1],[455,330,'bunker',3],
-    [560,120,'base',2],[710,210,'bunker',4],[900,110,'bunker',5],[610,400,'bunker',6],[790,355,'base',3],[980,430,'bunker',7],
-    [1080,105,'bunker',2],[1240,205,'base',4],[1420,100,'bunker',3],[1110,390,'base',5],[1310,360,'bunker',4],[1480,430,'bunker',5],
-    [100,600,'bunker',6],[250,720,'base',6],[440,590,'bunker',7],[90,910,'bunker',0],[305,875,'base',7],[470,780,'bunker',1],
-    [565,610,'base',8],[735,700,'bunker',2],[920,585,'bunker',3],[620,900,'bunker',4],[805,850,'base',0],[985,955,'bunker',5],
-    [1080,610,'bunker',6],[1240,710,'base',1],[1435,600,'bunker',7],[1120,930,'base',2],[1325,865,'bunker',0],[1490,955,'bunker',1]
-  ];
-  tileSites.forEach(p=>addStructure(...p,true));
+  // V10.1: General Overkill has been removed from city planning.
+  // 14 meaningful installations; roaming aircraft provide most of the action.
+  [
+    [420,-180,'base',0],[-620,360,'bunker',1],[1120,-780,'bunker',2],[-1460,-1180,'base',3],
+    [620,-1680,'bunker',4],[-880,-2200,'base',5],[1520,-2680,'bunker',6],[-1880,-3180,'bunker',7],
+    [420,-3660,'base',8],[1320,-4140,'bunker',0],[-1480,-4560,'base',1],[2080,-5080,'bunker',3],
+    [-2260,-5580,'bunker',5],[760,-6120,'base',6]
+  ].forEach(p=>addStructure(...p));
 })();
 
 function damageStructureAt(x,y,amount){
   for(const s of structures){
     if(s.dead) continue;
-    if(structureDistanceTo(s,x,y)<=s.radius){
+    if(Math.hypot(x-s.x,y-s.y)<=s.radius){
       s.hp-=amount; s.flash=.12;
       if(s.hp<=0){
         s.dead=true; state.score+=s.type==='base'?5000:900; state.kills++;
@@ -385,7 +383,7 @@ function updateStructures(dt){
   for(const s of structures){
     if(s.dead) continue;
     s.flash=Math.max(0,s.flash-dt);
-    const sp=structurePosNear(s,ship.x,ship.y); const dx=ship.x-sp.x,dy=ship.y-sp.y,d=Math.hypot(dx,dy);
+    const dx=ship.x-s.x,dy=ship.y-s.y,d=Math.hypot(dx,dy);
     s.lastFire-=dt;
     if(d<s.range && s.lastFire<=0){
       s.lastFire=s.fireRate*(.86+Math.random()*.28);
@@ -396,7 +394,7 @@ function updateStructures(dt){
         const spread=(i-(count-1)/2)*.055;
         const ca=Math.cos(spread),sa=Math.sin(spread);
         enemyShots.push({
-          x:sp.x,y:sp.y,
+          x:s.x,y:s.y,
           vx:(nx*ca-ny*sa)*speed,
           vy:(nx*sa+ny*ca)*speed,
           life:3.1,
@@ -423,7 +421,7 @@ function updateStructures(dt){
 function drawStructures(){
   for(const s of structures){
     if(s.dead) continue;
-    const wp=structurePosNear(s,state.camX,state.camY); const x=W/2+(wp.x-state.camX), y=H/2+(wp.y-state.camY);
+    const x=W/2+(s.x-state.camX), y=H/2+(s.y-state.camY);
     if(x<-170||x>W+170||y<-170||y>H+170) continue;
     const size=s.type==='base'?150:118; // intentionally slightly larger than Mayhem Machine
     const im=STRUCT_IMG[s.img];
@@ -584,14 +582,14 @@ function launchMissile(){
 function useBomb(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
+  for(const s of structures) if(!s.dead&&Math.hypot(s.x-ship.x,s.y-ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
   for(const e of enemies) if(!e.dead&&Math.hypot(e.x-ship.x,e.y-ship.y)<430){e.hp-=220;if(e.hp<=0){e.dead=true;state.kills++;state.score+=800;}}
   updateStatusUi();
 }
 function useNuke(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.55;state.score+=1400;
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<1400){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
+  for(const s of structures) if(!s.dead&&Math.hypot(s.x-ship.x,s.y-ship.y)<1400){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
   for(const e of enemies) if(!e.dead&&Math.hypot(e.x-ship.x,e.y-ship.y)<1400){e.dead=true;state.kills++;state.score+=1000;}
   enemyShots.length=0;state.rage=Math.min(100,state.rage+20);
   tone(39,.45,'square',.14);setTimeout(()=>tone(68,.32,'sawtooth',.10),70);updateStatusUi();
@@ -599,22 +597,22 @@ function useNuke(){
 function useRage(){
   if(state.rage<25){tone(120,.05,'square',.025);return}
   state.rage=Math.max(0,state.rage-25);state.flash=.18;state.score+=350;
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<620){s.hp-=260;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
+  for(const s of structures) if(!s.dead&&Math.hypot(s.x-ship.x,s.y-ship.y)<620){s.hp-=260;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
   for(const e of enemies) if(!e.dead&&Math.hypot(e.x-ship.x,e.y-ship.y)<620){e.hp-=260;if(e.hp<=0){e.dead=true;state.kills++;state.score+=850;}}tone(330,.08,'square',.08);setTimeout(()=>tone(520,.10,'sawtooth',.07),75);updateStatusUi();
 }
 
 function update(dt){
   state.t+=dt;state.fireCD=Math.max(0,state.fireCD-dt);
   if(state.mode!=='play')return;
-  let dx=(input.right-input.left)+touchVec.x,dy=(input.down-input.up)+touchVec.y;
+  let dx=input.right-input.left,dy=input.down-input.up;
   const l=Math.hypot(dx,dy); if(l){dx/=l;dy/=l}
-  const accel=input.boost?860:560,max=input.boost?620:405;
+  const accel=input.boost?820:520,max=input.boost?610:390;
   ship.vx+=dx*accel*dt;ship.vy+=dy*accel*dt;
-  ship.vx*=Math.pow(.978,dt*60);ship.vy*=Math.pow(.978,dt*60);
+  ship.vx*=Math.pow(.982,dt*60);ship.vy*=Math.pow(.982,dt*60);
   let sp=Math.hypot(ship.vx,ship.vy);if(sp>max){ship.vx*=max/sp;ship.vy*=max/sp;sp=max}
   if(sp>5){
     let target=Math.atan2(ship.vy,ship.vx),diff=Math.atan2(Math.sin(target-ship.a),Math.cos(target-ship.a));
-    ship.a+=diff*.28;
+    ship.a+=diff*.22;
   }
   ship.x+=ship.vx*dt;ship.y+=ship.vy*dt;
   state.distance+=sp*dt; updateTier();
@@ -651,7 +649,7 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V10 // WORLD WAR',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V10.1 // OVERLOAD FIX',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
@@ -660,7 +658,6 @@ function hud(){
   ctx.fillStyle='#ff2d95';ctx.font='900 13px monospace';ctx.fillText(`MODE ${tier.name}`,18,62);
 
   ctx.fillStyle='#ffe53b';ctx.font='800 12px monospace';ctx.fillText(`HOSTILES ${alive}/${structures.length}`,Math.max(18,W-160),62);
-  ctx.fillStyle='#39d7ff';ctx.font='800 11px monospace';ctx.fillText('6 SECTORS ARMED',Math.max(18,W-145),26);
 }
 function title(){
   const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#051311');g.addColorStop(.48,'#07111a');g.addColorStop(1,'#120511');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -700,21 +697,8 @@ function hold(id,key){
   el.addEventListener('pointerdown',e=>{e.preventDefault();input[key]=1;el.classList.add('active');if(key==='boost')tone(330,.05,'sawtooth',.025)});
   ['pointerup','pointercancel','pointerleave','lostpointercapture'].forEach(t=>el.addEventListener(t,off));
 }
-['fire','boost'].forEach(id=>hold(id,id));
-function bindMove(id,x,y){
-  const el=document.getElementById(id);
-  const off=()=>{touchVec.x=0;touchVec.y=0;el.classList.remove('active')};
-  el.addEventListener('pointerdown',e=>{
-    e.preventDefault();e.stopPropagation();touchVec.x=x;touchVec.y=y;el.classList.add('active');
-    try{el.setPointerCapture(e.pointerId)}catch(_){}
-  });
-  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,off));
-}
-[
-  ['upleft',-1,-1],['up',0,-1],['upright',1,-1],['left',-1,0],['right',1,0],
-  ['downleft',-1,1],['down',0,1],['downright',1,1]
-].forEach(v=>bindMove(...v));
-document.getElementById('stop').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();touchVec.x=touchVec.y=0;ship.vx=ship.vy=0;});
+['up','down','left','right','fire','boost'].forEach(id=>hold(id,id));
+document.getElementById('stop').addEventListener('pointerdown',()=>{ship.vx=ship.vy=0});
 document.getElementById('sound').addEventListener('pointerdown',e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?'SOUND ON':'SOUND OFF';if(state.sound)tone(440,.07)});
 document.getElementById('missile').addEventListener('pointerdown',e=>{e.preventDefault();launchMissile()});
 document.getElementById('bomb').addEventListener('pointerdown',e=>{e.preventDefault();useBomb()});
@@ -726,7 +710,6 @@ updateStatusUi();
   document.addEventListener(type,e=>e.preventDefault(),{passive:false});
 });
 document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
-document.addEventListener('touchmove',e=>{if(e.target.closest?.('#controls')||e.target===c)e.preventDefault();},{passive:false});
 
 c.addEventListener('pointerdown',()=>{if(state.mode==='title')startGame()});
 addEventListener('keydown',e=>{
