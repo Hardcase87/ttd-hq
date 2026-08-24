@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>TTD DEATH CIRCUIT // V5.2 CLEAN RUN</title>
+<title>TTD DEATH CIRCUIT // V5.2 CONTROL LIFT</title>
 <style>
 :root{--p:#ff2d95;--c:#39d7ff;--g:#8aff2b;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -13,23 +13,25 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 #badge{position:absolute;z-index:4;left:12px;top:max(10px,env(safe-area-inset-top));padding:7px 10px;border:1px solid rgba(57,215,255,.45);background:rgba(0,0,0,.72);font:900 11px monospace;color:var(--c)}
 #hud{position:absolute;z-index:4;right:12px;top:max(10px,env(safe-area-inset-top));display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:70vw}
 .chip{padding:6px 8px;background:rgba(0,0,0,.72);border:1px solid rgba(255,45,149,.38);font:900 10px monospace;border-radius:9px}.chip b{color:var(--g)}
-#controls{position:absolute;z-index:5;left:10px;right:10px;bottom:max(14px,calc(env(safe-area-inset-bottom) + 10px));display:grid;grid-template-columns:180px minmax(240px,1fr) 175px;gap:10px;align-items:end;pointer-events:none}
+#controls{position:absolute;z-index:5;left:10px;right:10px;bottom:max(42px,calc(env(safe-area-inset-bottom) + 38px));display:grid;grid-template-columns:180px minmax(240px,1fr) 175px;gap:10px;align-items:end;pointer-events:none}
 .ctrl{pointer-events:auto}.steer,.pedals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-button{min-height:62px;border-radius:16px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.78);color:#fff;font-weight:900;font-size:17px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
+button{min-height:56px;border-radius:16px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.80);color:#fff;font-weight:900;font-size:16px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
 button:active,.active{transform:translateY(2px);filter:brightness(1.35)}
-#left,#right{color:var(--c);border-color:rgba(57,215,255,.5);font-size:27px}
+#left,#right{color:var(--c);border-color:rgba(57,215,255,.5);font-size:25px}
 #throttle{color:var(--g);border-color:rgba(138,255,43,.5)}
 #brake{color:var(--p);border-color:rgba(255,45,149,.58)}
 #start{color:var(--y);border-color:rgba(255,229,59,.55);width:100%}
-#nitro{position:absolute;z-index:6;right:154px;bottom:max(91px,calc(env(safe-area-inset-bottom) + 87px));min-height:36px;padding:7px 11px;border-radius:11px;color:var(--g);border-color:rgba(138,255,43,.5);font:900 10px monospace}
-#music{position:absolute;z-index:6;right:12px;bottom:max(91px,calc(env(safe-area-inset-bottom) + 87px));min-height:36px;padding:7px 11px;border-radius:11px;color:var(--c);border-color:rgba(57,215,255,.5);font:900 10px monospace}
-@media(max-width:760px){#controls{grid-template-columns:120px 1fr 130px;gap:6px}button{min-height:56px;font-size:14px}#left,#right{font-size:23px}.chip{font-size:9px}}
+#nitro{position:absolute;z-index:6;right:154px;bottom:max(118px,calc(env(safe-area-inset-bottom) + 114px));min-height:34px;padding:6px 10px;border-radius:11px;color:var(--g);border-color:rgba(138,255,43,.5);font:900 10px monospace}
+#music{position:absolute;z-index:6;right:12px;bottom:max(118px,calc(env(safe-area-inset-bottom) + 114px));min-height:34px;padding:6px 10px;border-radius:11px;color:var(--c);border-color:rgba(57,215,255,.5);font:900 10px monospace}
+@media(max-width:760px){#controls{grid-template-columns:112px 1fr 122px;gap:6px;bottom:max(54px,calc(env(safe-area-inset-bottom) + 50px))}button{min-height:50px;font-size:13px}#left,#right{font-size:21px}.chip{font-size:9px}#nitro{right:142px;bottom:max(120px,calc(env(safe-area-inset-bottom) + 116px))}#music{bottom:max(120px,calc(env(safe-area-inset-bottom) + 116px))}}
+@media(max-height:860px) and (orientation:landscape){#controls{bottom:max(62px,calc(env(safe-area-inset-bottom) + 58px))}button{min-height:46px;font-size:12px}#left,#right{font-size:20px}#nitro,#music{bottom:max(126px,calc(env(safe-area-inset-bottom) + 122px))}}
+@media(max-height:740px) and (orientation:landscape){#controls{bottom:max(72px,calc(env(safe-area-inset-bottom) + 68px))}button{min-height:42px;font-size:11px}#left,#right{font-size:18px}#nitro,#music{bottom:max(132px,calc(env(safe-area-inset-bottom) + 128px))}}
 </style>
 </head>
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">TTD DEATH CIRCUIT // V5.2 CLEAN RUN</div>
+<div id="badge">TTD DEATH CIRCUIT // V5.2 CONTROL LIFT</div>
 <div id="hud">
 <div class="chip">SPD <b id="spd">0</b></div>
 <div class="chip">GEAR <b id="gear">1</b></div>
@@ -60,7 +62,7 @@ addEventListener('resize',resize,{passive:true});resize();
 function img(src){const i=new Image();i.crossOrigin='anonymous';i.src=CDN+src;return i}
 const bg=img('assets/background-view-1.png');
 const concept=img('assets/death-circuit-concept.png');
-const playerIdle=img('assets/death-circuit-v5/mayhem-rear-idle.PNG');
+const playerIdle=img('assets/death-circuit-v5/mayhem-rear-idle.png');
 const playerBoost=img('assets/death-circuit-v5/mayhem-rear-boost.png');
 const rivalImgs=[
  img('assets/death-circuit-v5/enforcer.png'),
@@ -242,7 +244,7 @@ function render(){
  if(state.mode==='title'){
   if(concept.complete&&concept.naturalWidth)ctx.drawImage(concept,0,0,W,H);else{ctx.fillStyle='#13042b';ctx.fillRect(0,0,W,H)}
   ctx.fillStyle='rgba(0,0,0,.52)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.fillStyle='#ff2d95';ctx.font=`900 ${Math.max(42,Math.min(84,W*.07))}px Impact,Arial Black`;ctx.fillText('TTD DEATH CIRCUIT',W/2,H*.23);
-  ctx.fillStyle='#39d7ff';ctx.font='900 19px monospace';ctx.fillText('V5.2 CLEAN RUN',W/2,H*.29);ctx.fillStyle='#ffe53b';ctx.font='900 15px monospace';ctx.fillText('LESS TRAFFIC // MORE ROAD // MORE SPEED',W/2,H*.35);ctx.textAlign='left';return
+  ctx.fillStyle='#39d7ff';ctx.font='900 19px monospace';ctx.fillText('V5.2 CONTROL LIFT',W/2,H*.29);ctx.fillStyle='#ffe53b';ctx.font='900 15px monospace';ctx.fillText('RAISED UI // IPAD PLAYABLE',W/2,H*.35);ctx.textAlign='left';return
  }
  drawWorld();drawCar();drawHUD();if(state.crash>0){ctx.fillStyle=`rgba(255,45,149,${state.crash*.18})`;ctx.fillRect(0,0,W,H)}if(state.flash>0){ctx.fillStyle=`rgba(255,229,59,${state.flash*.16})`;ctx.fillRect(0,0,W,H)}
 }
