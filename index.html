@@ -55,6 +55,24 @@
   font-weight:800;letter-spacing:.06em;
 }
 .reb-launch-actions{display:flex;gap:.65rem;flex-wrap:wrap}
+.power-command-launch{
+  margin-top:1rem;
+  padding:1.25rem;
+  border-color:rgba(57,215,255,.38)!important;
+  background:
+    radial-gradient(circle at 85% 10%,rgba(57,215,255,.13),transparent 34%),
+    radial-gradient(circle at 12% 88%,rgba(255,45,149,.11),transparent 34%),
+    rgba(6,8,12,.96)!important;
+}
+.power-command-launch h2{
+  margin:.1rem 0 .45rem;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(2.8rem,7vw,5.8rem);
+  line-height:.82;
+  background:linear-gradient(90deg,#39d7ff,#fff,#8aff2b,#ff2d95);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.power-command-launch .deployment-status{display:inline-flex;padding:.4rem .65rem;border-radius:999px;border:1px solid rgba(138,255,43,.35);color:#8aff2b;font-weight:900;letter-spacing:.08em;margin-bottom:.7rem}
 @media(max-width:760px){
   .reb-launch{grid-template-columns:1fr}
   .reb-launch-art{min-height:240px;max-height:360px}
@@ -117,6 +135,20 @@
       <a class="module-card image-module" href="tbn.html" aria-label="Open TBN module"><img src="assets/images/module-tbn.png" alt="TTD HQ TBN command module" /></a>
       <a class="module-card image-module" href="arcade.html" aria-label="Open Arcade module"><img src="assets/images/module-arcade.png" alt="TTD HQ Arcade command module" /></a>
       <a class="module-card image-module" href="store.html" aria-label="Open Store module"><img src="assets/images/module-store.png" alt="TTD HQ Store command module" /></a>
+    </section>
+
+    <section class="panel power-command-launch" aria-label="Power Command release deployment">
+      <span class="deployment-status">NEW DEPLOYMENT // COMPLETE</span>
+      <p class="eyebrow">TTD ARCADE // GLOBAL WAR MACHINE ONLINE</p>
+      <h2>POWER COMMAND</h2>
+      <p>Pilot the Mayhem Machine across six hostile sectors. DRRRRRT primary fire, missiles, Shield Burst, EMP Pulse, Rage, Command Point upgrades and a final Command Fortress assault. V11.3 Boss Beacon is the locked release build.</p>
+      <div class="reb-launch-tags">
+        <span>6 SECTORS</span><span>V11.3 RELEASE BUILD</span><span>SHIELD + EMP</span><span>COMMAND FORTRESS</span><span>iPAD READY</span>
+      </div>
+      <div class="reb-launch-actions">
+        <a class="read-comic-btn" href="power-command.html">PLAY POWER COMMAND →</a>
+        <a class="action-link" href="arcade.html">OPEN TTD ARCADE →</a>
+      </div>
     </section>
 
     <section class="panel reb-launch" aria-label="REB Renal Revenge featured game">
@@ -182,11 +214,11 @@
       </article>
 
       <article class="panel feature-panel" id="arcade">
-        <div class="panel-head"><div><p class="eyebrow">ARCADE</p><h2>TTD Arcade</h2></div><span>4 CABINETS LIVE</span></div>
-        <p>Titan Ball '92. Titan Ball '94. REB: Renal Failure. REB: Renal Revenge. Four browser cabinets are now deployed inside Titan City.</p>
+        <div class="panel-head"><div><p class="eyebrow">ARCADE</p><h2>TTD Arcade</h2></div><span>5 CABINETS LIVE</span></div>
+        <p>Power Command. Titan Ball '92. Titan Ball '94. REB: Renal Failure. REB: Renal Revenge. Five browser cabinets are now deployed inside Titan City.</p>
         <div class="issue-actions">
           <a class="read-comic-btn" href="arcade.html">OPEN ARCADE →</a>
-          <a class="action-link" href="reb-renal-failure-2.html?v=37">PLAY RENAL REVENGE →</a>
+          <a class="action-link" href="power-command.html">PLAY POWER COMMAND →</a>
         </div>
       </article>
 
