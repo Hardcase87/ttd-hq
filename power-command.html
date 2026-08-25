@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V11.1 SURVIVAL BALANCE</title>
+<title>TTD POWER COMMAND // V11.2 TACTICAL SYSTEMS</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -90,13 +90,13 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V11.1</div>
+<div id="badge">POWER COMMAND // V11.2</div>
 <button id="restartBtn">RESTART MISSION</button>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
   <div class="row"><span>LIVES</span><span id="livesReadout">☠ ☠ ☠</span></div>
-  <div class="row"><span>BOMBS</span><span id="bombReadout">3</span></div>
+  <div class="row"><span>TACTICAL</span><span id="bombReadout">READY</span></div>
   <div class="row"><span>CMD PTS</span><span id="cpReadout">0</span></div>
   <div class="row"><span>POWER</span><span id="powerReadout">100%</span></div>
   <div class="bar"><i></i></div>
@@ -118,7 +118,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 
 <div id="bottomHud">
   <div class="hudChip"><b>SCORE</b><strong id="scoreBottom">0875300</strong></div>
-  <div class="hudChip"><b>BOMBS</b><strong id="bombBottom">3</strong></div>
+  <div class="hudChip"><b>TACTICAL</b><strong id="bombBottom">READY</strong></div>
   <div class="hudChip"><b>LIVES</b><strong id="livesBottom">☠☠☠</strong></div>
   <div class="hudChip"><b>POWER</b><div class="powerBar"><i id="powerBarFill"></i></div></div>
   <div class="hudChip"><b>OBJECTIVE</b><strong id="objectiveReadout">LIBERATE 2 SECTORS</strong></div>
@@ -139,8 +139,8 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
   <div class="controlBlock centerControls">
     <button class="fire" id="fire">✹ DRRRRRT ✹</button>
     <button class="weapon missile" id="missile">MISSILE</button>
-    <button class="weapon nuke" id="nuke">NUKE</button>
-    <button class="weapon bomb" id="bomb">BOMB</button>
+    <button class="weapon nuke" id="nuke">EMP PULSE</button>
+    <button class="weapon bomb" id="bomb">SHIELD BURST</button>
     <button class="weapon rage" id="rage">RAGE</button>
   </div>
   <div class="controlBlock rightControls">
@@ -168,7 +168,7 @@ addEventListener('resize',resize,{passive:true}); resize();
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const touchVec={x:0,y:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
-const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,maxHull:100,shield:120,maxShield:120,shieldDelay:0,lives:3,cp:0,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,gameOver:false,distance:0,sectorFlash:0,upgradeLevel:0,respawnFlash:0};
+const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,maxHull:100,shield:120,maxShield:120,shieldDelay:0,shieldBurstCD:0,shieldResist:0,empCD:0,lives:3,cp:0,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,gameOver:false,distance:0,sectorFlash:0,upgradeLevel:0,respawnFlash:0};
 const WORLD={
   tileSize:512, cols:3, rows:2, width:1536, height:1024,
   base:'assets/images/ttd-power-command/world/',
@@ -269,6 +269,7 @@ function awardCP(n){
   updateStatusUi();
 }
 function damagePlayer(amount){
+  if(state.shieldResist>0)amount*=.25;
   state.shieldDelay=2.6;
   if(state.shield>0){
     const used=Math.min(state.shield,amount);
@@ -329,7 +330,7 @@ function checkSectorLiberation(){
       state.score+=5000;
       state.rage=Math.min(100,state.rage+15);
       state.hull=Math.min(state.maxHull,state.hull+22);state.shield=Math.min(state.maxShield,state.shield+45);
-      state.bombs=Math.min(5,state.bombs+1);
+      
       state.sectorFlash=1.15;
       state.flash=.28;
       awardCP(3);
@@ -423,6 +424,7 @@ function updateEnemies(dt){
   const tier=TIERS[state.tier];
   for(const e of enemies){
     if(e.dead)continue;
+    e.emp=Math.max(0,(e.emp||0)-dt);
     e.phase+=dt*2;
 
     const ep=enemyPosNear(e,ship.x,ship.y);
@@ -464,7 +466,7 @@ function updateEnemies(dt){
 
     e.fire-=dt;
     const fireRange=e.type==='bomber'?500:410;
-    if(d<fireRange&&e.fire<=0){
+    if((e.emp||0)<=0&&d<fireRange&&e.fire<=0){
       e.fire=tier.fire*(e.type==='interceptor'?.78:e.type==='bomber'?1.35:1)*(.90+Math.random()*.28);
       const speed=e.type==='interceptor'?405:e.type==='bomber'?295:340;
       enemyShots.push({x:ep.x,y:ep.y,vx:nx*speed,vy:ny*speed,life:3,r:e.type==='bomber'?7:5});
@@ -569,10 +571,11 @@ function damageStructureAt(x,y,amount){
 function updateStructures(dt){
   for(const s of structures){
     if(s.dead) continue;
+    s.emp=Math.max(0,(s.emp||0)-dt);
     s.flash=Math.max(0,s.flash-dt);
     const sp=structurePosNear(s,ship.x,ship.y); const dx=ship.x-sp.x,dy=ship.y-sp.y,d=Math.hypot(dx,dy);
     s.lastFire-=dt;
-    if(d<s.range && s.lastFire<=0){
+    if((s.emp||0)<=0 && d<s.range && s.lastFire<=0){
       s.lastFire=s.fireRate*(.86+Math.random()*.28);
       const nx=dx/(d||1),ny=dy/(d||1), speed=s.type==='base'?350:285;
       // Twin defensive fire for bases; single heavier shot for bunkers.
@@ -753,7 +756,7 @@ function fire(){
 function updateStatusUi(){
   const score=String(Math.floor(state.score)).padStart(7,'0');
   for(const id of ['scoreReadout','scoreBottom']){const el=document.getElementById(id);if(el)el.textContent=score}
-  for(const id of ['bombReadout','bombBottom']){const el=document.getElementById(id);if(el)el.textContent=state.bombs}
+  for(const id of ['bombReadout','bombBottom']){const el=document.getElementById(id);if(el)el.textContent=(state.shieldBurstCD<=0&&state.empCD<=0)?'READY':'CYCLING'}
   const lives='☠'.repeat(Math.max(0,state.lives));
   for(const id of ['livesReadout','livesBottom']){const el=document.getElementById(id);if(el)el.textContent=lives||'—'}
   const cp=document.getElementById('cpReadout');if(cp)cp.textContent=state.cp;
@@ -768,19 +771,36 @@ function launchMissile(){
   tone(155,.10,'sawtooth',.06);state.score+=120;state.rage=Math.min(100,state.rage+5);updateStatusUi();
 }
 function useBomb(){
-  if(state.bombs<=0)return;
-  state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
-  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<430){e.hp-=220;if(e.hp<=0){e.dead=true;state.kills++;state.score+=800;awardCP(1);}}}
+  if(state.shieldBurstCD>0){tone(120,.05,'square',.025);return}
+  state.shieldBurstCD=12;
+  state.shield=Math.min(state.maxShield,state.shield+75);
+  state.shieldResist=2.0;
+  state.shieldDelay=0;
+  state.flash=.28;
+  tone(440,.08,'square',.06);setTimeout(()=>tone(660,.10,'sawtooth',.055),70);
   updateStatusUi();
 }
 function useNuke(){
-  if(state.bombs<=0)return;
-  state.bombs--;state.flash=.55;state.score+=1400;
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<620){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
-  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<620){e.dead=true;state.kills++;state.score+=1000;awardCP(1);}}
-  enemyShots.length=0;state.rage=Math.min(100,state.rage+20);
-  tone(39,.45,'square',.14);setTimeout(()=>tone(68,.32,'sawtooth',.10),70);updateStatusUi();
+  if(state.empCD>0){tone(120,.05,'square',.025);return}
+  state.empCD=16;
+  state.flash=.32;
+  const radius=500;
+  let disabled=0;
+  for(const s of structures){
+    if(s.dead)continue;
+    if(structureDistanceTo(s,ship.x,ship.y)<radius){s.emp=5;disabled++;}
+  }
+  for(const e of enemies){
+    if(e.dead)continue;
+    const ep=enemyPosNear(e,ship.x,ship.y);
+    if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<radius){e.emp=5;disabled++;}
+  }
+  for(const b of enemyShots){
+    if(Math.hypot(b.x-ship.x,b.y-ship.y)<radius)b.life=0;
+  }
+  state.score+=disabled*75;
+  tone(74,.18,'square',.09);setTimeout(()=>tone(148,.22,'sawtooth',.07),70);
+  updateStatusUi();
 }
 function useRage(){
   if(state.rage<25){tone(120,.05,'square',.025);return}
@@ -820,10 +840,15 @@ function update(dt){
   state.missiles=state.missiles.filter(m=>m.life>0);
   updateStructures(dt);updateEnemies(dt);
   state.flash=Math.max(0,state.flash-dt);state.sectorFlash=Math.max(0,state.sectorFlash-dt);state.respawnFlash=Math.max(0,state.respawnFlash-dt);
+  state.shieldBurstCD=Math.max(0,state.shieldBurstCD-dt);state.empCD=Math.max(0,state.empCD-dt);state.shieldResist=Math.max(0,state.shieldResist-dt);
   state.shieldDelay=Math.max(0,state.shieldDelay-dt);
   if(state.mode==='play'&&state.shieldDelay<=0&&state.shield<state.maxShield){
     state.shield=Math.min(state.maxShield,state.shield+22*dt);
   }
+
+  const shieldBtn=document.getElementById('bomb'),empBtn=document.getElementById('nuke');
+  if(shieldBtn)shieldBtn.textContent=state.shieldBurstCD>0?`SHIELD ${Math.ceil(state.shieldBurstCD)}`:'SHIELD BURST';
+  if(empBtn)empBtn.textContent=state.empCD>0?`EMP ${Math.ceil(state.empCD)}`:'EMP PULSE';
   if(input.boost&&Math.random()<.6)state.parts.push({x:ship.x-Math.cos(ship.a)*65,y:ship.y-Math.sin(ship.a)*65,vx:-Math.cos(ship.a)*rnd(100,220),vy:-Math.sin(ship.a)*rnd(100,220),life:.35});
   for(const p of state.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
   state.parts=state.parts.filter(p=>p.life>0);
@@ -843,7 +868,7 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.1 // SURVIVAL BALANCE',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.2 // TACTICAL SYSTEMS',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
