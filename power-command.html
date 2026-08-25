@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V10.3 WORLD WAR</title>
+<title>TTD POWER COMMAND // V11.0 CAMPAIGN PROTOCOL</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -26,7 +26,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.45)}
 
 #pilotPanel{position:absolute;z-index:7;left:12px;top:max(78px,calc(env(safe-area-inset-top) + 70px));width:190px;padding:9px 10px;border:1px solid rgba(57,215,255,.45);border-radius:12px;background:rgba(0,0,0,.72);font:800 12px monospace;pointer-events:none}
 #pilotPanel strong{display:block;color:var(--g);font-size:15px;margin-bottom:4px}
-#pilotPanel .row{display:flex;justify-content:space-between;gap:8px;color:#fff;margin-top:4px}
+#pilotPanel .row{display:flex;justify-content:space-between;gap:8px;color:#fff;margin-top:3px}
 #pilotPanel .bar{height:7px;border-radius:999px;background:#111;margin-top:4px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
 #pilotPanel .bar i{display:block;height:100%;width:86%;background:linear-gradient(90deg,var(--p),#ba38ff)}
 #craftPanel{position:absolute;z-index:7;right:12px;top:max(78px,calc(env(safe-area-inset-top) + 70px));width:230px;padding:10px;border:1px solid rgba(255,45,149,.52);border-radius:13px;background:rgba(0,0,0,.76);font:800 11px monospace;pointer-events:none}
@@ -85,12 +85,13 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V10.3 WORLD WAR</div>
+<div id="badge">POWER COMMAND // V11.0</div>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
-  <div class="row"><span>LIVES</span><span>☠ ☠ ☠</span></div>
+  <div class="row"><span>LIVES</span><span id="livesReadout">☠ ☠ ☠</span></div>
   <div class="row"><span>BOMBS</span><span id="bombReadout">3</span></div>
+  <div class="row"><span>CMD PTS</span><span id="cpReadout">0</span></div>
   <div class="row"><span>POWER</span><span id="powerReadout">100%</span></div>
   <div class="bar"><i></i></div>
 </div>
@@ -112,9 +113,9 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <div id="bottomHud">
   <div class="hudChip"><b>SCORE</b><strong id="scoreBottom">0875300</strong></div>
   <div class="hudChip"><b>BOMBS</b><strong id="bombBottom">3</strong></div>
-  <div class="hudChip"><b>LIVES</b><strong>☠☠☠</strong></div>
+  <div class="hudChip"><b>LIVES</b><strong id="livesBottom">☠☠☠</strong></div>
   <div class="hudChip"><b>POWER</b><div class="powerBar"><i id="powerBarFill"></i></div></div>
-  <div class="hudChip"><b>OBJECTIVE</b><strong>LIBERATE 6 SECTORS</strong></div>
+  <div class="hudChip"><b>OBJECTIVE</b><strong id="objectiveReadout">LIBERATE 2 SECTORS</strong></div>
 </div>
 
 <div id="controls">
@@ -161,7 +162,7 @@ addEventListener('resize',resize,{passive:true}); resize();
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const touchVec={x:0,y:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
-const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,distance:0,sectorFlash:0};
+const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,maxHull:100,lives:3,cp:0,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,gameOver:false,distance:0,sectorFlash:0,upgradeLevel:0,respawnFlash:0};
 const WORLD={
   tileSize:512, cols:3, rows:2, width:1536, height:1024,
   base:'assets/images/ttd-power-command/world/',
@@ -224,6 +225,68 @@ const TIERS=[
 ];
 let enemySpawnClock=8;
 const liberatedSectors=new Set();
+const UPGRADE_STEPS=[
+  {cp:0,name:'TWIN CANNON I'},
+  {cp:6,name:'TWIN CANNON II'},
+  {cp:12,name:'MISSILE OVERDRIVE'},
+  {cp:18,name:'REINFORCED HULL'},
+  {cp:26,name:'MAYHEM PROTOCOL'}
+];
+function objectiveText(){
+  if(state.gameWon)return 'EARTH LIBERATED';
+  if(state.bossSpawned)return 'DESTROY COMMAND FORTRESS';
+  const n=liberatedSectors.size;
+  if(n<2)return 'LIBERATE 2 SECTORS';
+  if(n<4)return 'LIBERATE 4 SECTORS';
+  return 'LIBERATE ALL 6 SECTORS';
+}
+function currentUpgradeName(){
+  return UPGRADE_STEPS[Math.min(state.upgradeLevel,UPGRADE_STEPS.length-1)].name;
+}
+function checkUpgrades(){
+  let level=0;
+  for(let i=0;i<UPGRADE_STEPS.length;i++)if(state.cp>=UPGRADE_STEPS[i].cp)level=i;
+  if(level>state.upgradeLevel){
+    state.upgradeLevel=level;
+    state.flash=.35;
+    state.sectorFlash=1.0;
+    if(level===3){
+      state.maxHull=125;
+      state.hull=Math.min(state.maxHull,state.hull+25);
+    }
+    tone(620+level*70,.14,'square',.07);
+  }
+}
+function awardCP(n){
+  state.cp+=n;
+  checkUpgrades();
+  updateStatusUi();
+}
+function respawnPlayer(){
+  ship.vx=ship.vy=0;
+  state.hull=state.maxHull;
+  state.rage=Math.max(0,state.rage-20);
+  state.respawnFlash=1.2;
+  state.flash=.5;
+  enemyShots.length=0;
+  tone(96,.18,'sawtooth',.08);
+  updateStatusUi();
+}
+function loseLife(){
+  if(state.gameWon||state.gameOver)return;
+  state.lives--;
+  if(state.lives<=0){
+    state.gameOver=true;
+    state.mode='gameover';
+    state.hull=0;
+    tone(42,.55,'sawtooth',.12);
+  }else{
+    state.score=Math.max(0,state.score-3000);
+    respawnPlayer();
+  }
+  updateStatusUi();
+}
+
 
 function sectorIndexAt(x,y){
   const mx=mod(x,WORLD.width),my=mod(y,WORLD.height);
@@ -244,10 +307,13 @@ function checkSectorLiberation(){
   for(let i=0;i<6;i++){
     if(total[i]>0 && alive[i]===0 && !liberatedSectors.has(i)){
       liberatedSectors.add(i);
-      state.score+=4000;
-      state.rage=Math.min(100,state.rage+12);
-      state.sectorFlash=.9;
-      state.flash=.22;
+      state.score+=5000;
+      state.rage=Math.min(100,state.rage+15);
+      state.hull=Math.min(state.maxHull,state.hull+22);
+      state.bombs=Math.min(5,state.bombs+1);
+      state.sectorFlash=1.15;
+      state.flash=.28;
+      awardCP(3);
       tone(520+i*35,.14,'square',.055);
       updateStatusUi();
     }
@@ -394,7 +460,7 @@ function damageEnemyAt(x,y,amount){
     const ep=enemyPosNear(e,x,y); if(Math.hypot(x-ep.x,y-ep.y)<e.r){
       e.hp-=amount;
       if(e.hp<=0){
-        e.dead=true;state.kills++;state.score+=e.type==='bomber'?1200:e.type==='interceptor'?900:600;
+        e.dead=true;state.kills++;state.score+=e.type==='bomber'?1200:e.type==='interceptor'?900:600;awardCP(e.type==='bomber'?2:1);
         state.rage=Math.min(100,state.rage+(e.type==='bomber'?5:3));tone(92,.06,'sawtooth',.035);
         updateTier();updateStatusUi();
       }
@@ -422,7 +488,7 @@ function drawEnemies(){
   }
 }
 function spawnBoss(){
-  state.bossSpawned=true;
+  state.bossSpawned=true;state.flash=.5;state.sectorFlash=1.2;updateStatusUi();
   addStructure(ship.x+760,ship.y-120,'base',8,false);
   const b=structures[structures.length-1];
   b.isBoss=true;b.hp=b.maxHp=5200;b.radius=112;b.range=840;b.fireRate=.28;
@@ -469,8 +535,8 @@ function damageStructureAt(x,y,amount){
     if(structureDistanceTo(s,x,y)<=s.radius){
       s.hp-=amount; s.flash=.12;
       if(s.hp<=0){
-        s.dead=true; state.score+=s.type==='base'?5000:900; state.kills++;
-        if(s.isBoss){state.bossDead=true;state.gameWon=true;state.flash=.8;tone(36,.6,'sawtooth',.14);}
+        s.dead=true; state.score+=s.type==='base'?5000:900; state.kills++; awardCP(s.type==='base'?3:1);
+        if(s.isBoss){state.bossDead=true;state.gameWon=true;state.mode='victory';state.score+=25000;awardCP(8);state.flash=.8;tone(36,.6,'sawtooth',.14);}
         state.rage=Math.min(100,state.rage+(s.type==='base'?22:8));
         state.flash=.22; tone(s.type==='base'?48:82,.18,'sawtooth',.09);
         checkSectorLiberation(); updateTier(); updateStatusUi();
@@ -511,10 +577,7 @@ function updateStructures(dt){
     if(Math.hypot(b.x-ship.x,b.y-ship.y)<27){
       b.life=0; state.hull=Math.max(0,state.hull-(b.r>6?8:5)); state.flash=.12;
       tone(55,.05,'sawtooth',.05); updateStatusUi();
-      if(state.hull<=0){
-        state.hull=100; state.flash=.5; ship.vx=ship.vy=0;
-        state.score=Math.max(0,state.score-2500); updateStatusUi();
-      }
+      if(state.hull<=0) loseLife();
     }
   }
   for(let i=enemyShots.length-1;i>=0;i--) if(enemyShots[i].life<=0) enemyShots.splice(i,1);
@@ -661,7 +724,7 @@ function drawShip(){
 }
 function fire(){
   if(state.fireCD>0)return;
-  state.fireCD=.11;
+  state.fireCD=state.upgradeLevel>=4?.075:.11;
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
   for(const off of [-6,6]) state.shots.push({x:ship.x+cs*76-sn*off,y:ship.y+sn*76+cs*off,vx:cs*940,vy:sn*940,life:1});
   state.score+=4; state.rage=Math.min(100,state.rage+.45); updateStatusUi();
@@ -672,9 +735,13 @@ function updateStatusUi(){
   const score=String(Math.floor(state.score)).padStart(7,'0');
   for(const id of ['scoreReadout','scoreBottom']){const el=document.getElementById(id);if(el)el.textContent=score}
   for(const id of ['bombReadout','bombBottom']){const el=document.getElementById(id);if(el)el.textContent=state.bombs}
+  const lives='☠'.repeat(Math.max(0,state.lives));
+  for(const id of ['livesReadout','livesBottom']){const el=document.getElementById(id);if(el)el.textContent=lives||'—'}
+  const cp=document.getElementById('cpReadout');if(cp)cp.textContent=state.cp;
+  const obj=document.getElementById('objectiveReadout');if(obj)obj.textContent=objectiveText();
   const rr=document.getElementById('rageReadout'); if(rr)rr.textContent=Math.round(state.rage)+'%';
-  const pr=document.getElementById('powerReadout'); if(pr)pr.textContent=Math.round(state.hull)+'%';
-  const pb=document.getElementById('powerBarFill'); if(pb)pb.style.width=state.hull+'%';
+  const pr=document.getElementById('powerReadout'); if(pr)pr.textContent=Math.round(state.hull)+'/'+state.maxHull;
+  const pb=document.getElementById('powerBarFill'); if(pb)pb.style.width=(100*state.hull/state.maxHull)+'%';
 }
 function launchMissile(){
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
@@ -684,23 +751,23 @@ function launchMissile(){
 function useBomb(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;checkSectorLiberation();}}
-  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<430){e.hp-=220;if(e.hp<=0){e.dead=true;state.kills++;state.score+=800;}}}
+  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
+  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<430){e.hp-=220;if(e.hp<=0){e.dead=true;state.kills++;state.score+=800;awardCP(1);}}}
   updateStatusUi();
 }
 function useNuke(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.55;state.score+=1400;
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<1400){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
-  for(const e of enemies) if(!e.dead&&Math.hypot(e.x-ship.x,e.y-ship.y)<1400){e.dead=true;state.kills++;state.score+=1000;}
+  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<1400){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
+  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<1400){e.dead=true;state.kills++;state.score+=1000;awardCP(1);}}
   enemyShots.length=0;state.rage=Math.min(100,state.rage+20);
   tone(39,.45,'square',.14);setTimeout(()=>tone(68,.32,'sawtooth',.10),70);updateStatusUi();
 }
 function useRage(){
   if(state.rage<25){tone(120,.05,'square',.025);return}
   state.rage=Math.max(0,state.rage-25);state.flash=.18;state.score+=350;
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<620){s.hp-=260;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
-  for(const e of enemies) if(!e.dead&&Math.hypot(e.x-ship.x,e.y-ship.y)<620){e.hp-=260;if(e.hp<=0){e.dead=true;state.kills++;state.score+=850;}}tone(330,.08,'square',.08);setTimeout(()=>tone(520,.10,'sawtooth',.07),75);updateStatusUi();
+  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<620){s.hp-=260;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
+  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<620){e.hp-=260;if(e.hp<=0){e.dead=true;state.kills++;state.score+=850;awardCP(1);}}}tone(330,.08,'square',.08);setTimeout(()=>tone(520,.10,'sawtooth',.07),75);updateStatusUi();
 }
 
 function update(dt){
@@ -722,16 +789,18 @@ function update(dt){
   if(input.fire)fire();
   for(const s of state.shots){
     s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
-    if(s.life>0 && (damageEnemyAt(s.x,s.y,42)||damageStructureAt(s.x,s.y,42))) s.life=0;
+    const gunDmg=state.upgradeLevel>=1?58:42;
+    if(s.life>0 && (damageEnemyAt(s.x,s.y,gunDmg)||damageStructureAt(s.x,s.y,gunDmg))) s.life=0;
   }
   state.shots=state.shots.filter(s=>s.life>0);
   for(const m of state.missiles){
     m.x+=m.vx*dt;m.y+=m.vy*dt;m.life-=dt;
-    if(m.life>0 && (damageEnemyAt(m.x,m.y,190)||damageStructureAt(m.x,m.y,190))) m.life=0;
+    const missileDmg=state.upgradeLevel>=2?280:190;
+    if(m.life>0 && (damageEnemyAt(m.x,m.y,missileDmg)||damageStructureAt(m.x,m.y,missileDmg))) m.life=0;
   }
   state.missiles=state.missiles.filter(m=>m.life>0);
   updateStructures(dt);updateEnemies(dt);
-  state.flash=Math.max(0,state.flash-dt);state.sectorFlash=Math.max(0,state.sectorFlash-dt);
+  state.flash=Math.max(0,state.flash-dt);state.sectorFlash=Math.max(0,state.sectorFlash-dt);state.respawnFlash=Math.max(0,state.respawnFlash-dt);
   if(input.boost&&Math.random()<.6)state.parts.push({x:ship.x-Math.cos(ship.a)*65,y:ship.y-Math.sin(ship.a)*65,vx:-Math.cos(ship.a)*rnd(100,220),vy:-Math.sin(ship.a)*rnd(100,220),life:.35});
   for(const p of state.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
   state.parts=state.parts.filter(p=>p.life>0);
@@ -751,7 +820,7 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V10.3 // WORLD WAR',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.0 // CAMPAIGN PROTOCOL',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
@@ -763,17 +832,21 @@ function hud(){
   ctx.fillStyle='#ffe53b';ctx.font='800 12px monospace';ctx.fillText(`GROUND ${alive}  AIR ${air}`,Math.max(18,W-190),62);
   ctx.fillStyle='#39d7ff';ctx.font='800 11px monospace';ctx.fillText(`SECTORS ${liberatedSectors.size}/6`,Math.max(18,W-145),26);
 
+  ctx.fillStyle='#fff';ctx.font='800 11px monospace';ctx.fillText(`CP ${state.cp} // ${currentUpgradeName()}`,18,82);
+  ctx.fillStyle='#ffe53b';ctx.fillText(objectiveText(),18,98);
+
   if(state.sectorFlash>0){
     ctx.save();ctx.textAlign='center';ctx.shadowColor='#8aff2b';ctx.shadowBlur=18;
     ctx.fillStyle='#8aff2b';ctx.font=`900 ${Math.max(24,Math.min(42,W*.032))}px Impact,Arial Black,sans-serif`;
-    ctx.fillText('SECTOR LIBERATED',W/2,108);ctx.restore();
+    const msg=state.upgradeLevel>0&&state.sectorFlash>.95?currentUpgradeName():'SECTOR LIBERATED';
+    ctx.fillText(msg,W/2,108);ctx.restore();
   }
 }
 function title(){
   const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#051311');g.addColorStop(.48,'#07111a');g.addColorStop(1,'#120511');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   ctx.save();ctx.translate(W/2,H*.35);
   ctx.textAlign='center';ctx.shadowColor='#8aff2b';ctx.shadowBlur=22;ctx.fillStyle='#8aff2b';ctx.font=`900 ${Math.max(34,Math.min(72,W*.065))}px Impact,Arial Black,sans-serif`;ctx.fillText('TTD POWER COMMAND',0,0);
-  ctx.shadowBlur=0;ctx.fillStyle='#ff2d95';ctx.font=`900 ${Math.max(17,Math.min(28,W*.025))}px monospace`;ctx.fillText('INFINITE EARTH FLIGHT TEST',0,48);
+  ctx.shadowBlur=0;ctx.fillStyle='#ff2d95';ctx.font=`900 ${Math.max(17,Math.min(28,W*.025))}px monospace`;ctx.fillText('GLOBAL LIBERATION CAMPAIGN',0,48);
   if(Math.floor(state.t*2)%2===0){ctx.fillStyle='#ffe53b';ctx.font='900 22px monospace';ctx.fillText('PRESS START',0,105)}
   ctx.restore();
   // decorative mini ship proves canvas renderer is alive
@@ -785,16 +858,18 @@ function render(){
     ctx.clearRect(0,0,W,H);
     if(state.mode==='title'){title();return}
     drawWorld();drawStructures();drawEnemies();drawFX();drawShip();hud();
-    if(state.gameWon){
-      ctx.save();ctx.fillStyle='rgba(0,0,0,.76)';ctx.fillRect(0,0,W,H);
-      ctx.textAlign='center';ctx.shadowColor='#8aff2b';ctx.shadowBlur=24;
-      ctx.fillStyle='#8aff2b';ctx.font=`900 ${Math.max(38,Math.min(72,W*.06))}px Impact,Arial Black,sans-serif`;
-      ctx.fillText('TTD OVERRIDE COMPLETE',W/2,H*.42);
-      ctx.shadowBlur=0;ctx.fillStyle='#ff2d95';ctx.font='900 22px monospace';
-      ctx.fillText('COMMAND INSTALLATION DESTROYED',W/2,H*.49);
-      ctx.fillStyle='#fff';ctx.font='800 18px monospace';
-      ctx.fillText(`SCORE ${Math.floor(state.score)} // KILLS ${state.kills}`,W/2,H*.55);
-      ctx.fillStyle='#ffe53b';ctx.fillText('1ST TRY IS LAST TRY.',W/2,H*.62);
+    if(state.gameWon||state.gameOver){
+      ctx.save();ctx.fillStyle='rgba(0,0,0,.80)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';
+      const won=state.gameWon;
+      ctx.shadowColor=won?'#8aff2b':'#ff2d95';ctx.shadowBlur=24;
+      ctx.fillStyle=won?'#8aff2b':'#ff2d95';ctx.font=`900 ${Math.max(38,Math.min(72,W*.06))}px Impact,Arial Black,sans-serif`;
+      ctx.fillText(won?'EARTH LIBERATED':'MISSION FAILED',W/2,H*.39);
+      ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='900 20px monospace';
+      ctx.fillText(won?'COMMAND FORTRESS DESTROYED':'MAYHEM MACHINE LOST',W/2,H*.46);
+      ctx.fillStyle='#39d7ff';ctx.font='800 18px monospace';
+      ctx.fillText(`SECTORS ${liberatedSectors.size}/6 // KILLS ${state.kills} // CP ${state.cp}`,W/2,H*.53);
+      ctx.fillStyle='#fff';ctx.fillText(`FINAL SCORE ${Math.floor(state.score)}`,W/2,H*.58);
+      ctx.fillStyle='#ffe53b';ctx.fillText(won?'1ST TRY IS LAST TRY.':'PRESS START/RESET TO REDEPLOY',W/2,H*.65);
       ctx.restore();
     }
   }catch(err){
@@ -821,7 +896,11 @@ function bindMove(id,x,y){
   ['upleft',-1,-1],['up',0,-1],['upright',1,-1],['left',-1,0],['right',1,0],
   ['downleft',-1,1],['down',0,1],['downright',1,1]
 ].forEach(v=>bindMove(...v));
-document.getElementById('stop').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();touchVec.x=touchVec.y=0;ship.vx=ship.vy=0;});
+document.getElementById('stop').addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();
+  if(state.gameOver||state.gameWon){location.reload();return;}
+  touchVec.x=touchVec.y=0;ship.vx=ship.vy=0;
+});
 document.getElementById('sound').addEventListener('pointerdown',e=>{state.sound=!state.sound;e.currentTarget.textContent=state.sound?'SOUND ON':'SOUND OFF';if(state.sound)tone(440,.07)});
 document.getElementById('missile').addEventListener('pointerdown',e=>{e.preventDefault();launchMissile()});
 document.getElementById('bomb').addEventListener('pointerdown',e=>{e.preventDefault();useBomb()});
