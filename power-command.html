@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V10.2 BALANCED WAR</title>
+<title>TTD POWER COMMAND // V10.3 WORLD WAR</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -85,7 +85,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V10.2</div>
+<div id="badge">POWER COMMAND // V10.3 WORLD WAR</div>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
@@ -114,7 +114,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
   <div class="hudChip"><b>BOMBS</b><strong id="bombBottom">3</strong></div>
   <div class="hudChip"><b>LIVES</b><strong>☠☠☠</strong></div>
   <div class="hudChip"><b>POWER</b><div class="powerBar"><i id="powerBarFill"></i></div></div>
-  <div class="hudChip"><b>OBJECTIVE</b><strong>DESTROY COMMAND</strong></div>
+  <div class="hudChip"><b>OBJECTIVE</b><strong>LIBERATE 6 SECTORS</strong></div>
 </div>
 
 <div id="controls">
@@ -161,7 +161,7 @@ addEventListener('resize',resize,{passive:true}); resize();
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const touchVec={x:0,y:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
-const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,distance:0};
+const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,distance:0,sectorFlash:0};
 const WORLD={
   tileSize:512, cols:3, rows:2, width:1536, height:1024,
   base:'assets/images/ttd-power-command/world/',
@@ -216,32 +216,74 @@ for(const src of [...ENEMY_FILES.fighter,...ENEMY_FILES.bomber,...ENEMY_FILES.in
 }
 const enemies=[];
 const TIERS=[
-  {name:'PATROL',need:0,density:2,fire:.90,speed:125},
-  {name:'ASSAULT',need:9000,density:4,fire:.74,speed:150},
-  {name:'WARZONE',need:24000,density:6,fire:.58,speed:180},
-  {name:'MAYHEM',need:48000,density:8,fire:.44,speed:210},
-  {name:'TTD OVERRIDE',need:82000,density:10,fire:.32,speed:245}
+  {name:'PATROL',need:0,fire:1.00,speed:122,cap:10},
+  {name:'ASSAULT',need:9000,fire:.82,speed:146,cap:11},
+  {name:'WARZONE',need:24000,fire:.68,speed:170,cap:12},
+  {name:'MAYHEM',need:48000,fire:.55,speed:196,cap:13},
+  {name:'TTD OVERRIDE',need:82000,fire:.44,speed:220,cap:14}
 ];
-let enemySpawnClock=0;
+let enemySpawnClock=8;
+const liberatedSectors=new Set();
 
+function sectorIndexAt(x,y){
+  const mx=mod(x,WORLD.width),my=mod(y,WORLD.height);
+  return Math.floor(my/512)*3+Math.floor(mx/512);
+}
+function sectorCounts(){
+  const alive=[0,0,0,0,0,0],total=[0,0,0,0,0,0];
+  for(const s of structures){
+    if(!s.wrap||s.isBoss)continue;
+    const idx=sectorIndexAt(s.x,s.y);
+    total[idx]++;
+    if(!s.dead)alive[idx]++;
+  }
+  return {alive,total};
+}
+function checkSectorLiberation(){
+  const {alive,total}=sectorCounts();
+  for(let i=0;i<6;i++){
+    if(total[i]>0 && alive[i]===0 && !liberatedSectors.has(i)){
+      liberatedSectors.add(i);
+      state.score+=4000;
+      state.rage=Math.min(100,state.rage+12);
+      state.sectorFlash=.9;
+      state.flash=.22;
+      tone(520+i*35,.14,'square',.055);
+      updateStatusUi();
+    }
+  }
+  if(liberatedSectors.size===6 && !state.bossSpawned) spawnBoss();
+}
 function progressionValue(){
-  const destroyed=state.kills*2200;
-  const travelled=state.distance*.35;
-  return destroyed+travelled;
+  const destroyed=state.kills*1700;
+  const travelled=state.distance*.28;
+  const sectors=liberatedSectors.size*6500;
+  return destroyed+travelled+sectors;
 }
 function updateTier(){
   const v=progressionValue();
   let next=0;
   for(let i=0;i<TIERS.length;i++) if(v>=TIERS[i].need) next=i;
   if(next!==state.tier){state.tier=next;state.flash=.18;tone(220+next*70,.12,'square',.06);}
-  if(state.tier===4 && !state.bossSpawned) spawnBoss();
 }
-function spawnEnemy(type='fighter',angle=Math.random()*TAU,dist=480){
+
+function enemyPosNear(e,ax,ay){
+  return {
+    x:ax+wrapDelta(e.x-ax,WORLD.width),
+    y:ay+wrapDelta(e.y-ay,WORLD.height)
+  };
+}
+function spawnEnemyAt(type='fighter',x=0,y=0){
   const tier=TIERS[state.tier];
-  const x=ship.x+Math.cos(angle)*dist, y=ship.y+Math.sin(angle)*dist;
   const hp=type==='fighter'?70:type==='bomber'?160:110;
+  const sep=92;
+  for(const e of enemies){
+    if(e.dead)continue;
+    const dx=wrapDelta(e.x-x,WORLD.width),dy=wrapDelta(e.y-y,WORLD.height);
+    if(Math.hypot(dx,dy)<sep)return false;
+  }
   enemies.push({
-    type,x,y,vx:0,vy:0,a:angle+Math.PI,
+    type,x:mod(x,WORLD.width),y:mod(y,WORLD.height),vx:0,vy:0,a:Math.random()*TAU,
     hp,maxHp:hp,
     r:type==='bomber'?30:24,
     fire:Math.random()*tier.fire,
@@ -249,83 +291,107 @@ function spawnEnemy(type='fighter',angle=Math.random()*TAU,dist=480){
     img:ENEMY_FILES[type][Math.floor(Math.random()*ENEMY_FILES[type].length)],
     dead:false
   });
+  return true;
 }
-function spawnSquad(){
-  if(state.gameWon)return;
-  const tier=TIERS[state.tier], desired=tier.density;
-  const alive=enemies.reduce((n,e)=>n+(!e.dead?1:0),0);
-  if(alive>=desired*2)return;
+(function seedRegionalAirForces(){
+  // Two aircraft per Earth sector: 12 total, spread over the whole wrapped map.
+  const sites=[
+    [120,170,'fighter'],[400,360,'fighter'],
+    [620,150,'fighter'],[900,365,'bomber'],
+    [1110,165,'fighter'],[1400,350,'interceptor'],
+    [150,650,'fighter'],[410,900,'bomber'],
+    [625,650,'interceptor'],[920,900,'fighter'],
+    [1120,660,'bomber'],[1410,900,'interceptor']
+  ];
+  sites.forEach(([x,y,type])=>spawnEnemyAt(type,x,y));
+})();
+
+function reinforcementTypeForSector(sector){
   const roll=Math.random();
-  const mx=mod(ship.x,WORLD.width), my=mod(ship.y,WORLD.height);
-  const tileX=Math.floor(mx/512), tileY=Math.floor(my/512);
-  const biome=tileY*3+tileX;
-  let type='fighter';
-  if((biome===1||biome===5) && state.tier>=1 && roll>.36) type='bomber';
-  if((biome===2||biome===4||biome===5) && state.tier>=2 && roll>.62) type='interceptor';
-  if(state.tier>=3 && roll>.82) type='interceptor';
-  const count=type==='bomber'?2:3+Math.min(3,state.tier);
-  const baseAng=Math.random()*TAU;
-  for(let i=0;i<count;i++)spawnEnemy(type,baseAng+(i-(count-1)/2)*.12,520+i*18);
+  if(state.tier>=3 && roll>.72)return 'interceptor';
+  if(state.tier>=1 && (sector===1||sector===5) && roll>.50)return 'bomber';
+  if(state.tier>=2 && (sector===2||sector===4) && roll>.60)return 'interceptor';
+  return 'fighter';
 }
+function launchReinforcement(){
+  if(state.gameWon)return;
+  const tier=TIERS[state.tier];
+  const alive=enemies.reduce((n,e)=>n+(!e.dead?1:0),0);
+  if(alive>=tier.cap)return;
+
+  const bases=structures.filter(s=>s.wrap && !s.dead && s.type==='base' && !s.isBoss);
+  if(!bases.length)return;
+  const b=bases[Math.floor(Math.random()*bases.length)];
+  const sector=sectorIndexAt(b.x,b.y);
+  const type=reinforcementTypeForSector(sector);
+  const ang=Math.random()*TAU,dist=115+Math.random()*95;
+  spawnEnemyAt(type,b.x+Math.cos(ang)*dist,b.y+Math.sin(ang)*dist);
+}
+
 function updateEnemies(dt){
   enemySpawnClock-=dt;
   if(enemySpawnClock<=0){
-    spawnSquad();
-    enemySpawnClock=Math.max(.72,2.2-state.tier*.28);
+    launchReinforcement();
+    enemySpawnClock=Math.max(5.8,9.4-state.tier*.65)+(Math.random()*2.4);
   }
+
   const tier=TIERS[state.tier];
   for(const e of enemies){
     if(e.dead)continue;
     e.phase+=dt*2;
-    const dx=ship.x-e.x,dy=ship.y-e.y,d=Math.hypot(dx,dy),nx=dx/(d||1),ny=dy/(d||1);
-    let desired=tier.speed*(e.type==='interceptor'?1.22:e.type==='bomber'?.72:1);
-    // interceptors carve across the player, bombers hang back, fighters chase.
-    let tx=nx,ty=ny;
-    if(e.type==='interceptor'){tx=nx*.65-ny*.75;ty=ny*.65+nx*.75;}
-    if(e.type==='bomber'&&d<300){tx=-nx;ty=-ny;}
 
-    // Personal-space bubble: attack/orbit/flee, but never sit under Mayhem Machine.
-    const avoidRadius=e.type==='bomber'?135:115;
-    if(d<avoidRadius){
-      const push=(avoidRadius-d)/avoidRadius;
-      tx=-nx*(1.25+push*1.6);
-      ty=-ny*(1.25+push*1.6);
-      const side=e.phase%TAU>Math.PI?1:-1;
-      tx+=(-ny)*.70*side;
-      ty+=( nx)*.70*side;
-      desired*=1.35;
-    } else if(d<avoidRadius+90){
-      const side=e.phase%TAU>Math.PI?1:-1;
-      tx=tx*.55+(-ny)*.65*side;
-      ty=ty*.55+( nx)*.65*side;
+    const ep=enemyPosNear(e,ship.x,ship.y);
+    const dx=ship.x-ep.x,dy=ship.y-ep.y,d=Math.hypot(dx,dy),nx=dx/(d||1),ny=dy/(d||1);
+
+    // Aircraft remain regional until the player comes into their operating radius.
+    let tx=0,ty=0,desired=tier.speed*(e.type==='interceptor'?1.18:e.type==='bomber'?.70:1);
+    if(d<720){
+      tx=nx;ty=ny;
+      if(e.type==='interceptor'){tx=nx*.62-ny*.78;ty=ny*.62+nx*.78;}
+      if(e.type==='bomber'&&d<300){tx=-nx;ty=-ny;}
+
+      const avoidRadius=e.type==='bomber'?145:120;
+      if(d<avoidRadius){
+        const push=(avoidRadius-d)/avoidRadius;
+        tx=-nx*(1.2+push*1.5);
+        ty=-ny*(1.2+push*1.5);
+        const side=e.phase%TAU>Math.PI?1:-1;
+        tx+=(-ny)*.62*side;
+        ty+=( nx)*.62*side;
+        desired*=1.28;
+      }else if(d<avoidRadius+90){
+        const side=e.phase%TAU>Math.PI?1:-1;
+        tx=tx*.58+(-ny)*.58*side;
+        ty=ty*.58+( nx)*.58*side;
+      }
+    }else{
+      // Slow local patrol instead of every enemy homing across the planet.
+      tx=Math.cos(e.phase*.22);
+      ty=Math.sin(e.phase*.22);
+      desired*=.28;
     }
 
-    e.vx=lerp(e.vx,tx*desired,.055+state.tier*.006);
-    e.vy=lerp(e.vy,ty*desired,.055+state.tier*.006);
-    e.x+=e.vx*dt;e.y+=e.vy*dt;
-    const postDx=e.x-ship.x,postDy=e.y-ship.y,postD=Math.hypot(postDx,postDy);
-    const minSep=e.type==='bomber'?92:78;
-    if(postD<minSep){
-      const px=postDx/(postD||1),py=postDy/(postD||1);
-      e.x=ship.x+px*minSep;e.y=ship.y+py*minSep;
-      e.vx+=px*120;e.vy+=py*120;
-    }
+    e.vx=lerp(e.vx,tx*desired,.045+state.tier*.004);
+    e.vy=lerp(e.vy,ty*desired,.045+state.tier*.004);
+    e.x=mod(e.x+e.vx*dt,WORLD.width);
+    e.y=mod(e.y+e.vy*dt,WORLD.height);
     e.a=Math.atan2(e.vy,e.vx);
+
     e.fire-=dt;
-    const fireRange=e.type==='bomber'?520:430;
+    const fireRange=e.type==='bomber'?500:410;
     if(d<fireRange&&e.fire<=0){
-      e.fire=tier.fire*(e.type==='interceptor'?.72:e.type==='bomber'?1.35:1)*( .85+Math.random()*.3);
-      const speed=e.type==='interceptor'?420:e.type==='bomber'?300:350;
-      enemyShots.push({x:e.x,y:e.y,vx:nx*speed,vy:ny*speed,life:3,r:e.type==='bomber'?7:5});
+      e.fire=tier.fire*(e.type==='interceptor'?.78:e.type==='bomber'?1.35:1)*(.90+Math.random()*.28);
+      const speed=e.type==='interceptor'?405:e.type==='bomber'?295:340;
+      enemyShots.push({x:ep.x,y:ep.y,vx:nx*speed,vy:ny*speed,life:3,r:e.type==='bomber'?7:5});
       tone(e.type==='bomber'?70:104,.028,'square',.018);
     }
   }
-  for(let i=enemies.length-1;i>=0;i--) if(enemies[i].dead&&Math.random()<.04) enemies.splice(i,1);
+  for(let i=enemies.length-1;i>=0;i--)if(enemies[i].dead&&Math.random()<.025)enemies.splice(i,1);
 }
 function damageEnemyAt(x,y,amount){
   for(const e of enemies){
     if(e.dead)continue;
-    if(Math.hypot(x-e.x,y-e.y)<e.r){
+    const ep=enemyPosNear(e,x,y); if(Math.hypot(x-ep.x,y-ep.y)<e.r){
       e.hp-=amount;
       if(e.hp<=0){
         e.dead=true;state.kills++;state.score+=e.type==='bomber'?1200:e.type==='interceptor'?900:600;
@@ -340,10 +406,11 @@ function damageEnemyAt(x,y,amount){
 function drawEnemies(){
   for(const e of enemies){
     if(e.dead)continue;
-    const x=W/2+(e.x-state.camX),y=H/2+(e.y-state.camY);
+    const ep=enemyPosNear(e,state.camX,state.camY);
+    const x=W/2+(ep.x-state.camX),y=H/2+(ep.y-state.camY);
     if(x<-100||x>W+100||y<-100||y>H+100)continue;
     const img=ENEMY_IMG[e.img],size=e.type==='bomber'?72:e.type==='interceptor'?58:52;
-    if(Math.hypot(e.x-ship.x,e.y-ship.y)<62) continue;
+    if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<62)continue;
     ctx.save();ctx.translate(x,y);ctx.rotate(e.a);
     if(img?.complete&&img.naturalWidth)ctx.drawImage(img,-size/2,-size/2,size,size);
     else{ctx.fillStyle='#ff2d95';ctx.fillRect(-18,-8,36,16);}
@@ -377,7 +444,7 @@ function addStructure(x,y,type='bunker',variant=0,wrap=true){
   });
 }
 (function seedStructures(){
-  // V10.2: 50% of the V10 General Overkill deployment.
+  // V10.3: regional ground deployment retained; air war now sector-based.
   // 18 meaningful installations across all six wrapped Earth sectors.
   const tileSites=[
     // sector 0 — forest / coast
@@ -406,7 +473,7 @@ function damageStructureAt(x,y,amount){
         if(s.isBoss){state.bossDead=true;state.gameWon=true;state.flash=.8;tone(36,.6,'sawtooth',.14);}
         state.rage=Math.min(100,state.rage+(s.type==='base'?22:8));
         state.flash=.22; tone(s.type==='base'?48:82,.18,'sawtooth',.09);
-        updateStatusUi();
+        checkSectorLiberation(); updateTier(); updateStatusUi();
       }
       return true;
     }
@@ -617,8 +684,8 @@ function launchMissile(){
 function useBomb(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.32;state.score+=600;tone(52,.28,'sawtooth',.12);
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;}}
-  for(const e of enemies) if(!e.dead&&Math.hypot(e.x-ship.x,e.y-ship.y)<430){e.hp-=220;if(e.hp<=0){e.dead=true;state.kills++;state.score+=800;}}
+  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<430){s.hp-=240;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;checkSectorLiberation();}}
+  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<430){e.hp-=220;if(e.hp<=0){e.dead=true;state.kills++;state.score+=800;}}}
   updateStatusUi();
 }
 function useNuke(){
@@ -664,7 +731,7 @@ function update(dt){
   }
   state.missiles=state.missiles.filter(m=>m.life>0);
   updateStructures(dt);updateEnemies(dt);
-  state.flash=Math.max(0,state.flash-dt);
+  state.flash=Math.max(0,state.flash-dt);state.sectorFlash=Math.max(0,state.sectorFlash-dt);
   if(input.boost&&Math.random()<.6)state.parts.push({x:ship.x-Math.cos(ship.a)*65,y:ship.y-Math.sin(ship.a)*65,vx:-Math.cos(ship.a)*rnd(100,220),vy:-Math.sin(ship.a)*rnd(100,220),life:.35});
   for(const p of state.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
   state.parts=state.parts.filter(p=>p.life>0);
@@ -684,16 +751,23 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V10.2 // BALANCED WAR',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V10.3 // WORLD WAR',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
   const alive=structures.reduce((n,s)=>n+(!s.dead?1:0),0);
+  const air=enemies.reduce((n,e)=>n+(!e.dead?1:0),0);
   const tier=TIERS[state.tier];
   ctx.fillStyle='#ff2d95';ctx.font='900 13px monospace';ctx.fillText(`MODE ${tier.name}`,18,62);
 
-  ctx.fillStyle='#ffe53b';ctx.font='800 12px monospace';ctx.fillText(`HOSTILES ${alive}/${structures.length}`,Math.max(18,W-160),62);
-  ctx.fillStyle='#39d7ff';ctx.font='800 11px monospace';ctx.fillText('6 SECTORS ARMED',Math.max(18,W-145),26);
+  ctx.fillStyle='#ffe53b';ctx.font='800 12px monospace';ctx.fillText(`GROUND ${alive}  AIR ${air}`,Math.max(18,W-190),62);
+  ctx.fillStyle='#39d7ff';ctx.font='800 11px monospace';ctx.fillText(`SECTORS ${liberatedSectors.size}/6`,Math.max(18,W-145),26);
+
+  if(state.sectorFlash>0){
+    ctx.save();ctx.textAlign='center';ctx.shadowColor='#8aff2b';ctx.shadowBlur=18;
+    ctx.fillStyle='#8aff2b';ctx.font=`900 ${Math.max(24,Math.min(42,W*.032))}px Impact,Arial Black,sans-serif`;
+    ctx.fillText('SECTOR LIBERATED',W/2,108);ctx.restore();
+  }
 }
 function title(){
   const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#051311');g.addColorStop(.48,'#07111a');g.addColorStop(1,'#120511');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
