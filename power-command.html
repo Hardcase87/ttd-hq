@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V11.0 CAMPAIGN PROTOCOL</title>
+<title>TTD POWER COMMAND // V11.1 SURVIVAL BALANCE</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -34,6 +34,11 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.45)}
 #craftPanel h2{margin:3px 0 8px;color:var(--p);font:900 20px Impact,Arial Black,sans-serif;letter-spacing:.04em}
 #craftPanel .mini{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;color:#ddd}
 #craftPanel .quote{margin-top:8px;padding-top:7px;border-top:1px solid rgba(138,255,43,.25);color:var(--g);font-size:10px}
+#restartBtn{position:absolute;z-index:20;left:50%;top:68%;transform:translate(-50%,-50%);display:none;
+padding:14px 26px;min-width:220px;border:2px solid var(--g);border-radius:14px;background:rgba(0,0,0,.88);
+color:var(--g);font:900 18px monospace;box-shadow:0 0 22px rgba(138,255,43,.22)}
+#restartBtn.show{display:block}
+
 #bottomHud{position:absolute;z-index:7;left:12px;right:12px;bottom:max(208px,calc(env(safe-area-inset-bottom) + 198px));height:42px;display:grid;grid-template-columns:150px 110px 110px 1fr 220px;gap:6px;pointer-events:none}
 .hudChip{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid rgba(57,215,255,.30);background:rgba(0,0,0,.72);border-radius:9px;font:800 11px monospace}
 .hudChip b{color:#aaa}.hudChip strong{color:var(--g);font-size:14px}
@@ -85,7 +90,8 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V11.0</div>
+<div id="badge">POWER COMMAND // V11.1</div>
+<button id="restartBtn">RESTART MISSION</button>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
   <div class="row"><span>SCORE</span><span id="scoreReadout">0875300</span></div>
@@ -162,7 +168,7 @@ addEventListener('resize',resize,{passive:true}); resize();
 const input={up:0,down:0,left:0,right:0,fire:0,boost:0};
 const touchVec={x:0,y:0};
 const ship={x:0,y:0,vx:0,vy:0,a:0};
-const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,maxHull:100,lives:3,cp:0,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,gameOver:false,distance:0,sectorFlash:0,upgradeLevel:0,respawnFlash:0};
+const state={mode:'play',t:0,last:performance.now(),camX:0,camY:0,shots:[],missiles:[],parts:[],fireCD:0,sound:true,score:875300,bombs:3,rage:0,flash:0,hull:100,maxHull:100,shield:120,maxShield:120,shieldDelay:0,lives:3,cp:0,kills:0,tier:0,bossSpawned:false,bossDead:false,gameWon:false,gameOver:false,distance:0,sectorFlash:0,upgradeLevel:0,respawnFlash:0};
 const WORLD={
   tileSize:512, cols:3, rows:2, width:1536, height:1024,
   base:'assets/images/ttd-power-command/world/',
@@ -251,8 +257,8 @@ function checkUpgrades(){
     state.flash=.35;
     state.sectorFlash=1.0;
     if(level===3){
-      state.maxHull=125;
-      state.hull=Math.min(state.maxHull,state.hull+25);
+      state.maxHull=125;state.maxShield=150;
+      state.hull=Math.min(state.maxHull,state.hull+25);state.shield=Math.min(state.maxShield,state.shield+30);
     }
     tone(620+level*70,.14,'square',.07);
   }
@@ -262,9 +268,22 @@ function awardCP(n){
   checkUpgrades();
   updateStatusUi();
 }
+function damagePlayer(amount){
+  state.shieldDelay=2.6;
+  if(state.shield>0){
+    const used=Math.min(state.shield,amount);
+    state.shield-=used;
+    amount-=used;
+  }
+  if(amount>0)state.hull=Math.max(0,state.hull-amount);
+  state.flash=.10;
+  if(state.hull<=0)loseLife();
+  updateStatusUi();
+}
+
 function respawnPlayer(){
   ship.vx=ship.vy=0;
-  state.hull=state.maxHull;
+  state.hull=state.maxHull;state.shield=state.maxShield;state.shieldDelay=0;
   state.rage=Math.max(0,state.rage-20);
   state.respawnFlash=1.2;
   state.flash=.5;
@@ -309,7 +328,7 @@ function checkSectorLiberation(){
       liberatedSectors.add(i);
       state.score+=5000;
       state.rage=Math.min(100,state.rage+15);
-      state.hull=Math.min(state.maxHull,state.hull+22);
+      state.hull=Math.min(state.maxHull,state.hull+22);state.shield=Math.min(state.maxShield,state.shield+45);
       state.bombs=Math.min(5,state.bombs+1);
       state.sectorFlash=1.15;
       state.flash=.28;
@@ -502,8 +521,8 @@ function addStructure(x,y,type='bunker',variant=0,wrap=true){
     x,y,type,img:files[variant%files.length],
     hp:base?900:300,maxHp:base?900:300,
     radius:base?72:54,
-    fireRate:base?.62:.92,
-    range:base?640:470,
+    fireRate:base?.82:1.08,
+    range:base?590:440,
     lastFire:Math.random(),
     dead:false,
     flash:0
@@ -575,9 +594,9 @@ function updateStructures(dt){
   for(const b of enemyShots){
     b.x+=b.vx*dt; b.y+=b.vy*dt; b.life-=dt;
     if(Math.hypot(b.x-ship.x,b.y-ship.y)<27){
-      b.life=0; state.hull=Math.max(0,state.hull-(b.r>6?8:5)); state.flash=.12;
-      tone(55,.05,'sawtooth',.05); updateStatusUi();
-      if(state.hull<=0) loseLife();
+      b.life=0;
+      damagePlayer(b.r>6?5:3);
+      tone(55,.05,'sawtooth',.05);
     }
   }
   for(let i=enemyShots.length-1;i>=0;i--) if(enemyShots[i].life<=0) enemyShots.splice(i,1);
@@ -740,8 +759,8 @@ function updateStatusUi(){
   const cp=document.getElementById('cpReadout');if(cp)cp.textContent=state.cp;
   const obj=document.getElementById('objectiveReadout');if(obj)obj.textContent=objectiveText();
   const rr=document.getElementById('rageReadout'); if(rr)rr.textContent=Math.round(state.rage)+'%';
-  const pr=document.getElementById('powerReadout'); if(pr)pr.textContent=Math.round(state.hull)+'/'+state.maxHull;
-  const pb=document.getElementById('powerBarFill'); if(pb)pb.style.width=(100*state.hull/state.maxHull)+'%';
+  const pr=document.getElementById('powerReadout'); if(pr)pr.textContent=`H ${Math.round(state.hull)} / S ${Math.round(state.shield)}`;
+  const pb=document.getElementById('powerBarFill'); if(pb)pb.style.width=(100*(state.shield>0?state.shield/state.maxShield:state.hull/state.maxHull))+'%';
 }
 function launchMissile(){
   const cs=Math.cos(ship.a),sn=Math.sin(ship.a);
@@ -758,8 +777,8 @@ function useBomb(){
 function useNuke(){
   if(state.bombs<=0)return;
   state.bombs--;state.flash=.55;state.score+=1400;
-  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<1400){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
-  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<1400){e.dead=true;state.kills++;state.score+=1000;awardCP(1);}}
+  for(const s of structures) if(!s.dead&&structureDistanceTo(s,ship.x,ship.y)<620){s.hp-=1800;if(s.hp<=0){s.dead=true;state.score+=s.type==='base'?5000:900;state.kills++;awardCP(s.type==='base'?3:1);checkSectorLiberation();}}
+  for(const e of enemies) if(!e.dead){const ep=enemyPosNear(e,ship.x,ship.y);if(Math.hypot(ep.x-ship.x,ep.y-ship.y)<620){e.dead=true;state.kills++;state.score+=1000;awardCP(1);}}
   enemyShots.length=0;state.rage=Math.min(100,state.rage+20);
   tone(39,.45,'square',.14);setTimeout(()=>tone(68,.32,'sawtooth',.10),70);updateStatusUi();
 }
@@ -801,6 +820,10 @@ function update(dt){
   state.missiles=state.missiles.filter(m=>m.life>0);
   updateStructures(dt);updateEnemies(dt);
   state.flash=Math.max(0,state.flash-dt);state.sectorFlash=Math.max(0,state.sectorFlash-dt);state.respawnFlash=Math.max(0,state.respawnFlash-dt);
+  state.shieldDelay=Math.max(0,state.shieldDelay-dt);
+  if(state.mode==='play'&&state.shieldDelay<=0&&state.shield<state.maxShield){
+    state.shield=Math.min(state.maxShield,state.shield+22*dt);
+  }
   if(input.boost&&Math.random()<.6)state.parts.push({x:ship.x-Math.cos(ship.a)*65,y:ship.y-Math.sin(ship.a)*65,vx:-Math.cos(ship.a)*rnd(100,220),vy:-Math.sin(ship.a)*rnd(100,220),life:.35});
   for(const p of state.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}
   state.parts=state.parts.filter(p=>p.life>0);
@@ -820,7 +843,7 @@ function drawFX(){
 function hud(){
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.0 // CAMPAIGN PROTOCOL',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.1 // SURVIVAL BALANCE',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
@@ -833,6 +856,7 @@ function hud(){
   ctx.fillStyle='#39d7ff';ctx.font='800 11px monospace';ctx.fillText(`SECTORS ${liberatedSectors.size}/6`,Math.max(18,W-145),26);
 
   ctx.fillStyle='#fff';ctx.font='800 11px monospace';ctx.fillText(`CP ${state.cp} // ${currentUpgradeName()}`,18,82);
+  ctx.fillStyle=state.shield>0?'#39d7ff':'#ff2d95';ctx.fillText(`SHIELD ${Math.round(state.shield)}/${state.maxShield}`,18,114);
   ctx.fillStyle='#ffe53b';ctx.fillText(objectiveText(),18,98);
 
   if(state.sectorFlash>0){
@@ -853,12 +877,15 @@ function title(){
   ctx.save();ctx.translate(W/2,H*.58);ctx.scale(.7,.7);drawShip();ctx.restore();
 }
 function render(){
+  const rb=document.getElementById('restartBtn');
+  if(rb && !state.gameWon && !state.gameOver)rb.classList.remove('show');
   try{
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,W,H);
     if(state.mode==='title'){title();return}
     drawWorld();drawStructures();drawEnemies();drawFX();drawShip();hud();
     if(state.gameWon||state.gameOver){
+      const rb=document.getElementById('restartBtn');if(rb)rb.classList.add('show');
       ctx.save();ctx.fillStyle='rgba(0,0,0,.80)';ctx.fillRect(0,0,W,H);ctx.textAlign='center';
       const won=state.gameWon;
       ctx.shadowColor=won?'#8aff2b':'#ff2d95';ctx.shadowBlur=24;
@@ -896,6 +923,9 @@ function bindMove(id,x,y){
   ['upleft',-1,-1],['up',0,-1],['upright',1,-1],['left',-1,0],['right',1,0],
   ['downleft',-1,1],['down',0,1],['downright',1,1]
 ].forEach(v=>bindMove(...v));
+document.getElementById('restartBtn').addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();location.reload();
+});
 document.getElementById('stop').addEventListener('pointerdown',e=>{
   e.preventDefault();e.stopPropagation();
   if(state.gameOver||state.gameWon){location.reload();return;}
