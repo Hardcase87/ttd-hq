@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V11.2 TACTICAL SYSTEMS</title>
+<title>TTD POWER COMMAND // V11.3 BOSS BEACON</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -90,7 +90,7 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V11.2</div>
+<div id="badge">POWER COMMAND // V11.3</div>
 <button id="restartBtn">RESTART MISSION</button>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
@@ -240,11 +240,21 @@ const UPGRADE_STEPS=[
 ];
 function objectiveText(){
   if(state.gameWon)return 'EARTH LIBERATED';
-  if(state.bossSpawned)return 'DESTROY COMMAND FORTRESS';
+  if(state.bossSpawned)return 'COMMAND FORTRESS // TRACKING';
   const n=liberatedSectors.size;
   if(n<2)return 'LIBERATE 2 SECTORS';
   if(n<4)return 'LIBERATE 4 SECTORS';
   return 'LIBERATE ALL 6 SECTORS';
+}
+function bossStructure(){
+  return structures.find(s=>s.isBoss&&!s.dead)||null;
+}
+function groundTargetsRemaining(){
+  return structures.reduce((n,s)=>n+(!s.dead?1:0),0);
+}
+function bossLocatorActive(){
+  const boss=bossStructure();
+  return !!boss && (state.bossSpawned || groundTargetsRemaining()===1);
 }
 function currentUpgradeName(){
   return UPGRADE_STEPS[Math.min(state.upgradeLevel,UPGRADE_STEPS.length-1)].name;
@@ -609,6 +619,13 @@ function drawStructures(){
   for(const s of structures){
     if(s.dead) continue;
     const wp=structurePosNear(s,state.camX,state.camY); const x=W/2+(wp.x-state.camX), y=H/2+(wp.y-state.camY);
+    if(s.isBoss&&!s.dead){
+      const pulse=1+Math.sin(state.t*5)*.14;
+      ctx.save();
+      ctx.strokeStyle='#ffe53b';ctx.lineWidth=3;ctx.shadowColor='#ff2d95';ctx.shadowBlur=22;
+      ctx.beginPath();ctx.arc(x,y,Math.max(86,s.radius||112)*pulse,0,TAU);ctx.stroke();
+      ctx.restore();
+    }
     if(x<-170||x>W+170||y<-170||y>H+170) continue;
     const size=s.type==='base'?150:118; // intentionally slightly larger than Mayhem Machine
     const im=STRUCT_IMG[s.img];
@@ -865,10 +882,65 @@ function drawFX(){
   ctx.restore();
   if(state.flash>0){ctx.save();ctx.globalAlpha=Math.min(.52,state.flash*1.2);ctx.fillStyle=state.flash>.4?'#fff':'#ff2d95';ctx.fillRect(0,0,W,H);ctx.restore();}
 }
+
+function drawBossBeacon(){
+  if(!bossLocatorActive())return;
+  const boss=bossStructure();
+  if(!boss)return;
+
+  const bp=structurePosNear(boss,state.camX,state.camY);
+  const sx=W/2+(bp.x-state.camX), sy=H/2+(bp.y-state.camY);
+  const dist=Math.round(Math.hypot(bp.x-ship.x,bp.y-ship.y));
+  const margin=78;
+
+  if(sx>margin&&sx<W-margin&&sy>margin&&sy<H-margin){
+    const pulse=1+Math.sin(state.t*6)*.15;
+    ctx.save();
+    ctx.translate(sx,sy);
+    ctx.strokeStyle='#ffe53b';
+    ctx.lineWidth=4;
+    ctx.shadowColor='#ff2d95';
+    ctx.shadowBlur=24;
+    ctx.beginPath();ctx.arc(0,0,96*pulse,0,TAU);ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#ffe53b';
+    ctx.textAlign='center';
+    ctx.font='900 13px monospace';
+    ctx.fillText(`COMMAND FORTRESS ${dist}`,0,-112);
+    ctx.restore();
+    return;
+  }
+
+  const dx=sx-W/2,dy=sy-H/2;
+  const ang=Math.atan2(dy,dx);
+  const rx=Math.max(90,W/2-margin),ry=Math.max(90,H/2-margin);
+  const scale=1/Math.max(Math.abs(Math.cos(ang))/rx,Math.abs(Math.sin(ang))/ry);
+  const ax=W/2+Math.cos(ang)*scale;
+  const ay=H/2+Math.sin(ang)*scale;
+
+  ctx.save();
+  ctx.translate(ax,ay);
+  ctx.rotate(ang);
+  ctx.shadowColor='#ff2d95';
+  ctx.shadowBlur=20;
+  ctx.fillStyle='#ffe53b';
+  ctx.beginPath();
+  ctx.moveTo(24,0);ctx.lineTo(-15,-13);ctx.lineTo(-9,0);ctx.lineTo(-15,13);ctx.closePath();ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.textAlign='center';
+  ctx.fillStyle='#ffe53b';
+  ctx.font='900 12px monospace';
+  ctx.fillText(`COMMAND ${dist}`,ax,Math.min(H-18,ay+30));
+  ctx.restore();
+}
+
 function hud(){
+  drawBossBeacon();
   ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,64);
   ctx.fillStyle='#8aff2b';ctx.font='900 22px monospace';ctx.fillText('TTD POWER COMMAND',18,27);
-  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.2 // TACTICAL SYSTEMS',19,48);
+  ctx.fillStyle='#ff2d95';ctx.font='700 12px monospace';ctx.fillText('V11.3 // BOSS BEACON',19,48);
   ctx.fillStyle='#fff';ctx.font='800 15px monospace';ctx.fillText('SPD '+Math.round(Math.hypot(ship.vx,ship.vy)),Math.min(W*.45,520),26);
   ctx.fillStyle='#39d7ff';ctx.fillText('X '+Math.round(ship.x)+'  Y '+Math.round(ship.y),Math.min(W*.45,520),48);
   ctx.fillStyle=WORLD.ready===6?'#8aff2b':'#ffe53b';ctx.fillText(`EARTH ${WORLD.ready}/6`,Math.max(18,W-140),48);
@@ -883,6 +955,15 @@ function hud(){
   ctx.fillStyle='#fff';ctx.font='800 11px monospace';ctx.fillText(`CP ${state.cp} // ${currentUpgradeName()}`,18,82);
   ctx.fillStyle=state.shield>0?'#39d7ff':'#ff2d95';ctx.fillText(`SHIELD ${Math.round(state.shield)}/${state.maxShield}`,18,114);
   ctx.fillStyle='#ffe53b';ctx.fillText(objectiveText(),18,98);
+  if(bossLocatorActive()){
+    const b=bossStructure();
+    if(b){
+      const bp=structurePosNear(b,ship.x,ship.y);
+      const bd=Math.round(Math.hypot(bp.x-ship.x,bp.y-ship.y));
+      ctx.fillStyle='#ff2d95';ctx.font='900 12px monospace';
+      ctx.fillText(`FINAL TARGET LOCKED // ${bd}`,18,130);
+    }
+  }
 
   if(state.sectorFlash>0){
     ctx.save();ctx.textAlign='center';ctx.shadowColor='#8aff2b';ctx.shadowBlur=18;
