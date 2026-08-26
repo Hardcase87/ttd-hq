@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#030506">
-<title>TTD POWER COMMAND // V11.3 BOSS BEACON</title>
+<title>TTD POWER COMMAND // V11.4 CONTROL LOCK</title>
 <style>
 :root{--g:#8aff2b;--p:#ff2d95;--b:#39d7ff;--y:#ffe53b}
 *{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -85,12 +85,154 @@ button.active,button:active{transform:translateY(2px);filter:brightness(1.4);box
  .weapon{font-size:9px;min-height:40px}
 }
 
+
+/* ============================================================
+   V11.4 // MOBILE CONTROL LOCK
+   Safari dynamic-viewport + narrow-phone control protection.
+   GAMEPLAY UNCHANGED.
+   ============================================================ */
+
+/* Use the actually visible viewport on modern mobile Safari. */
+html,body{
+  width:100%;
+  height:100%;
+  min-height:100%;
+}
+#shell{
+  width:100vw;
+  height:100vh;
+  min-height:100vh;
+}
+@supports (height:100dvh){
+  html,body,#shell{
+    height:100dvh;
+    min-height:100dvh;
+  }
+}
+
+/* Keep the physical control deck attached to the visible viewport,
+   not a stale layout viewport left behind by Safari's browser chrome. */
+#controls{
+  position:fixed!important;
+  z-index:100!important;
+  max-width:100vw;
+}
+
+/* Phone portrait: lift controls clear of Safari toolbar/home indicator,
+   and make the three control zones genuinely fit narrow displays. */
+@media (max-width:850px) and (orientation:portrait){
+  #controls{
+    left:6px!important;
+    right:6px!important;
+    bottom:calc(env(safe-area-inset-bottom) + 74px)!important;
+    grid-template-columns:134px minmax(0,1fr) 92px!important;
+    gap:5px!important;
+    align-items:end!important;
+  }
+
+  .pad{
+    grid-template-columns:repeat(3,42px)!important;
+    grid-template-rows:repeat(3,38px)!important;
+    gap:4px!important;
+  }
+  .pad button{
+    min-width:42px!important;
+    min-height:38px!important;
+    padding:0!important;
+    font-size:19px!important;
+  }
+
+  .centerControls{
+    min-width:0!important;
+    grid-template-columns:minmax(0,1fr) 42px 42px!important;
+    grid-template-rows:38px 38px!important;
+    gap:4px!important;
+  }
+  .centerControls .fire{
+    min-width:0!important;
+    min-height:80px!important;
+    padding:4px!important;
+    font-size:13px!important;
+    line-height:1!important;
+    overflow:hidden;
+  }
+  .weapon{
+    min-width:0!important;
+    min-height:38px!important;
+    padding:2px!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+    white-space:normal!important;
+  }
+
+  .rightControls{
+    min-width:0!important;
+    grid-template-rows:38px 38px!important;
+    gap:4px!important;
+  }
+  .rightControls button{
+    min-width:0!important;
+    min-height:38px!important;
+    padding:3px!important;
+    font-size:10px!important;
+    line-height:1!important;
+  }
+
+  /* Prevent game action from hiding behind the raised controls. */
+  #restartBtn{
+    top:52%!important;
+  }
+}
+
+/* Landscape phone/tablet: browser chrome is smaller, so use a lighter lift. */
+@media (max-height:600px) and (orientation:landscape){
+  #controls{
+    bottom:calc(env(safe-area-inset-bottom) + 14px)!important;
+  }
+}
+
+/* Very small phones get one more compact step instead of overflowing. */
+@media (max-width:390px) and (orientation:portrait){
+  #controls{
+    grid-template-columns:122px minmax(0,1fr) 82px!important;
+    gap:4px!important;
+  }
+  .pad{
+    grid-template-columns:repeat(3,38px)!important;
+    grid-template-rows:repeat(3,36px)!important;
+  }
+  .pad button{
+    min-width:38px!important;
+    min-height:36px!important;
+    font-size:17px!important;
+  }
+  .centerControls{
+    grid-template-columns:minmax(0,1fr) 38px 38px!important;
+    grid-template-rows:36px 36px!important;
+  }
+  .centerControls .fire{
+    min-height:76px!important;
+    font-size:12px!important;
+  }
+  .weapon{
+    min-height:36px!important;
+    font-size:7px!important;
+  }
+  .rightControls{
+    grid-template-rows:36px 36px!important;
+  }
+  .rightControls button{
+    min-height:36px!important;
+    font-size:9px!important;
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="shell">
 <canvas id="game"></canvas>
-<div id="badge">POWER COMMAND // V11.3</div>
+<div id="badge">POWER COMMAND // V11.4 CONTROL LOCK</div>
 <button id="restartBtn">RESTART MISSION</button>
 <div id="pilotPanel">
   <strong>HARDCASE '87 // PILOT</strong>
