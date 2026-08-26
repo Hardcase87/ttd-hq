@@ -1,35 +1,69 @@
-const CACHE = 'ttd-hq-v8';
+const CACHE = 'ttd-hq-v10-site-finish';
 const CORE = [
   './',
+  './index.html',
   './arcade.html',
-  './captain-calorie.html',
   './comics.html',
   './dossiers.html',
-  './financial-district.html',
-  './grim-ledger.html',
-  './hardcase-87.html',
-  './index.html',
-  './issue-1.html',
-  './issue-2.html',
-  './issue-3.html',
   './map.html',
-  './military-district.html',
-  './nikki-nitro.html',
-  './nutrition-district.html',
   './payments.html',
   './store.html',
-  './tbn.html',
-  './titan-heights.html',
-  './titan-spire.html',
-  './vexxa-blaze.html',
-  './vhs-quarter.html',
-  './viper.html',
+  './contact.html',
+  './privacy.html',
+  './terms.html',
+  './shipping.html',
+  './refunds.html',
   './styles.css',
+  './commercial.css',
   './app.js',
   './manifest.json',
   './assets/images/ttd-banner.png',
   './assets/images/ttd-logo-app.png'
 ];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
-self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+
+self.addEventListener('install', event => {
+  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE).then(cache =>
+      Promise.allSettled(CORE.map(url => cache.add(url)))
+    )
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  event.respondWith((async () => {
+    try {
+      /* Network first on purpose.
+         TTD changes constantly and old Safari/PWA cache was serving dead builds. */
+      const fresh = await fetch(request, { cache: 'no-store' });
+
+      if (fresh && fresh.ok && request.url.startsWith(self.location.origin)) {
+        const cache = await caches.open(CACHE);
+        cache.put(request, fresh.clone());
+      }
+
+      return fresh;
+    } catch (error) {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+
+      if (request.mode === 'navigate') {
+        const home = await caches.match('./index.html');
+        if (home) return home;
+      }
+
+      throw error;
+    }
+  })());
+});

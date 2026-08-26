@@ -109,8 +109,236 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
   });
 });
 
+/* ============================================================
+   TTD HQ // SITE FINISH PACK
+   Global commercial shell, nav normalization, Arcade Cabinet 05,
+   runtime metadata, future analytics hooks and cache-update logic.
+   ============================================================ */
+
+(function TTDCommercialShell(){
+  const DOMAIN = 'https://tacticalterrordivision.com';
+  const path = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+  /* Load shared commercial styling on every app.js page. */
+  if (!document.querySelector('link[data-ttd-commercial-css]')) {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'commercial.css?v=1';
+    css.dataset.ttdCommercialCss = '1';
+    document.head.appendChild(css);
+  }
+
+  /* Runtime metadata safety net.
+     NOTE: static HTML metadata is still preferred for social crawlers. */
+  const metadata = {
+    'index.html': {
+      title: 'TTD HQ // Tactical Terror Division',
+      description: 'Enter Titan City through Tactical Terror Division HQ: free comics, five browser arcade games, dossiers, districts, TBN broadcasts and the Loot Vault.',
+      image: '/assets/images/ttd-banner.png'
+    },
+    'arcade.html': {
+      title: 'TTD Arcade // Tactical Terror Division',
+      description: 'Five browser arcade cabinets live inside Titan City: Power Command, Titan Ball 92, Titan Ball 94, REB Renal Failure and REB Renal Revenge.',
+      image: '/assets/images/module-arcade.png'
+    },
+    'comics.html': {
+      title: 'Titan City Comics // TTD HQ',
+      description: 'Read the Titan City comic library from Tactical Terror Division. Issues 1 to 3 are currently free.',
+      image: '/assets/images/titan-city-issue-1-cover.png'
+    },
+    'store.html': {
+      title: 'TTD Store // Tactical Terror Division Loot Vault',
+      description: 'Official Tactical Terror Division sticker packs, mutant art, posters, roster cards, digital drops and future physical loot.',
+      image: '/assets/images/store/ttd-skull-pack.jpg'
+    },
+    'payments.html': {
+      title: 'Payments // Tactical Terror Division',
+      description: 'TTD HQ payment and support grid for Lightning, PayPal contact and future product drops.',
+      image: '/assets/images/ttd-logo-app.png'
+    }
+  };
+
+  const currentMeta = metadata[path] || {
+    title: document.title || 'TTD HQ // Tactical Terror Division',
+    description: 'Tactical Terror Division // Titan City Network.',
+    image: '/assets/images/ttd-logo-app.png'
+  };
+
+  if (currentMeta.title) document.title = currentMeta.title;
+
+  const setMeta = (selector, attrName, attrValue, content) => {
+    let el = document.head.querySelector(selector);
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute(attrName, attrValue);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', content);
+  };
+
+  if (!document.head.querySelector('meta[name="description"]')) {
+    setMeta('meta[name="description"]', 'name', 'description', currentMeta.description);
+  }
+
+  let canonical = document.head.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    document.head.appendChild(canonical);
+  }
+  canonical.href = path === 'index.html' ? `${DOMAIN}/` : `${DOMAIN}/${path}`;
+
+  setMeta('meta[property="og:site_name"]','property','og:site_name','Tactical Terror Division');
+  setMeta('meta[property="og:type"]','property','og:type','website');
+  setMeta('meta[property="og:title"]','property','og:title',currentMeta.title);
+  setMeta('meta[property="og:description"]','property','og:description',currentMeta.description);
+  setMeta('meta[property="og:url"]','property','og:url',canonical.href);
+  setMeta('meta[property="og:image"]','property','og:image',`${DOMAIN}${currentMeta.image}`);
+  setMeta('meta[name="twitter:card"]','name','twitter:card','summary_large_image');
+  setMeta('meta[name="twitter:title"]','name','twitter:title',currentMeta.title);
+  setMeta('meta[name="twitter:description"]','name','twitter:description',currentMeta.description);
+  setMeta('meta[name="twitter:image"]','name','twitter:image',`${DOMAIN}${currentMeta.image}`);
+
+  /* Standardize the primary mobile navigation across the network. */
+  document.querySelectorAll('.bottom-nav').forEach(nav => {
+    nav.setAttribute('aria-label','TTD HQ primary navigation');
+    nav.innerHTML = `
+      <a href="index.html">HQ</a>
+      <a href="map.html">MAP</a>
+      <a href="comics.html">COMICS</a>
+      <a href="arcade.html">ARCADE</a>
+      <a href="store.html">STORE</a>
+    `;
+    nav.querySelectorAll('a').forEach(a => {
+      const href = a.getAttribute('href').toLowerCase();
+      if (href === path || (path === '' && href === 'index.html')) {
+        a.setAttribute('aria-current','page');
+      }
+    });
+  });
+
+  /* Global commercial/legal footer.
+     Injected once on every page that loads app.js. */
+  if (!document.querySelector('.ttd-commercial-footer')) {
+    const footer = document.createElement('footer');
+    footer.className = 'ttd-commercial-footer';
+    footer.innerHTML = `
+      <div class="ttd-footer-brand">
+        <strong>TACTICAL TERROR DIVISION</strong>
+        <span>TITAN CITY NETWORK // TTD HQ</span>
+        <a href="${DOMAIN}/">${DOMAIN.replace('https://','')}</a>
+      </div>
+      <nav class="ttd-footer-links" aria-label="Commercial and legal">
+        <a href="contact.html">CONTACT</a>
+        <a href="privacy.html">PRIVACY</a>
+        <a href="terms.html">TERMS</a>
+        <a href="shipping.html">SHIPPING</a>
+        <a href="refunds.html">REFUNDS</a>
+        <a href="payments.html">PAYMENTS</a>
+      </nav>
+      <p class="ttd-footer-note">Comics, games, art and mutant commerce from the Tactical Terror Division. No clean surfaces guaranteed.</p>
+    `;
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) document.body.insertBefore(footer,bottomNav);
+    else document.body.appendChild(footer);
+  }
+
+  /* Homepage commercial status strip. */
+  if (path === 'index.html' && !document.querySelector('.ttd-home-commercial-status')) {
+    const main = document.querySelector('main');
+    if (main) {
+      const status = document.createElement('section');
+      status.className = 'panel ttd-home-commercial-status';
+      status.innerHTML = `
+        <div>
+          <p class="eyebrow">TTD HQ // NETWORK STATUS</p>
+          <h2>THE CITY IS OPEN.</h2>
+          <p>Power Command deployed. REB: Renal Revenge deployed. Five arcade cabinets live. Three Titan City issues free. Loot Vault Drop 001 arming.</p>
+        </div>
+        <div class="ttd-status-chips">
+          <a href="power-command.html">POWER COMMAND // LIVE</a>
+          <a href="arcade.html">5 CABINETS</a>
+          <a href="comics.html">3 FREE COMICS</a>
+          <a href="store.html">LOOT VAULT // ARMING</a>
+        </div>
+      `;
+      main.appendChild(status);
+    }
+  }
+
+  /* Arcade completion patch: Cabinet 05 // Power Command. */
+  const arcadeMarker = [...document.querySelectorAll('.network-strip *')]
+    .some(el => (el.textContent || '').includes('ARCADE // TITAN CITY'));
+
+  if ((path === 'arcade.html' || arcadeMarker) && !document.querySelector('[data-power-command-cabinet]')) {
+    document.querySelectorAll('.network-strip > div').forEach(el => {
+      if ((el.textContent || '').includes('4 CABINETS ONLINE')) {
+        el.textContent = '5 CABINETS ONLINE';
+      }
+    });
+
+    const selector = document.querySelector('main > section.panel .issue-actions');
+    if (selector && !selector.querySelector('a[href="power-command.html"]')) {
+      const button = document.createElement('a');
+      button.className = 'read-comic-btn';
+      button.href = 'power-command.html';
+      button.textContent = 'POWER COMMAND // V11.3 →';
+      selector.prepend(button);
+    }
+
+    const firstCabinet = document.querySelector('.reb-cabinet-link');
+    const card = document.createElement('a');
+    card.className = 'panel reb-cabinet-link ttd-power-command-card';
+    card.href = 'power-command.html';
+    card.dataset.powerCommandCabinet = '1';
+    card.setAttribute('aria-label','Play Power Command V11.3 Boss Beacon');
+    card.innerHTML = `
+      <img src="assets/images/module-arcade.png" alt="Power Command TTD Arcade cabinet art">
+      <div class="reb-cabinet-copy">
+        <span class="ttd-pc-badge">CABINET 05 // RELEASE BUILD</span>
+        <p class="eyebrow">TTD POWER COMMAND // SIX-SECTOR WAR MACHINE</p>
+        <h2>POWER COMMAND</h2>
+        <p>Pilot the Mayhem Machine across six hostile sectors. DRRRRRT primary fire, missiles, Shield Burst, EMP Pulse, Rage, Command Point upgrades and the final Command Fortress assault.</p>
+        <strong>PLAY V11.3 // BOSS BEACON // FINAL TARGET LOCKED →</strong>
+      </div>
+    `;
+    if (firstCabinet) firstCabinet.parentNode.insertBefore(card,firstCabinet);
+    else document.querySelector('main')?.appendChild(card);
+  }
+
+  /* Future analytics hook.
+     This sends NOTHING by itself. If a privacy-friendly analytics provider
+     exposes window.plausible later, these events start working automatically. */
+  window.ttdTrack = window.ttdTrack || function(name, props = {}) {
+    try {
+      if (typeof window.plausible === 'function') {
+        window.plausible(name,{props});
+      }
+    } catch (_) {}
+  };
+
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href') || '';
+    let type = 'Navigation';
+    if (/power-command|titanball|reb-renal|death-circuit/i.test(href)) type = 'Game Click';
+    else if (/store\.html/i.test(href)) type = 'Store Click';
+    else if (/payments\.html|mailto:/i.test(href)) type = 'Commerce Click';
+    else if (/issue-|comics\.html/i.test(href)) type = 'Comic Click';
+    window.ttdTrack(type,{href,from:path});
+  }, {passive:true});
+})();
+
+/* Service worker update policy.
+   updateViaCache:none + registration.update() reduces the old-build problem. */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./sw.js?v=10', {
+        updateViaCache: 'none'
+      });
+      await registration.update();
+    } catch (_) {}
   });
 }
