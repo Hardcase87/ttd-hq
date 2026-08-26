@@ -7,139 +7,809 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="TTD HQ" />
+
+<title>TTD Store // Tactical Terror Division Loot Vault</title>
+<meta name="description" content="Official Tactical Terror Division Loot Vault. TTD sticker packs, mutant art, digital drops, posters, roster cards and future physical merchandise." />
+<meta name="robots" content="index,follow,max-image-preview:large" />
+<link rel="canonical" href="https://tacticalterrordivision.com/store.html" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Tactical Terror Division" />
+<meta property="og:title" content="TTD Store // Loot Vault" />
+<meta property="og:description" content="Official Tactical Terror Division sticker packs, mutant art and future physical drops." />
+<meta property="og:url" content="https://tacticalterrordivision.com/store.html" />
+<meta property="og:image" content="https://tacticalterrordivision.com/assets/images/store/ttd-skull-pack.jpg" />
+<meta property="og:image:alt" content="Tactical Terror Division skull sticker pack" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="TTD Store // Loot Vault" />
+<meta name="twitter:description" content="TTD sticker packs, mutant art and future physical drops." />
+<meta name="twitter:image" content="https://tacticalterrordivision.com/assets/images/store/ttd-skull-pack.jpg" />
+
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css" />
-<title>TTD Store // Titan City Loot Vault</title>
+
 <style>
-.store-launch{margin-top:1rem;padding:1.25rem;border-color:rgba(138,255,43,.34)!important;background:radial-gradient(circle at 88% 10%,rgba(138,255,43,.10),transparent 32%),radial-gradient(circle at 8% 90%,rgba(255,45,149,.10),transparent 30%),rgba(6,7,10,.96)!important}
-.store-launch h1{margin:.1rem 0;font-family:"Barlow Condensed",sans-serif;font-size:clamp(3.4rem,10vw,7.6rem);line-height:.82;background:linear-gradient(90deg,#8aff2b,#fff,#ff2d95);-webkit-background-clip:text;background-clip:text;color:transparent}
-.store-launch-copy{max-width:850px;font-size:1rem}.commerce-status{display:inline-flex;padding:.38rem .6rem;border-radius:999px;border:1px solid rgba(138,255,43,.34);color:#8aff2b;font-weight:900;letter-spacing:.08em;margin-top:.5rem}
-.catalog-head{display:flex;justify-content:space-between;gap:1rem;align-items:end;margin:1.3rem 0 .7rem}.catalog-head h2{margin:.1rem 0;font-family:"Barlow Condensed",sans-serif;font-size:2.7rem}.catalog-head span{color:var(--green);font-weight:900;letter-spacing:.08em}
-.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.product-card{position:relative;overflow:hidden;padding:0!important}.product-art{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(57,215,255,.07),rgba(255,45,149,.08)),#050608;border-bottom:1px solid rgba(255,255,255,.07)}.product-art img{width:100%;height:100%;object-fit:cover;display:block}.product-placeholder{font:900 clamp(2rem,6vw,4.2rem) "Barlow Condensed",sans-serif;color:#fff;opacity:.9;text-align:center;padding:1rem}.product-copy{padding:1rem 1.05rem 1.1rem}.product-copy h3{margin:.1rem 0 .35rem;font:900 2rem "Barlow Condensed",sans-serif}.product-meta{display:flex;gap:.45rem;flex-wrap:wrap;margin:.65rem 0}.product-meta span{padding:.3rem .48rem;border:1px solid rgba(255,255,255,.11);border-radius:999px;font-size:.72rem;font-weight:800}.product-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.8rem}.product-price{font:900 1.55rem "Barlow Condensed",sans-serif;color:var(--green)}.drop-badge{position:absolute;z-index:2;top:10px;left:10px;padding:.35rem .55rem;border-radius:999px;background:#050608;border:1px solid rgba(255,45,149,.5);color:#ff2d95;font:900 .75rem "Barlow Condensed",sans-serif;letter-spacing:.08em}
-.commerce-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:1rem;margin-top:1rem}.commerce-grid h2{font-family:"Barlow Condensed",sans-serif;font-size:2.4rem;margin:.1rem 0}.checklist{display:grid;gap:.55rem;margin-top:.75rem}.checklist div{padding:.65rem .75rem;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.025)}.checklist b{color:var(--green)}.store-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin-top:.9rem}.fineprint{font-size:.78rem;color:var(--muted);margin-top:.7rem}
-@media(max-width:760px){.product-grid,.commerce-grid{grid-template-columns:1fr}.catalog-head{align-items:start;flex-direction:column}.store-launch h1{font-size:4rem}}
+:root{
+  --store-black:#050608;
+  --store-panel:#090b0e;
+  --store-green:#8aff2b;
+  --store-pink:#ff2d95;
+  --store-blue:#39d7ff;
+  --store-yellow:#ffe53b;
+  --store-white:#f6f7f9;
+  --store-muted:#9298a3;
+  --store-border:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+a{text-decoration:none}
+.store-shell{position:relative}
+.store-shell:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    radial-gradient(circle at 8% 5%,rgba(138,255,43,.07),transparent 24%),
+    radial-gradient(circle at 94% 18%,rgba(255,45,149,.08),transparent 27%),
+    radial-gradient(circle at 50% 92%,rgba(57,215,255,.055),transparent 32%);
+}
+.store-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  font-family:"Barlow Condensed",sans-serif;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--store-green);
+}
+.store-kicker:before{content:"●";font-size:.65rem;animation:storePulse 1.25s ease-in-out infinite alternate}
+@keyframes storePulse{from{opacity:.25}to{opacity:1;text-shadow:0 0 14px var(--store-green)}}
+.store-hero{
+  position:relative;
+  overflow:hidden;
+  margin-top:1rem;
+  min-height:390px;
+  padding:clamp(1.25rem,4vw,2.4rem);
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  align-items:center;
+  gap:1.25rem;
+  border-color:rgba(138,255,43,.32)!important;
+  background:
+    linear-gradient(110deg,rgba(5,6,8,.97) 0%,rgba(5,6,8,.88) 48%,rgba(5,6,8,.30) 72%,rgba(5,6,8,.18) 100%),
+    url("assets/images/store/ttd-skull-pack.jpg") center/cover no-repeat!important;
+}
+.store-hero:after{
+  content:"";
+  position:absolute;
+  inset:auto -8% -45% 38%;
+  height:70%;
+  transform:rotate(-8deg);
+  border:1px solid rgba(255,45,149,.24);
+  background:repeating-linear-gradient(90deg,transparent 0 28px,rgba(255,45,149,.055) 29px 30px);
+  pointer-events:none;
+}
+.store-hero-copy{position:relative;z-index:2;max-width:790px}
+.store-hero h1{
+  margin:.15rem 0 .55rem;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(4.2rem,11vw,9rem);
+  line-height:.76;
+  letter-spacing:-.03em;
+  text-transform:uppercase;
+  background:linear-gradient(95deg,var(--store-green) 0%,#fff 48%,var(--store-pink) 82%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 0 rgba(0,0,0,.85));
+}
+.store-hero h2{
+  margin:0 0 .75rem;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(1.7rem,4vw,3.2rem);
+  line-height:.95;
+  color:#fff;
+}
+.store-hero p{max-width:720px;font-size:1rem;line-height:1.62}
+.store-hero-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin-top:1rem}
+.store-status-line{
+  margin-top:1rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.45rem;
+}
+.store-status-line span,
+.store-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.38rem .58rem;
+  border-radius:999px;
+  border:1px solid var(--store-border);
+  background:rgba(0,0,0,.46);
+  color:#fff;
+  font:800 .78rem "Barlow Condensed",sans-serif;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.store-status-line span:first-child{border-color:rgba(138,255,43,.35);color:var(--store-green)}
+.store-hero-ghost{min-height:260px}
+
+.store-ticker{
+  margin-top:1rem;
+  padding:.68rem .85rem!important;
+  display:flex;
+  align-items:center;
+  gap:.7rem;
+  overflow:hidden;
+  white-space:nowrap;
+  border-color:rgba(255,45,149,.25)!important;
+}
+.store-ticker b{color:var(--store-pink);font-family:"Barlow Condensed",sans-serif;letter-spacing:.08em}
+.store-ticker-track{
+  min-width:max-content;
+  animation:ticker 30s linear infinite;
+  color:#d8dbe1;
+  font:800 .85rem "Barlow Condensed",sans-serif;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-35%)}}
+
+.store-section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:1rem;
+  margin:1.65rem 0 .75rem;
+}
+.store-section-head h2{
+  margin:.1rem 0 0;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:clamp(2.5rem,6vw,4.5rem);
+  line-height:.88;
+  text-transform:uppercase;
+}
+.store-section-head p{max-width:690px;margin:.35rem 0 0}
+.store-section-code{
+  flex:0 0 auto;
+  color:var(--store-green);
+  font:900 .82rem "Barlow Condensed",sans-serif;
+  letter-spacing:.09em;
+}
+
+.featured-drop{
+  display:grid;
+  grid-template-columns:1.08fr .92fr;
+  gap:0;
+  overflow:hidden;
+  padding:0!important;
+  border-color:rgba(255,45,149,.32)!important;
+  background:
+    linear-gradient(135deg,rgba(255,45,149,.07),rgba(138,255,43,.035)),
+    var(--store-panel)!important;
+}
+.featured-drop-art{position:relative;min-height:420px;background:#020304}
+.featured-drop-art img{width:100%;height:100%;object-fit:cover;display:block}
+.featured-drop-art:after{
+  content:"FIRST DROP";
+  position:absolute;
+  top:14px;
+  left:14px;
+  padding:.43rem .62rem;
+  border-radius:999px;
+  border:1px solid rgba(138,255,43,.48);
+  background:rgba(0,0,0,.75);
+  color:var(--store-green);
+  font:900 .78rem "Barlow Condensed",sans-serif;
+  letter-spacing:.1em;
+}
+.featured-drop-copy{padding:clamp(1.1rem,3.5vw,2rem);display:flex;flex-direction:column;justify-content:center}
+.featured-drop-copy h3{
+  margin:.1rem 0 .55rem;
+  font:900 clamp(3rem,7vw,5.8rem)/.82 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+  background:linear-gradient(90deg,#fff,var(--store-green),var(--store-pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.featured-drop-copy .drop-desc{font-size:1rem;line-height:1.6}
+.drop-meta{display:flex;gap:.42rem;flex-wrap:wrap;margin:.9rem 0}
+.drop-meta span{padding:.35rem .52rem;border:1px solid var(--store-border);border-radius:999px;font:800 .72rem "Barlow Condensed",sans-serif;letter-spacing:.06em}
+.drop-price{
+  margin:.3rem 0 .75rem;
+  font:900 1.75rem "Barlow Condensed",sans-serif;
+  letter-spacing:.04em;
+  color:var(--store-green);
+}
+.drop-price small{display:block;margin-top:.2rem;color:var(--store-muted);font:500 .78rem Inter,sans-serif;letter-spacing:0}
+.product-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.store-primary,
+.store-secondary,
+.store-disabled{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:.7rem .9rem;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);
+  font:900 .9rem "Barlow Condensed",sans-serif;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.store-primary{color:#050608;background:var(--store-green);border-color:var(--store-green)}
+.store-primary:hover{filter:brightness(1.08)}
+.store-secondary{color:#fff;background:rgba(255,255,255,.025)}
+.store-secondary:hover{border-color:rgba(57,215,255,.45);color:var(--store-blue)}
+.store-disabled{color:#80848b;background:rgba(255,255,255,.025);cursor:not-allowed}
+
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1rem;
+}
+.product-card{
+  overflow:hidden;
+  padding:0!important;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.product-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(138,255,43,.31)!important;
+  box-shadow:0 15px 40px rgba(0,0,0,.22);
+}
+.product-art{
+  position:relative;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  background:#020304;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.product-art img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s ease}
+.product-card:hover .product-art img{transform:scale(1.025)}
+.product-badge{
+  position:absolute;
+  z-index:2;
+  top:10px;
+  left:10px;
+  padding:.32rem .5rem;
+  border:1px solid rgba(255,45,149,.5);
+  border-radius:999px;
+  background:rgba(0,0,0,.75);
+  color:var(--store-pink);
+  font:900 .72rem "Barlow Condensed",sans-serif;
+  letter-spacing:.08em;
+}
+.product-copy{padding:1rem 1rem 1.1rem;display:flex;flex-direction:column;flex:1}
+.product-copy h3{margin:.1rem 0 .35rem;font:900 2.3rem/.9 "Barlow Condensed",sans-serif;text-transform:uppercase}
+.product-copy p{font-size:.91rem;line-height:1.55}
+.product-copy .product-actions{margin-top:auto;padding-top:.6rem}
+.product-price{margin:.55rem 0;color:var(--store-green);font:900 1.42rem "Barlow Condensed",sans-serif}
+.product-price em{font-style:normal;color:var(--store-pink)}
+.product-note{font-size:.73rem!important;color:var(--store-muted)}
+
+.bundle-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.bundle-card{padding:1.1rem!important}
+.bundle-card h3{font:900 2.4rem/.9 "Barlow Condensed",sans-serif;margin:.1rem 0 .45rem}
+.bundle-card ul{margin:.7rem 0;padding-left:1.2rem}
+.bundle-card li{margin:.34rem 0;color:#d9dce1}
+.bundle-card strong{color:var(--store-green)}
+
+.commerce-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1rem;
+}
+.commerce-card{padding:1.05rem!important}
+.commerce-card .commerce-icon{font-size:2rem}
+.commerce-card h3{margin:.2rem 0 .35rem;font:900 2rem "Barlow Condensed",sans-serif;text-transform:uppercase}
+.commerce-card p{font-size:.88rem;line-height:1.55}
+
+.order-flow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:.75rem;
+}
+.order-step{padding:1rem!important;position:relative;overflow:hidden}
+.order-step .step-no{
+  display:block;
+  margin-bottom:.45rem;
+  color:var(--store-pink);
+  font:900 2rem "Barlow Condensed",sans-serif;
+}
+.order-step h3{font:900 1.75rem "Barlow Condensed",sans-serif;margin:.05rem 0 .35rem}
+.order-step p{font-size:.84rem;line-height:1.5}
+
+.faq-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+.faq-item{padding:1rem!important}
+.faq-item h3{margin:.05rem 0 .35rem;font:900 1.65rem "Barlow Condensed",sans-serif}
+.faq-item p{font-size:.88rem;line-height:1.55}
+
+.future-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}
+.future-item{padding:1rem!important;text-align:center}
+.future-item .future-icon{font-size:2rem;display:block;margin-bottom:.3rem}
+.future-item h3{font:900 1.55rem "Barlow Condensed",sans-serif;margin:.1rem 0}
+.future-item p{font-size:.8rem;color:var(--store-muted)}
+
+.store-callout{
+  margin-top:1rem;
+  padding:1.2rem!important;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:1rem;
+  align-items:center;
+  border-color:rgba(57,215,255,.25)!important;
+  background:linear-gradient(90deg,rgba(57,215,255,.055),rgba(255,45,149,.045)),rgba(7,8,11,.96)!important;
+}
+.store-callout h2{margin:.1rem 0;font:900 clamp(2rem,5vw,3.7rem)/.88 "Barlow Condensed",sans-serif}
+.store-callout p{max-width:780px}
+
+.store-legal{
+  margin-top:1rem;
+  padding:1rem!important;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:1rem;
+  align-items:center;
+}
+.store-legal-links{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:flex-end}
+.store-legal-links a{color:#d4d7dd;font-size:.8rem;border-bottom:1px dotted rgba(255,255,255,.25)}
+.store-legal-links a:hover{color:var(--store-green)}
+.store-fineprint{font-size:.72rem;color:var(--store-muted);line-height:1.55}
+
+.store-footer{
+  padding:1.2rem 0 5.5rem;
+  text-align:center;
+  color:var(--store-muted);
+  font-size:.75rem;
+}
+.store-footer strong{color:var(--store-green)}
+
+@media(max-width:950px){
+  .product-grid{grid-template-columns:1fr 1fr}
+  .commerce-grid{grid-template-columns:1fr 1fr}
+  .order-flow{grid-template-columns:1fr 1fr}
+  .future-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .store-hero{grid-template-columns:1fr;min-height:560px;background-position:center!important}
+  .store-hero-copy{align-self:end;padding-top:12rem}
+  .store-hero-ghost{display:none}
+  .featured-drop{grid-template-columns:1fr}
+  .featured-drop-art{min-height:280px}
+  .product-grid,.bundle-grid,.commerce-grid,.faq-grid{grid-template-columns:1fr}
+  .store-callout,.store-legal{grid-template-columns:1fr}
+  .store-legal-links{justify-content:flex-start}
+  .store-section-head{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:480px){
+  .order-flow,.future-grid{grid-template-columns:1fr}
+  .store-hero h1{font-size:4.2rem}
+  .store-hero-copy{padding-top:10rem}
+}
 </style>
 </head>
+
 <body>
-<div class="bg-grid"></div><div class="scanlines"></div>
+<div class="bg-grid"></div>
+<div class="scanlines"></div>
+
 <header class="hero-banner">
-  <a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network" /></a>
+  <a href="index.html">
+    <img src="assets/images/ttd-banner.png" alt="TTD HQ // Tactical Terror Division" />
+  </a>
   <div class="hero-overlay"></div>
 </header>
-<main class="app-shell page-shell">
+
+<main class="app-shell page-shell store-shell">
+
 <section class="network-strip panel">
   <div><span class="pulse-dot"></span><span>STORE // LOOT VAULT</span></div>
-  <div>COMMERCE GRID // ARMED</div>
+  <div>TACTICALTERRORDIVISION.COM // COMMERCE GRID</div>
 </section>
 
-<section class="panel store-launch">
-  <p class="eyebrow">TTD STORE // TITAN CITY COMMERCE</p>
-  <h1>LOOT VAULT</h1>
-  <p class="store-launch-copy">Posters, stickers, roster cards, digital drops and future physical loot — one storefront, one mutant checkout path.</p>
-  <span class="commerce-status">STOREFRONT READY // PRODUCT LOADING</span>
+<section class="panel store-hero">
+  <div class="store-hero-copy">
+    <span class="store-kicker">TTD STORE // FIRST DROPS ARMING</span>
+    <h1>LOOT<br>VAULT</h1>
+    <h2>WE MADE THE MUTATION. NOW YOU CAN STICK IT TO THINGS.</h2>
+    <p>Official Tactical Terror Division sticker packs, mutant art, Titan City propaganda, digital drops and future physical loot. Built loud. Printed louder. Mildly irresponsible around clean surfaces.</p>
+
+    <div class="store-hero-actions">
+      <a class="store-primary" href="#sticker-drops">VIEW STICKER DROPS →</a>
+      <a class="store-secondary" href="payments.html">OPEN PAYMENT GRID →</a>
+      <a class="store-secondary" href="mailto:TTDHQ@proton.me?subject=TTD%20Store%20Order%20Enquiry">ORDER ENQUIRY →</a>
+    </div>
+
+    <div class="store-status-line">
+      <span>FIRST DROP // STICKERS</span>
+      <span>LIGHTNING READY</span>
+      <span>PAYPAL CONTACT READY</span>
+      <span>AUSTRALIA BASED</span>
+      <span>WORLD DOMINATION // PENDING</span>
+    </div>
+  </div>
+  <div class="store-hero-ghost" aria-hidden="true"></div>
 </section>
 
-<div class="catalog-head">
-  <div><p class="eyebrow">PRODUCT GRID</p><h2>FIRST DROP SLOTS</h2></div>
-  <span>4 PRODUCT LANES READY</span>
-</div>
-
-<section class="product-grid">
-  <article class="panel product-card">
-    <span class="drop-badge">DROP SLOT 01</span>
-    <div class="product-art"><div class="product-placeholder">TTD POSTERS</div></div>
-    <div class="product-copy">
-      <p class="eyebrow">PRINT / DIGITAL ART</p><h3>POSTER DROPS</h3>
-      <p>Power Command, Hardcase ’87, Titan Babe, district propaganda and future launch posters.</p>
-      <div class="product-meta"><span>PORTRAIT</span><span>FULL HD</span><span>LIMITED DROPS</span></div>
-      <div class="product-price">PRICE TO LOAD</div>
-      <div class="product-actions"><a class="read-comic-btn" href="payments.html">PAYMENT GRID →</a></div>
-    </div>
-  </article>
-
-  <article class="panel product-card">
-    <span class="drop-badge">DROP SLOT 02</span>
-    <div class="product-art"><div class="product-placeholder">STICKER PACKS</div></div>
-    <div class="product-copy">
-      <p class="eyebrow">TTD ICONS / MUTANT MARKS</p><h3>STICKER PACKS</h3>
-      <p>Skulls, factions, character marks, Skull Juice, Titan City districts and arcade insignia.</p>
-      <div class="product-meta"><span>PACKS</span><span>CHARACTERS</span><span>LOGOS</span></div>
-      <div class="product-price">PRICE TO LOAD</div>
-      <div class="product-actions"><a class="read-comic-btn" href="payments.html">PAYMENT GRID →</a></div>
-    </div>
-  </article>
-
-  <article class="panel product-card">
-    <span class="drop-badge">DROP SLOT 03</span>
-    <div class="product-art"><div class="product-placeholder">ROSTER CARDS</div></div>
-    <div class="product-copy">
-      <p class="eyebrow">TITAN CITY COLLECTIBLES</p><h3>ROSTER CARDS</h3>
-      <p>Hardcase ’87, Nikki Nitro, Grim Ledger, Dex Volt and the expanding TTD roster.</p>
-      <div class="product-meta"><span>DIGITAL</span><span>PRINTABLE</span><span>SERIES</span></div>
-      <div class="product-price">PRICE TO LOAD</div>
-      <div class="product-actions"><a class="read-comic-btn" href="payments.html">PAYMENT GRID →</a></div>
-    </div>
-  </article>
-
-  <article class="panel product-card">
-    <span class="drop-badge">DROP SLOT 04</span>
-    <div class="product-art"><img src="assets/images/module-store.png" alt="TTD Loot Vault"></div>
-    <div class="product-copy">
-      <p class="eyebrow">FUTURE PHYSICAL DROP</p><h3>MUTANT LOOT</h3>
-      <p>Action-figure boxes, apparel, towels, flags and physical Titan City merchandise can land here when production is ready.</p>
-      <div class="product-meta"><span>PHYSICAL</span><span>LIMITED RUN</span><span>COMING NEXT</span></div>
-      <div class="product-price">NOT YET FOR SALE</div>
-    </div>
-  </article>
-</section>
-
-<section class="commerce-grid">
-  <article class="panel">
-    <p class="eyebrow">CHECKOUT PATH</p><h2>COMMERCE RAILS</h2>
-    <p>The public site already has a payment page. Product buttons now route into that payment grid while we keep private credentials off GitHub Pages.</p>
-    <div class="checklist">
-      <div><b>⚡ LIGHTNING</b> // sats rail available</div>
-      <div><b>PAYPAL</b> // standard payment contact available</div>
-      <div><b>PRODUCT CTAs</b> // wired into the store layout</div>
-      <div><b>CHECKOUT PROVIDER</b> // optional upgrade later</div>
-    </div>
-    <div class="store-actions"><a class="read-comic-btn" href="payments.html">OPEN PAYMENT GRID →</a></div>
-  </article>
-
-  <article class="panel">
-    <p class="eyebrow">LAUNCH CHECKLIST</p><h2>WHAT WE LOAD NEXT</h2>
-    <div class="checklist">
-      <div><b>1.</b> Final product artwork / mockups</div>
-      <div><b>2.</b> Final prices and currencies</div>
-      <div><b>3.</b> Fulfilment method: digital / print-on-demand / stock</div>
-      <div><b>4.</b> Shipping regions for physical goods</div>
-      <div><b>5.</b> Refund / delivery terms before physical launch</div>
-    </div>
-    <p class="fineprint">The storefront is commerce-ready structurally. No item above is represented as purchasable until its price, fulfilment and actual product file or physical supply are loaded.</p>
-  </article>
-</section>
-
-<section class="panel store-commerce" style="margin-top:1rem">
-  <p class="eyebrow">DIGITAL COMMERCE</p>
-  <h2>COMICS STAY FREE // DROPS CAN GO PAID</h2>
-  <p>Issues #1–#3 remain free. Future digital issues and product drops can use the same commerce grid without cluttering the reader.</p>
-  <div class="store-actions">
-    <a class="read-comic-btn" href="comics.html">OPEN COMIC LIBRARY →</a>
-    <a class="action-link" href="payments.html">SUPPORT / PAYMENTS →</a>
+<section class="panel store-ticker" aria-label="TTD store ticker">
+  <b>LOOT FEED //</b>
+  <div class="store-ticker-track">
+    DRRRRRT STICKER • SKULL JUICE • MASS EXTINCTION M60 • TTD SKULL PACK • POSTERS NEXT • ROSTER CARDS NEXT • TITAN CITY PROPAGANDA • POWER COMMAND • HARDCASE ’87 • NIKKI NITRO • MUTANT LOOPS • SKULL JUICE •
+    &nbsp;&nbsp;&nbsp;
+    DRRRRRT STICKER • SKULL JUICE • MASS EXTINCTION M60 • TTD SKULL PACK • POSTERS NEXT • ROSTER CARDS NEXT • TITAN CITY PROPAGANDA • POWER COMMAND • HARDCASE ’87 • NIKKI NITRO • MUTANT LOOPS • SKULL JUICE •
   </div>
 </section>
+
+<section id="sticker-drops">
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">DROP 001 // STICKER WARFARE</span>
+      <h2>FIRST PRODUCTS IN THE VAULT</h2>
+      <p>The first commercial lane is now defined around the actual TTD sticker artwork. Individual hero designs plus the larger skull collection give us both single-product and bundle options.</p>
+    </div>
+    <div class="store-section-code">VAULT // 001</div>
+  </div>
+
+  <article class="panel featured-drop">
+    <div class="featured-drop-art">
+      <img src="assets/images/store/ttd-skull-pack.jpg" alt="TTD Tactical Terror Division skull sticker pack" />
+    </div>
+    <div class="featured-drop-copy">
+      <span class="store-kicker">FEATURED DROP // TTD SKULL PACK</span>
+      <h3>SKULL<br>PACK</h3>
+      <p class="drop-desc">A full sheet of Tactical Terror Division skull marks: tactical skulls, radioactive variants, neon city heads, spiked helmets, dog tags, playing-card chaos and enough glowing eye sockets to make a laptop look actively hostile.</p>
+
+      <div class="drop-meta">
+        <span>MULTI-STICKER SHEET</span>
+        <span>DIE-CUT STYLE</span>
+        <span>TTD NEON</span>
+        <span>TACTICAL SKULL SERIES</span>
+        <span>DROP 001</span>
+      </div>
+
+      <div class="drop-price">
+        PRICE // LOAD NEXT
+        <small>Final sale price will be added once print size, material and fulfilment cost are locked.</small>
+      </div>
+
+      <div class="product-actions">
+        <a class="store-primary" href="mailto:TTDHQ@proton.me?subject=TTD%20Skull%20Pack%20Interest">REGISTER INTEREST →</a>
+        <a class="store-secondary" href="payments.html">PAYMENT GRID →</a>
+      </div>
+    </div>
+  </article>
+
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">HERO STICKERS</span>
+      <h2>INDIVIDUAL MUTATIONS</h2>
+    </div>
+    <div class="store-section-code">3 DESIGNS // ONLINE</div>
+  </div>
+
+  <div class="product-grid">
+
+    <article class="panel product-card">
+      <div class="product-art">
+        <span class="product-badge">DROP 001-A</span>
+        <img src="assets/images/store/drrrrt-sticker.jpg" alt="DRRRRT Tactical Terror Division machine gun sticker" />
+      </div>
+      <div class="product-copy">
+        <span class="store-kicker">HARDCASE WARFARE</span>
+        <h3>DRRRRT!</h3>
+        <p>Hardcase-style jungle mayhem, belt-fed irresponsibility, helicopters, brass and enough muzzle flash to illuminate the entire Nutrition District.</p>
+        <div class="drop-meta">
+          <span>HARDCASE</span>
+          <span>MACHINE GUN</span>
+          <span>JUNGLE</span>
+          <span>NEON 80s</span>
+        </div>
+        <div class="product-price">PRICE // <em>ARMING</em></div>
+        <p class="product-note">Artwork locked. Physical size, stock format and sale price still to be loaded.</p>
+        <div class="product-actions">
+          <a class="store-primary" href="mailto:TTDHQ@proton.me?subject=DRRRRT%20Sticker%20Interest">REGISTER INTEREST →</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel product-card">
+      <div class="product-art">
+        <span class="product-badge">DROP 001-B</span>
+        <img src="assets/images/store/skull-juice-sticker.jpg" alt="Skull Juice radioactive mutant sticker" />
+      </div>
+      <div class="product-copy">
+        <span class="store-kicker">NUTRITION DISTRICT</span>
+        <h3>SKULL JUICE</h3>
+        <p>Radioactive sludge, screaming skull, neon can and the official Titan City nutritional doctrine: drink at your own risk and absolutely blame the label later.</p>
+        <div class="drop-meta">
+          <span>SKULL JUICE</span>
+          <span>RADIOACTIVE</span>
+          <span>NEON SLIME</span>
+          <span>TITAN CITY</span>
+        </div>
+        <div class="product-price">PRICE // <em>ARMING</em></div>
+        <p class="product-note">Designed as a hero product and ideal anchor for future Skull Juice merch.</p>
+        <div class="product-actions">
+          <a class="store-primary" href="mailto:TTDHQ@proton.me?subject=Skull%20Juice%20Sticker%20Interest">REGISTER INTEREST →</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel product-card">
+      <div class="product-art">
+        <span class="product-badge">DROP 001-C</span>
+        <img src="assets/images/store/mass-extinction-m60-sticker.jpg" alt="Mass Extinction M60 Tactical Terror Division sticker" />
+      </div>
+      <div class="product-copy">
+        <span class="store-kicker">MAXIMUM MAYHEM PLATFORM</span>
+        <h3>MASS EXTINCTION M60</h3>
+        <p>The larger maximum-mayhem design: jungle fire, helicopters, skulls, ammunition belts and an M60 that appears to have been issued its own municipal postcode.</p>
+        <div class="drop-meta">
+          <span>M60</span>
+          <span>HEAVY WEAPON</span>
+          <span>JUNGLE WAR</span>
+          <span>MAXIMUM MAYHEM</span>
+        </div>
+        <div class="product-price">PRICE // <em>ARMING</em></div>
+        <p class="product-note">Best candidate for an oversized premium die-cut sticker.</p>
+        <div class="product-actions">
+          <a class="store-primary" href="mailto:TTDHQ@proton.me?subject=Mass%20Extinction%20M60%20Sticker%20Interest">REGISTER INTEREST →</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">BUNDLE DOCTRINE</span>
+      <h2>SELL THEM INDIVIDUALLY. SELL THEM TOGETHER.</h2>
+      <p>The store now has room for simple singles and higher-value bundle offers once final print costs are known.</p>
+    </div>
+    <div class="store-section-code">AOV // PREP</div>
+  </div>
+
+  <div class="bundle-grid">
+    <article class="panel bundle-card">
+      <span class="store-kicker">BUNDLE A</span>
+      <h3>THE DRRRRRT PACK</h3>
+      <p>Three hero designs built around the loudest parts of the TTD universe.</p>
+      <ul>
+        <li><strong>1× DRRRRRT!</strong> hero sticker</li>
+        <li><strong>1× Skull Juice</strong> hero sticker</li>
+        <li><strong>1× Mass Extinction M60</strong> hero sticker</li>
+      </ul>
+      <div class="product-price">BUNDLE PRICE // LOAD NEXT</div>
+    </article>
+
+    <article class="panel bundle-card">
+      <span class="store-kicker">BUNDLE B</span>
+      <h3>THE FULL MUTATION</h3>
+      <p>The larger launch bundle once production is locked.</p>
+      <ul>
+        <li><strong>3× hero designs</strong></li>
+        <li><strong>1× TTD Skull Pack</strong></li>
+        <li><strong>Future bonus card / insert</strong> slot reserved</li>
+      </ul>
+      <div class="product-price">BUNDLE PRICE // LOAD NEXT</div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">COMMERCE GRID</span>
+      <h2>PAYMENT RAILS</h2>
+      <p>The site already has working support/payment rails. Until a full product checkout provider is connected, the store keeps orders explicit and avoids pretending a manual rail is an automated checkout.</p>
+    </div>
+    <div class="store-section-code">COMMERCE // SAFE MODE</div>
+  </div>
+
+  <div class="commerce-grid">
+    <article class="panel commerce-card">
+      <div class="commerce-icon">⚡</div>
+      <h3>Bitcoin Lightning</h3>
+      <p>TTD’s Lightning rail remains available through the payment grid for sats-based support and future product settlement.</p>
+      <div class="product-actions"><a class="store-secondary" href="payments.html">OPEN LIGHTNING →</a></div>
+    </article>
+
+    <article class="panel commerce-card">
+      <div class="commerce-icon">P</div>
+      <h3>PayPal / Fiat</h3>
+      <p>The current PayPal path uses the TTD payment contact. Product-specific hosted checkout can replace this later without changing the store layout.</p>
+      <div class="product-actions"><a class="store-secondary" href="payments.html">OPEN PAYMENTS →</a></div>
+    </article>
+
+    <article class="panel commerce-card">
+      <div class="commerce-icon">✉</div>
+      <h3>Order Contact</h3>
+      <p>For early drops, product interest and order questions can be routed directly to the TTD HQ commerce inbox.</p>
+      <div class="product-actions"><a class="store-secondary" href="mailto:TTDHQ@proton.me?subject=TTD%20Store%20Enquiry">CONTACT TTD HQ →</a></div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">ORDER FLOW</span>
+      <h2>HOW A DROP MOVES</h2>
+    </div>
+    <div class="store-section-code">4 STEPS // NO MYSTERY</div>
+  </div>
+
+  <div class="order-flow">
+    <article class="panel order-step">
+      <span class="step-no">01</span>
+      <h3>SELECT THE LOOT</h3>
+      <p>Choose the sticker, pack or future product you want from the Loot Vault.</p>
+    </article>
+    <article class="panel order-step">
+      <span class="step-no">02</span>
+      <h3>CONFIRM THE DROP</h3>
+      <p>Early-stage products use an explicit enquiry/confirmation path until final stock and pricing are armed.</p>
+    </article>
+    <article class="panel order-step">
+      <span class="step-no">03</span>
+      <h3>PAY SECURELY</h3>
+      <p>Use the available payment rail or future hosted checkout. No private payment credentials belong in public GitHub code.</p>
+    </article>
+    <article class="panel order-step">
+      <span class="step-no">04</span>
+      <h3>DEPLOYMENT</h3>
+      <p>Digital products deliver electronically. Physical products ship according to the delivery terms shown when that product goes live.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">NEXT IN THE VAULT</span>
+      <h2>PRODUCT LANES READY</h2>
+      <p>Sticker Drop 001 gets the store moving. These lanes can be populated next without another redesign.</p>
+    </div>
+    <div class="store-section-code">ROADMAP // ACTIVE</div>
+  </div>
+
+  <div class="future-grid">
+    <article class="panel future-item">
+      <span class="future-icon">🖼️</span>
+      <h3>POSTERS</h3>
+      <p>Power Command, character art, district propaganda and Titan City launch posters.</p>
+    </article>
+    <article class="panel future-item">
+      <span class="future-icon">🃏</span>
+      <h3>ROSTER CARDS</h3>
+      <p>Hardcase ’87, Nikki Nitro, Grim Ledger, Dex Volt and expanding character sets.</p>
+    </article>
+    <article class="panel future-item">
+      <span class="future-icon">📚</span>
+      <h3>DIGITAL COMICS</h3>
+      <p>Issues #1–#3 stay free. Future premium drops can use this same commerce architecture.</p>
+    </article>
+    <article class="panel future-item">
+      <span class="future-icon">☠️</span>
+      <h3>MUTANT LOOT</h3>
+      <p>Flags, towels, apparel, boxes, collectibles and whatever Titan City accidentally manufactures next.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="store-section-head">
+    <div>
+      <span class="store-kicker">FAQ // BEFORE THE RIOT</span>
+      <h2>STORE QUESTIONS</h2>
+    </div>
+    <div class="store-section-code">SUPPORT // ONLINE</div>
+  </div>
+
+  <div class="faq-grid">
+    <article class="panel faq-item">
+      <h3>ARE THE STICKERS FOR SALE YET?</h3>
+      <p>The artwork is loaded into the storefront. Final sale pricing should only go live after print dimensions, material, supplier cost and fulfilment are locked.</p>
+    </article>
+    <article class="panel faq-item">
+      <h3>WHAT CURRENCY WILL THE STORE USE?</h3>
+      <p>The storefront can display normal fiat pricing and retain the existing Bitcoin Lightning rail as an alternate option.</p>
+    </article>
+    <article class="panel faq-item">
+      <h3>DO YOU SHIP INTERNATIONALLY?</h3>
+      <p>International regions should be listed only once the physical fulfilment route is confirmed. Until then, no shipping promise is made here.</p>
+    </article>
+    <article class="panel faq-item">
+      <h3>WHAT ABOUT DIGITAL PRODUCTS?</h3>
+      <p>Digital posters, cards or future paid comic drops can be delivered without physical shipping and can use separate fulfilment wording.</p>
+    </article>
+    <article class="panel faq-item">
+      <h3>WHY NO CART YET?</h3>
+      <p>The site is static GitHub Pages. A hosted checkout can be added when real product pricing is ready rather than exposing secrets or pretending a manual payment contact is a full cart.</p>
+    </article>
+    <article class="panel faq-item">
+      <h3>WHO DO I CONTACT?</h3>
+      <p>Store enquiries can go to <strong>TTDHQ@proton.me</strong>. Product-specific subject lines are already wired into the buttons above.</p>
+    </article>
+  </div>
+</section>
+
+<section class="panel store-callout">
+  <div>
+    <span class="store-kicker">TTD HQ // THE STORE IS NOW A REAL MODULE</span>
+    <h2>FIRST DROP ART LOADED. PRODUCT SYSTEM ARMED.</h2>
+    <p>The page now supports hero products, individual listings, bundles, payment routing, product roadmaps, order explanations and commercial support without needing another structural rebuild.</p>
+  </div>
+  <div class="product-actions">
+    <a class="store-primary" href="#sticker-drops">BACK TO DROP 001 ↑</a>
+  </div>
+</section>
+
+<section class="panel store-legal">
+  <div>
+    <span class="store-kicker">COMMERCIAL NOTE</span>
+    <p class="store-fineprint">Product artwork shown on this page is part of the Tactical Terror Division storefront presentation. Final prices, physical dimensions, materials, shipping regions, delivery times and refund conditions must be confirmed before a physical item is represented as immediately purchasable.</p>
+  </div>
+  <div class="store-legal-links">
+    <a href="payments.html">Payments</a>
+    <a href="comics.html">Comics</a>
+    <a href="arcade.html">Arcade</a>
+    <a href="index.html">TTD HQ</a>
+    <a href="mailto:TTDHQ@proton.me">Contact</a>
+  </div>
+</section>
+
+<footer class="store-footer">
+  <strong>TACTICAL TERROR DIVISION</strong><br>
+  TITAN CITY NETWORK // TTD HQ // tacticalterrordivision.com
+</footer>
+
 </main>
+
 <nav class="bottom-nav" aria-label="TTD HQ navigation">
   <a href="index.html">HQ</a>
   <a href="map.html">MAP</a>
   <a href="comics.html">COMICS</a>
-  <a href="dossiers.html">CREW</a>
-  <a href="tbn.html">TBN</a>
+  <a href="arcade.html">ARCADE</a>
+  <a href="store.html" aria-current="page">STORE</a>
 </nav>
+
 <script src="app.js"></script>
+
+<script>
+(function(){
+  const storeLinks = document.querySelectorAll('a[href^="#"]');
+  storeLinks.forEach(link=>{
+    link.addEventListener("click",function(e){
+      const id=this.getAttribute("href");
+      if(id && id.length>1){
+        const target=document.querySelector(id);
+        if(target){
+          e.preventDefault();
+          target.scrollIntoView({behavior:"smooth",block:"start"});
+        }
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
