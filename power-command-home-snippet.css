@@ -1,0 +1,82 @@
+/* ============================================================
+   POWER COMMAND // HQ HOME INTRO
+   Add this block to commercial.css
+   ============================================================ */
+
+.power-command-home-intro{
+  overflow:hidden;
+  border-color:rgba(57,215,255,.36)!important;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(57,215,255,.10),transparent 28%),
+    radial-gradient(circle at 10% 88%,rgba(255,45,149,.08),transparent 32%),
+    rgba(6,8,12,.96)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.26);
+}
+
+.power-command-home-media{
+  position:relative;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:#040608;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.power-command-home-media::after{
+  content:'POWER COMMAND // LIBERATE THE SECTORS';
+  position:absolute;
+  left:12px;
+  bottom:12px;
+  z-index:2;
+  padding:.42rem .58rem;
+  border-radius:999px;
+  border:1px solid rgba(138,255,43,.34);
+  background:rgba(4,6,8,.84);
+  color:#8aff2b;
+  font:900 .78rem "Barlow Condensed",sans-serif;
+  letter-spacing:.07em;
+}
+.power-command-home-media img{
+  display:block;
+  width:100%;
+  height:auto;
+  object-fit:cover;
+}
+
+.power-command-home-copy{
+  justify-content:center;
+}
+.power-command-home-copy h2{
+  background:linear-gradient(90deg,#8aff2b,#ffffff,#39d7ff,#ff2d95);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:none!important;
+}
+.power-command-home-copy strong{
+  color:#39d7ff;
+}
+.power-command-home-copy .ttd-pc-badge{
+  display:inline-flex;
+  align-self:flex-start;
+  padding:.38rem .62rem;
+  border-radius:999px;
+  border:1px solid rgba(57,215,255,.4);
+  background:rgba(57,215,255,.08);
+  color:#39d7ff;
+  font:900 .78rem "Barlow Condensed",sans-serif;
+  letter-spacing:.08em;
+  margin-bottom:.45rem;
+}
+
+@media(max-width:760px){
+  .power-command-home-media{
+    border-radius:14px;
+  }
+  .power-command-home-media::after{
+    left:10px;
+    right:10px;
+    bottom:10px;
+    text-align:center;
+    font-size:.74rem;
+  }
+}
