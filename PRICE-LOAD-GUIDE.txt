@@ -1,0 +1,34 @@
+TTD HQ // CHECKOUT PRICE LOAD GUIDE
+==================================
+
+PRICES LIVE IN:
+checkout-catalog.js
+
+CURRENT EXAMPLE:
+"price": null
+
+TO LOAD A REAL PRICE:
+"price": 8.95
+
+CURRENCY IS CURRENTLY:
+"AUD"
+
+PRODUCT IDS:
+skull-pack
+drrrrt
+skull-juice
+mass-extinction
+drrrrt-pack
+full-mutation
+
+IMPORTANT:
+Only load a price after the actual product cost/size/material is confirmed.
+Shipping remains separate unless you deliberately add shipping logic later.
+
+Once every selected product has a numeric price, checkout automatically:
+- calculates line totals
+- calculates estimated product total
+- changes the TBA total display into formatted AUD
+- changes the payment hold wording
+
+No other code changes required.

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<meta name="theme-color" content="#08070d" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Checkout // Tactical Terror Division</title>
+<meta name="description" content="TTD HQ checkout bridge for Tactical Terror Division store orders, product selection, order references and payment handoff." />
+<meta name="robots" content="noindex,follow" />
+<link rel="canonical" href="https://tacticalterrordivision.com/checkout.html" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="commercial.css?v=1" />
+<link rel="stylesheet" href="checkout.css?v=1" />
+</head>
+<body>
+<div class="bg-grid"></div><div class="scanlines"></div>
+
+<header class="hero-banner">
+<a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ // Tactical Terror Division"></a>
+</header>
+
+<main class="app-shell page-shell checkout-shell">
+<section class="network-strip panel">
+  <div><span class="pulse-dot"></span><span>CHECKOUT // ORDER GRID</span></div>
+  <div>STATIC-SAFE // NO PRIVATE KEYS</div>
+</section>
+
+<section class="panel checkout-hero">
+  <p class="eyebrow">TTD STORE // HARDCORE CHECKOUT BRIDGE</p>
+  <h1>BUILD THE ORDER</h1>
+  <p>Select your loot, set quantities, add buyer and delivery details, generate a unique TTD order reference, then hand the exact order summary into the payment/contact grid. Orders remain stored only in this browser unless you deliberately email or submit the summary through an external payment route.</p>
+  <div class="checkout-badges">
+    <span>LOCAL CART</span>
+    <span>ORDER REFERENCES</span>
+    <span>QUANTITY CONTROL</span>
+    <span>DELIVERY DETAILS</span>
+    <span>PAYMENT HANDOFF</span>
+    <span>NO BACKEND COSPLAY</span>
+  </div>
+</section>
+
+<section class="checkout-grid">
+  <div class="checkout-stack">
+    <article class="panel checkout-panel">
+      <span class="checkout-kicker">01 // CART</span>
+      <h2>Loot Manifest</h2>
+      <div id="cartList" class="cart-list"></div>
+      <div class="checkout-actions" style="grid-template-columns:1fr 1fr">
+        <a class="checkout-secondary" href="store.html">← BACK TO LOOT VAULT</a>
+        <button class="checkout-danger" id="clearCart" type="button">CLEAR CART</button>
+      </div>
+    </article>
+
+    <article class="panel checkout-panel">
+      <span class="checkout-kicker">ADD MORE // DROP 001</span>
+      <h2>Available Mutations</h2>
+      <div id="catalogMini" class="catalog-mini"></div>
+    </article>
+
+    <article class="panel checkout-panel">
+      <span class="checkout-kicker">02 // BUYER</span>
+      <h2>Contact + Delivery</h2>
+      <form id="checkoutForm" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="buyerName">Name *</label>
+            <input id="buyerName" name="buyerName" autocomplete="name" required maxlength="100">
+          </div>
+          <div class="field">
+            <label for="buyerEmail">Email *</label>
+            <input id="buyerEmail" name="buyerEmail" autocomplete="email" type="email" required maxlength="160">
+          </div>
+          <div class="field">
+            <label for="country">Country / Region *</label>
+            <select id="country" name="country" required>
+              <option value="">Select region</option>
+              <option>Australia</option>
+              <option>New Zealand</option>
+              <option>United States</option>
+              <option>Canada</option>
+              <option>United Kingdom</option>
+              <option>European Union</option>
+              <option>Other / Confirm first</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="postcode">Postcode / ZIP</label>
+            <input id="postcode" name="postcode" autocomplete="postal-code" maxlength="20">
+          </div>
+          <div class="field full">
+            <label for="address">Delivery Address</label>
+            <textarea id="address" name="address" autocomplete="street-address" maxlength="400"></textarea>
+            <div class="field-help">Physical-drop shipping is not promised until a product's regions/rates are confirmed.</div>
+          </div>
+          <div class="field">
+            <label for="paymentPreference">Preferred Payment</label>
+            <select id="paymentPreference" name="paymentPreference">
+              <option value="confirm-first">Confirm total first</option>
+              <option value="paypal">PayPal / fiat</option>
+              <option value="lightning">Bitcoin Lightning</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="contactPreference">Contact Preference</label>
+            <select id="contactPreference" name="contactPreference">
+              <option value="email">Email</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="orderNotes">Order Notes</label>
+            <textarea id="orderNotes" name="orderNotes" maxlength="500" placeholder="Size requests, bundle question, shipping note, excessive DRRRRRT, etc."></textarea>
+          </div>
+          <div class="field full">
+            <label style="display:flex;gap:.55rem;align-items:flex-start;text-transform:none;letter-spacing:0">
+              <input id="acceptTerms" type="checkbox" style="width:auto;margin-top:.2rem">
+              <span>I understand that products marked ARMING / TBA are not yet confirmed for immediate sale, and that final price, shipping and availability must be confirmed before payment.</span>
+            </label>
+          </div>
+        </div>
+      </form>
+    </article>
+
+    <article class="panel checkout-panel">
+      <span class="checkout-kicker">03 // ORDER FILE</span>
+      <h2>Generated Order Summary</h2>
+      <pre id="orderPreview" class="order-preview">Build the order above to generate the manifest.</pre>
+      <div class="checkout-actions" style="grid-template-columns:repeat(3,1fr)">
+        <button class="checkout-secondary" id="copyOrder" type="button">COPY ORDER</button>
+        <button class="checkout-secondary" id="saveOrderFile" type="button">SAVE .TXT</button>
+        <button class="checkout-secondary" id="newReference" type="button">NEW REFERENCE</button>
+      </div>
+      <p class="checkout-note">The order summary is generated in your browser. Saving/copying it does not transmit it to TTD HQ.</p>
+    </article>
+  </div>
+
+  <aside class="panel checkout-panel summary-box">
+    <span class="checkout-kicker">COMMAND SUMMARY</span>
+    <h2>Order Lock</h2>
+
+    <div class="order-ref">
+      <small>ORDER REFERENCE</small>
+      <strong id="orderRef">TTD-ORDER-PENDING</strong>
+    </div>
+
+    <div id="summaryLines" class="summary-lines"></div>
+    <div class="summary-total">
+      <span>ESTIMATED TOTAL</span>
+      <strong id="summaryTotal">TBA</strong>
+    </div>
+
+    <div id="paymentHold" class="payment-hold">
+      Drop 001 prices are not yet locked. Build the order now, but do not send payment until TTD HQ confirms the final total, shipping and availability.
+    </div>
+
+    <div class="checkout-actions">
+      <button class="checkout-primary" id="lockOrder" type="button">LOCK ORDER SUMMARY →</button>
+      <a class="checkout-secondary" id="emailOrder" href="#">EMAIL ORDER TO TTD HQ →</a>
+      <a class="checkout-secondary" id="paymentGrid" href="payments.html">OPEN PAYMENT GRID →</a>
+      <button class="checkout-danger" id="resetCheckout" type="button">RESET CHECKOUT</button>
+    </div>
+
+    <div id="checkoutStatus" class="checkout-status"></div>
+
+    <div class="checkout-legal">
+      <a href="terms.html">Terms</a>
+      <a href="shipping.html">Shipping</a>
+      <a href="refunds.html">Refunds</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="contact.html">Contact</a>
+    </div>
+
+    <p class="checkout-note">No card numbers, passwords, seed phrases or private keys should ever be entered into this checkout page or emailed to TTD HQ.</p>
+  </aside>
+</section>
+</main>
+
+<nav class="bottom-nav" aria-label="TTD HQ navigation">
+<a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="arcade.html">ARCADE</a><a href="store.html">STORE</a>
+</nav>
+
+<script src="checkout-catalog.js?v=1"></script>
+<script src="checkout.js?v=1"></script>
+<script src="app.js?v=11"></script>
+</body>
+</html>

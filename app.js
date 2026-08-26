@@ -342,3 +342,36 @@ if ('serviceWorker' in navigator) {
     } catch (_) {}
   });
 }
+
+
+/* ============================================================
+   TTD HQ // HARDCORE CHECKOUT ASSET BRIDGE
+   Loads store/payment commerce scripts only where needed.
+   ============================================================ */
+(() => {
+  const page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+  const loadScript = (src, marker) => {
+    if (document.querySelector(`script[data-${marker}]`)) return;
+    const s = document.createElement('script');
+    s.src = src;
+    s.defer = true;
+    s.setAttribute(`data-${marker}`,'1');
+    document.head.appendChild(s);
+  };
+
+  if (page === 'store.html') {
+    if (!document.querySelector('link[data-ttd-checkout-css]')) {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'checkout.css?v=1';
+      css.dataset.ttdCheckoutCss = '1';
+      document.head.appendChild(css);
+    }
+    loadScript('store-checkout-bridge.js?v=1','ttd-store-checkout');
+  }
+
+  if (page === 'payments.html') {
+    loadScript('payment-order-bridge.js?v=1','ttd-payment-order');
+  }
+})();

@@ -1,0 +1,215 @@
+
+/* =========================================================
+   TTD HQ // HARDCORE CHECKOUT
+   Static-site commerce UI for Tactical Terror Division.
+   ========================================================= */
+:root{
+  --co-green:#8aff2b;
+  --co-pink:#ff2d95;
+  --co-blue:#39d7ff;
+  --co-yellow:#ffe53b;
+  --co-bg:#050608;
+  --co-panel:#090b0f;
+  --co-border:rgba(255,255,255,.10);
+  --co-muted:#9399a3;
+}
+*{box-sizing:border-box}
+.checkout-shell{position:relative}
+.checkout-hero{
+  margin-top:1rem;
+  padding:clamp(1.1rem,4vw,2rem)!important;
+  border-color:rgba(138,255,43,.28)!important;
+  background:
+    radial-gradient(circle at 87% 8%,rgba(255,45,149,.11),transparent 28%),
+    radial-gradient(circle at 10% 90%,rgba(57,215,255,.08),transparent 30%),
+    rgba(5,6,9,.97)!important;
+}
+.checkout-hero h1{
+  margin:.1rem 0 .4rem;
+  font:900 clamp(3.5rem,10vw,7.7rem)/.78 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+  background:linear-gradient(90deg,var(--co-green),#fff,var(--co-pink));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.checkout-hero p{max-width:850px;line-height:1.62}
+.checkout-badges{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.85rem}
+.checkout-badges span{
+  padding:.34rem .5rem;border:1px solid var(--co-border);border-radius:999px;
+  font:800 .72rem "Barlow Condensed",sans-serif;letter-spacing:.07em;
+}
+.checkout-badges span:first-child{color:var(--co-green);border-color:rgba(138,255,43,.35)}
+
+.checkout-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);
+  gap:1rem;
+  margin-top:1rem;
+  align-items:start;
+}
+.checkout-stack{display:grid;gap:1rem}
+.checkout-panel{padding:1rem!important}
+.checkout-panel h2{
+  margin:.08rem 0 .6rem;
+  font:900 clamp(2rem,5vw,3.2rem)/.9 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+}
+.checkout-panel h3{
+  margin:.08rem 0 .4rem;
+  font:900 1.55rem "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+}
+.checkout-kicker{
+  color:var(--co-green);
+  font:900 .76rem "Barlow Condensed",sans-serif;
+  letter-spacing:.09em;text-transform:uppercase;
+}
+.cart-list{display:grid;gap:.65rem}
+.cart-empty{
+  padding:1rem;border:1px dashed rgba(255,255,255,.13);border-radius:12px;
+  color:var(--co-muted);text-align:center;
+}
+.cart-row{
+  display:grid;
+  grid-template-columns:72px 1fr auto;
+  gap:.75rem;
+  align-items:center;
+  padding:.65rem;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+.cart-row img{width:72px;height:72px;object-fit:cover;border-radius:9px;background:#020304}
+.cart-row h3{margin:0;font-size:1.35rem}
+.cart-sku{color:var(--co-muted);font-size:.72rem}
+.cart-price{margin-top:.24rem;color:var(--co-green);font:900 1rem "Barlow Condensed",sans-serif}
+.qty-controls{display:flex;align-items:center;gap:.35rem}
+.qty-btn,.remove-btn{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.025);
+  color:#fff;border-radius:8px;min-width:34px;min-height:34px;
+  font:900 .9rem "Barlow Condensed",sans-serif;
+}
+.remove-btn{color:var(--co-pink);padding:0 .55rem}
+.qty-count{min-width:28px;text-align:center;font-weight:800}
+
+.catalog-mini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.catalog-item{
+  padding:.7rem;border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;background:rgba(255,255,255,.02)
+}
+.catalog-item b{display:block;font:900 1.15rem "Barlow Condensed",sans-serif}
+.catalog-item small{display:block;color:var(--co-muted);margin:.2rem 0 .45rem}
+.add-btn,.checkout-primary,.checkout-secondary,.checkout-danger{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:.65rem .8rem;border-radius:9px;
+  border:1px solid rgba(255,255,255,.13);
+  font:900 .82rem "Barlow Condensed",sans-serif;letter-spacing:.07em;
+  text-transform:uppercase;text-decoration:none;
+}
+.add-btn,.checkout-primary{background:var(--co-green);color:#050608;border-color:var(--co-green)}
+.checkout-secondary{background:rgba(255,255,255,.025);color:#fff}
+.checkout-danger{background:rgba(255,45,149,.06);color:var(--co-pink);border-color:rgba(255,45,149,.28)}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.field{display:grid;gap:.3rem}
+.field.full{grid-column:1/-1}
+.field label{
+  font:800 .74rem "Barlow Condensed",sans-serif;
+  color:#dfe2e7;letter-spacing:.07em;text-transform:uppercase;
+}
+.field input,.field select,.field textarea{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:9px;
+  background:#05070a;
+  color:#fff;
+  padding:.72rem .75rem;
+  font:500 .9rem Inter,sans-serif;
+  outline:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:rgba(57,215,255,.55);
+  box-shadow:0 0 0 3px rgba(57,215,255,.06);
+}
+.field textarea{min-height:86px;resize:vertical}
+.field-help{font-size:.68rem;color:var(--co-muted)}
+.invalid{border-color:rgba(255,45,149,.8)!important}
+
+.summary-box{
+  position:sticky;top:12px;
+  overflow:hidden;
+  border-color:rgba(57,215,255,.26)!important;
+}
+.order-ref{
+  margin:.45rem 0 .75rem;
+  padding:.75rem;border:1px solid rgba(138,255,43,.24);
+  border-radius:10px;background:rgba(138,255,43,.035);
+}
+.order-ref small{display:block;color:var(--co-muted);font-size:.68rem}
+.order-ref strong{
+  display:block;margin-top:.12rem;color:var(--co-green);
+  font:900 1.35rem "Barlow Condensed",sans-serif;letter-spacing:.06em;
+  word-break:break-word;
+}
+.summary-lines{display:grid;gap:.42rem}
+.summary-line{display:flex;justify-content:space-between;gap:1rem;font-size:.84rem}
+.summary-line span:last-child{text-align:right;font-weight:700}
+.summary-total{
+  margin-top:.7rem;padding-top:.7rem;border-top:1px solid rgba(255,255,255,.10);
+  display:flex;justify-content:space-between;gap:1rem;
+  font:900 1.35rem "Barlow Condensed",sans-serif;
+}
+.summary-total strong{color:var(--co-green)}
+.payment-hold{
+  margin:.75rem 0;
+  padding:.72rem;
+  border:1px solid rgba(255,229,59,.23);
+  border-radius:10px;
+  background:rgba(255,229,59,.035);
+  color:#eee9d6;
+  font-size:.78rem;line-height:1.5;
+}
+.checkout-actions{display:grid;gap:.5rem;margin-top:.7rem}
+.checkout-actions .checkout-primary,.checkout-actions .checkout-secondary{width:100%}
+.checkout-status{
+  min-height:1.2rem;margin-top:.55rem;
+  color:var(--co-muted);font-size:.74rem;
+}
+.checkout-status.ok{color:var(--co-green)}
+.checkout-status.bad{color:var(--co-pink)}
+
+.order-preview{
+  white-space:pre-wrap;
+  background:#030406;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;
+  padding:.8rem;
+  font:500 .76rem/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color:#d7dbe0;
+  max-height:330px;overflow:auto;
+}
+.checkout-note{
+  margin-top:.7rem;color:var(--co-muted);font-size:.7rem;line-height:1.55
+}
+.checkout-legal{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.7rem}
+.checkout-legal a{color:var(--co-blue);font-size:.72rem}
+.store-checkout-btn{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:46px!important;padding:.7rem .9rem!important;border-radius:10px!important;
+  border:1px solid var(--co-green)!important;
+  background:var(--co-green)!important;color:#050608!important;
+  font:900 .9rem "Barlow Condensed",sans-serif!important;
+  letter-spacing:.07em!important;text-transform:uppercase!important;text-decoration:none!important;
+}
+
+@media(max-width:850px){
+  .checkout-grid{grid-template-columns:1fr}
+  .summary-box{position:static}
+}
+@media(max-width:620px){
+  .form-grid,.catalog-mini{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .cart-row{grid-template-columns:60px 1fr}
+  .cart-row img{width:60px;height:60px}
+  .qty-controls{grid-column:1/-1;justify-content:flex-end}
+}

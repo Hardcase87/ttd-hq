@@ -1,4 +1,4 @@
-const CACHE = 'ttd-hq-v10-site-finish';
+const CACHE = 'ttd-hq-v11-hardcore-checkout';
 const CORE = [
   './',
   './index.html',
@@ -13,6 +13,12 @@ const CORE = [
   './terms.html',
   './shipping.html',
   './refunds.html',
+  './checkout.html',
+  './checkout.css',
+  './checkout.js',
+  './checkout-catalog.js',
+  './store-checkout-bridge.js',
+  './payment-order-bridge.js',
   './styles.css',
   './commercial.css',
   './app.js',
