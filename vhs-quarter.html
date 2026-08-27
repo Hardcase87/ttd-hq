@@ -1,18 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" />
+<head>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#08070d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="TTD HQ" />
-<title>VHS QUARTER // TTD HQ</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" /></head>
+<link rel="stylesheet" href="styles.css" />
+<title>VHS QUARTER // TTD HQ</title>
+
+<style>
+.city-map-shell{padding:1rem}
+.city-map-master{
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.09);
+  background:#000;
+}
+.city-map-master img{display:block;width:100%;height:auto}
+.map-overlay-link{
+  position:absolute;z-index:2;
+  transform:translate(-50%,-50%);
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(167,255,0,.88);
+  border:2px solid #fff;
+  box-shadow:0 0 0 5px rgba(167,255,0,.12),0 0 22px rgba(167,255,0,.7);
+}
+.map-overlay-link:hover,.map-overlay-link:focus-visible{background:var(--pink);box-shadow:0 0 0 6px rgba(255,44,152,.15),0 0 24px rgba(255,44,152,.85);outline:none}
+.map-overlay-link span{
+  position:absolute;left:50%;top:27px;transform:translateX(-50%);
+  white-space:nowrap;
+  background:rgba(0,0,0,.88);
+  color:#fff;border:1px solid rgba(255,255,255,.12);
+  padding:.25rem .45rem;border-radius:7px;
+  font:800 .7rem "Barlow Condensed",sans-serif;
+  letter-spacing:.05em
+}
+.map-chip-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.map-chip-row span{padding:.45rem .6rem;border-radius:999px;border:1px solid rgba(255,255,255,.08);color:var(--muted);font:800 .72rem "Barlow Condensed",sans-serif;background:rgba(255,255,255,.025)}
+.map-chip-row b{color:var(--green)}
+.district-art{padding:0;overflow:hidden}
+.district-art img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.district-file-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:1rem}
+.district-intel-stack{display:grid;gap:1rem}
+.district-intel-stack article{padding:1rem}
+@media(max-width:760px){
+  .map-overlay-link span{display:none}
+  .map-overlay-link{width:18px;height:18px}
+  .district-file-layout{grid-template-columns:1fr}
+}
+</style>
+
+</head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
 <header class="hero-banner">
@@ -24,23 +70,26 @@
   <div><span class="pulse-dot"></span><span>DISTRICT FILE // VHS QUARTER</span></div>
   <div>STATUS // ONLINE</div>
 </section>
-
-<section class="panel district-file-hero">
-  <p class="eyebrow">TITAN CITY DISTRICT FILE</p>
-  <h1>VHS QUARTER</h1>
-  <strong>ANALOG NEON // STREET CHAOS</strong>
-  <p>The loudest, strangest corner of Titan City. Video stores, Night Owls, mutant pizza, alley fights and permanent 1987 signal interference.</p>
-  <div class="district-actions">
-    <a class="action-link" href="map.html">← BACK TO CITY MAP</a>
-    <span class="status-pill">MORE INTEL COMING</span>
+<div class="district-file-layout">
+  <section class="panel district-art"><img src="assets/images/map/vhs-quarter.jpg?v=1" alt="VHS QUARTER location artwork"></section>
+  <div class="district-intel-stack">
+    <section class="panel district-file-hero">
+      <p class="eyebrow">TITAN CITY DISTRICT FILE</p>
+      <h1>VHS QUARTER</h1>
+      <strong>ANALOG NEON // STREET CHAOS</strong>
+      <p>The loudest, strangest corner of Titan City. Video stores, Night Owls, mutant pizza, alley fights and permanent 1987 signal interference.</p>
+      <div class="district-actions">
+        <a class="action-link" href="map.html">← BACK TO CITY MAP</a>
+        <span class="status-pill">LOCATION ART // LIVE</span>
+      </div>
+    </section>
+    <section class="district-intel-grid">
+      <article class="panel"><p class="eyebrow">STATUS</p><h2>ACTIVE</h2><p>District systems are online and routed through TTD HQ.</p></article>
+      <article class="panel"><p class="eyebrow">THREAT LEVEL</p><h2>QUESTIONABLE</h2><p>Standard Titan City operating conditions.</p></article>
+      <article class="panel"><p class="eyebrow">FIELD NOTES</p><h2>OPEN FILE</h2><p>Local businesses, missions, characters and future location intel can be added here as the city expands.</p></article>
+    </section>
   </div>
-</section>
-
-<section class="district-intel-grid">
-  <article class="panel"><p class="eyebrow">STATUS</p><h2>ACTIVE</h2><p>District systems are online and routed through TTD HQ.</p></article>
-  <article class="panel"><p class="eyebrow">THREAT LEVEL</p><h2>QUESTIONABLE</h2><p>Standard Titan City operating conditions.</p></article>
-  <article class="panel"><p class="eyebrow">FIELD NOTES</p><h2>CLASSIFIED</h2><p>Character encounters, local businesses, mission files and dedicated district artwork can plug into this page next.</p></article>
-</section>
+</div>
 </main>
 <nav class="bottom-nav" aria-label="TTD HQ navigation">
 <a href="index.html">HQ</a>

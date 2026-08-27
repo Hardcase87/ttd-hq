@@ -1,118 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" />
+<head>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#08070d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="TTD HQ" />
-<title>City Map // TTD HQ</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css" />
+<title>City Map // TTD HQ</title>
+
 <style>
-/* CITY MAP // LIVE GRID FIX */
-.city-live-map{padding:1rem}
-.city-live-map .panel-head{margin-bottom:.8rem}
-.city-map-stage{
+.city-map-shell{padding:1rem}
+.city-map-master{
   position:relative;
   overflow:hidden;
   border-radius:18px;
-  border:1px solid rgba(255,255,255,.1);
-  background:#030407;
-  min-height:420px;
+  border:1px solid rgba(255,255,255,.09);
+  background:#000;
 }
-.city-map-stage>img{
-  display:block;
-  width:100%;
-  min-height:420px;
-  object-fit:cover;
-  object-position:center;
-  filter:saturate(1.08) contrast(1.04);
+.city-map-master img{display:block;width:100%;height:auto}
+.map-overlay-link{
+  position:absolute;z-index:2;
+  transform:translate(-50%,-50%);
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(167,255,0,.88);
+  border:2px solid #fff;
+  box-shadow:0 0 0 5px rgba(167,255,0,.12),0 0 22px rgba(167,255,0,.7);
 }
-.city-map-stage:after{
-  content:"";
-  position:absolute;inset:0;
-  pointer-events:none;
-  background:
-    linear-gradient(180deg,rgba(0,0,0,.08),transparent 28%,transparent 72%,rgba(0,0,0,.30)),
-    radial-gradient(circle at 50% 50%,transparent 42%,rgba(0,0,0,.28));
+.map-overlay-link:hover,.map-overlay-link:focus-visible{background:var(--pink);box-shadow:0 0 0 6px rgba(255,44,152,.15),0 0 24px rgba(255,44,152,.85);outline:none}
+.map-overlay-link span{
+  position:absolute;left:50%;top:27px;transform:translateX(-50%);
+  white-space:nowrap;
+  background:rgba(0,0,0,.88);
+  color:#fff;border:1px solid rgba(255,255,255,.12);
+  padding:.25rem .45rem;border-radius:7px;
+  font:800 .7rem "Barlow Condensed",sans-serif;
+  letter-spacing:.05em
 }
-.map-node{
-  position:absolute;
-  z-index:3;
-  text-decoration:none;
-  min-width:142px;
-  padding:.58rem .68rem;
-  border:1px solid rgba(167,255,0,.5);
-  background:rgba(4,7,8,.86);
-  color:#fff;
-  border-radius:10px;
-  backdrop-filter:blur(7px);
-  box-shadow:0 0 0 1px rgba(255,44,152,.12) inset,0 0 20px rgba(167,255,0,.08);
-  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
-}
-.map-node:hover,.map-node:focus-visible{
-  transform:scale(1.035);
-  border-color:var(--pink);
-  box-shadow:0 0 24px rgba(255,44,152,.2);
-  outline:none;
-}
-.map-node b{
-  display:block;
-  color:var(--green);
-  font:900 .92rem "Barlow Condensed",sans-serif;
-  letter-spacing:.06em;
-}
-.map-node small{display:block;color:var(--muted);font-size:.63rem;margin-top:.1rem}
-.map-node:before{
-  content:"";
-  display:inline-block;
-  width:7px;height:7px;border-radius:50%;
-  background:var(--green);
-  box-shadow:0 0 12px var(--green);
-  margin-right:6px;
-}
-.map-node.n1{left:3%;top:10%}
-.map-node.n2{left:4%;bottom:11%}
-.map-node.n3{left:38%;top:6%}
-.map-node.n4{right:4%;top:12%}
-.map-node.n5{right:4%;bottom:12%}
-.map-node.n6{left:39%;bottom:6%}
-
-.map-status-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:.55rem;
-  margin-top:.8rem;
-}
-.map-status-row span{
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:999px;
-  padding:.42rem .62rem;
-  color:var(--muted);
-  background:rgba(255,255,255,.025);
-  font:800 .73rem "Barlow Condensed",sans-serif;
-  letter-spacing:.05em;
-}
-.map-status-row b{color:var(--green)}
-.district-link-card{display:block!important}
-.district-link-card em{display:block;margin-top:.8rem;color:var(--pink);font-style:normal;font-weight:900}
-@media(max-width:720px){
-  .city-map-stage{min-height:600px}
-  .city-map-stage>img{min-height:600px}
-  .map-node{min-width:126px;padding:.5rem .55rem}
-  .map-node.n1{left:3%;top:5%}
-  .map-node.n2{left:3%;top:24%;bottom:auto}
-  .map-node.n3{left:3%;top:43%}
-  .map-node.n4{right:3%;top:14%}
-  .map-node.n5{right:3%;top:34%;bottom:auto}
-  .map-node.n6{right:3%;bottom:8%;left:auto}
+.map-chip-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.map-chip-row span{padding:.45rem .6rem;border-radius:999px;border:1px solid rgba(255,255,255,.08);color:var(--muted);font:800 .72rem "Barlow Condensed",sans-serif;background:rgba(255,255,255,.025)}
+.map-chip-row b{color:var(--green)}
+.district-art{padding:0;overflow:hidden}
+.district-art img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.district-file-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:1rem}
+.district-intel-stack{display:grid;gap:1rem}
+.district-intel-stack article{padding:1rem}
+@media(max-width:760px){
+  .map-overlay-link span{display:none}
+  .map-overlay-link{width:18px;height:18px}
+  .district-file-layout{grid-template-columns:1fr}
 }
 </style>
+
 </head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
@@ -126,74 +71,77 @@
   <div>6 DISTRICTS // ACTIVE</div>
 </section>
 
-<section class="panel city-live-map">
+<section class="panel city-map-shell">
   <div class="panel-head">
-    <div><p class="eyebrow">TITAN CITY NETWORK</p><h1>CHOOSE A DISTRICT</h1></div>
-    <span>LIVE</span>
+    <div><p class="eyebrow">TITAN CITY NETWORK</p><h1>LIVE CITY MAP</h1></div>
+    <span>MASTER GRID</span>
   </div>
-
-  <div class="city-map-stage">
-    <img src="assets/images/module-city-map.png?v=2" alt="Titan City network overview" />
-    <a class="map-node n1" href="vhs-quarter.html"><b>01 // VHS QUARTER</b><small>ANALOG NEON</small></a>
-    <a class="map-node n2" href="nutrition-district.html"><b>02 // NUTRITION</b><small>SKULL JUICE / LOOPS</small></a>
-    <a class="map-node n3" href="titan-heights.html"><b>03 // TITAN HEIGHTS</b><small>HIGH-RISE TERRITORY</small></a>
-    <a class="map-node n4" href="titan-spire.html"><b>04 // TITAN SPIRE</b><small>NETWORK COMMAND</small></a>
-    <a class="map-node n5" href="financial-district.html"><b>05 // FINANCIAL</b><small>GRIM LEDGER TERRITORY</small></a>
-    <a class="map-node n6" href="military-district.html"><b>06 // MILITARY</b><small>TDI / DEFCON</small></a>
+  <div class="city-map-master">
+    <img src="assets/images/map/titan-city-map-master.jpg?v=1" alt="Titan City master district map">
+    <a class="map-overlay-link" href="vhs-quarter.html" style="left:29%;top:20%"><span>VHS QUARTER</span></a>
+<a class="map-overlay-link" href="nutrition-district.html" style="left:66%;top:39%"><span>NUTRITION DISTRICT</span></a>
+<a class="map-overlay-link" href="titan-heights.html" style="left:58%;top:12%"><span>TITAN HEIGHTS</span></a>
+<a class="map-overlay-link" href="titan-spire.html" style="left:46%;top:12%"><span>TITAN SPIRE</span></a>
+<a class="map-overlay-link" href="financial-district.html" style="left:28%;top:61%"><span>FINANCIAL DISTRICT</span></a>
+<a class="map-overlay-link" href="military-district.html" style="left:72%;top:21%"><span>MILITARY DISTRICT</span></a>
   </div>
-
-  <div class="map-status-row">
-    <span><b>MAP IMAGE</b> // RESTORED</span>
-    <span><b>6 NODES</b> // CLICKABLE</span>
-    <span><b>MOBILE</b> // ACTIVE</span>
-    <span><b>LOCATION ART</b> // NEXT PASS</span>
+  <div class="map-chip-row">
+    <span><b>MASTER ART</b> // ACTIVE</span>
+    <span><b>6 DISTRICTS</b> // CLICKABLE</span>
+    <span><b>LOCATION ART</b> // INSTALLED</span>
+    <span><b>MOBILE</b> // READY</span>
   </div>
 </section>
 
 <section class="district-link-grid">
 
-    <a class="panel district-link-card" href="vhs-quarter.html">
-      <span class="district-num">01</span>
-      <h2>VHS QUARTER</h2>
-      <strong>ANALOG NEON // STREET CHAOS</strong>
-      <p>The loudest, strangest corner of Titan City. Video stores, Night Owls, mutant pizza, alley fights and permanent 1987 signal interference.</p>
-      <em>ENTER DISTRICT →</em>
-    </a>
-    <a class="panel district-link-card" href="nutrition-district.html">
-      <span class="district-num">02</span>
-      <h2>NUTRITION DISTRICT</h2>
-      <strong>SKULL JUICE // MUTANT LOOPS</strong>
-      <p>Protein towers, supplement factories, toxic smoothie counters and civic planning fuelled almost entirely by questionable powders.</p>
-      <em>ENTER DISTRICT →</em>
-    </a>
-    <a class="panel district-link-card" href="titan-heights.html">
-      <span class="district-num">03</span>
-      <h2>TITAN HEIGHTS</h2>
-      <strong>HIGH-RISE MUTANT TERRITORY</strong>
-      <p>Luxury above the smog. Private towers, rooftop compounds, corporate muscle and enough neon to be visible from low orbit.</p>
-      <em>ENTER DISTRICT →</em>
-    </a>
-    <a class="panel district-link-card" href="titan-spire.html">
-      <span class="district-num">04</span>
-      <h2>TITAN SPIRE</h2>
-      <strong>NETWORK COMMAND LANDMARK</strong>
-      <p>The broadcasting and command spine of Titan City. TBN signals, security alerts and the highest-value surveillance target in the city.</p>
-      <em>ENTER DISTRICT →</em>
-    </a>
-    <a class="panel district-link-card" href="financial-district.html">
-      <span class="district-num">05</span>
-      <h2>FINANCIAL DISTRICT</h2>
-      <strong>GRIM LEDGER TERRITORY</strong>
-      <p>Glass towers, violent markets, finance warlords and a stock exchange where nobody apologises for anything.</p>
-      <em>ENTER DISTRICT →</em>
-    </a>
-    <a class="panel district-link-card" href="military-district.html">
-      <span class="district-num">06</span>
-      <h2>MILITARY DISTRICT</h2>
-      <strong>TDI // HANGARS // DEFCON</strong>
-      <p>Fortified hangars, assault vehicles, jungle squads, restricted labs and multiple things officially described as 'not a problem'.</p>
-      <em>ENTER DISTRICT →</em>
-    </a>
+<a class="panel district-link-card" href="vhs-quarter.html">
+  <span class="district-num">01</span>
+  <h2>VHS QUARTER</h2>
+  <strong>ANALOG NEON // STREET CHAOS</strong>
+  <p>The loudest, strangest corner of Titan City. Video stores, Night Owls, mutant pizza, alley fights and permanent 1987 signal interference.</p>
+  <em>ENTER DISTRICT →</em>
+</a>
+
+<a class="panel district-link-card" href="nutrition-district.html">
+  <span class="district-num">02</span>
+  <h2>NUTRITION DISTRICT</h2>
+  <strong>SKULL JUICE // MUTANT LOOPS</strong>
+  <p>Protein towers, supplement factories, toxic smoothie counters and civic planning fuelled almost entirely by questionable powders.</p>
+  <em>ENTER DISTRICT →</em>
+</a>
+
+<a class="panel district-link-card" href="titan-heights.html">
+  <span class="district-num">03</span>
+  <h2>TITAN HEIGHTS</h2>
+  <strong>HIGH-RISE MUTANT TERRITORY</strong>
+  <p>Luxury above the smog. Private towers, rooftop compounds, corporate muscle and enough neon to be visible from low orbit.</p>
+  <em>ENTER DISTRICT →</em>
+</a>
+
+<a class="panel district-link-card" href="titan-spire.html">
+  <span class="district-num">04</span>
+  <h2>TITAN SPIRE</h2>
+  <strong>NETWORK COMMAND LANDMARK</strong>
+  <p>The broadcasting and command spine of Titan City. TBN signals, security alerts and the highest-value surveillance target in the city.</p>
+  <em>ENTER DISTRICT →</em>
+</a>
+
+<a class="panel district-link-card" href="financial-district.html">
+  <span class="district-num">05</span>
+  <h2>FINANCIAL DISTRICT</h2>
+  <strong>GRIM LEDGER TERRITORY</strong>
+  <p>Glass towers, violent markets, finance warlords and a stock exchange where nobody apologises for anything.</p>
+  <em>ENTER DISTRICT →</em>
+</a>
+
+<a class="panel district-link-card" href="military-district.html">
+  <span class="district-num">06</span>
+  <h2>MILITARY DISTRICT</h2>
+  <strong>TDI // HANGARS // DEFCON</strong>
+  <p>Fortified hangars, assault vehicles, jungle squads, restricted labs and multiple things officially described as 'not a problem'.</p>
+  <em>ENTER DISTRICT →</em>
+</a>
 </section>
 </main>
 <nav class="bottom-nav" aria-label="TTD HQ navigation">
