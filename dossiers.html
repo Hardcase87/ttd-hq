@@ -1,18 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" />
+<head>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#08070d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="TTD HQ" />
-<title>Dossiers // TTD HQ</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" /></head>
+<link rel="stylesheet" href="styles.css" />
+<title>Dossiers // TTD HQ</title>
+
+<style>
+/* DOSSIERS // VISUAL LOCK */
+.dossier-link-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.dossier-link-card{
+  display:flex!important;
+  flex-direction:column;
+  min-height:100%;
+  padding:0!important;
+  text-decoration:none;
+  color:var(--text);
+  overflow:hidden;
+  border-color:rgba(255,255,255,.10)!important;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.dossier-link-card:hover,.dossier-link-card:focus-visible{
+  transform:translateY(-3px);
+  border-color:rgba(167,255,0,.50)!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.42),0 0 28px rgba(167,255,0,.08);
+  outline:none;
+}
+.dossier-card-art{
+  position:relative;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  background:#020304;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.dossier-card-art img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 22%;
+  display:block;
+}
+.dossier-card-body{padding:1.1rem 1.15rem 1.2rem;display:flex;flex-direction:column;flex:1}
+.dossier-card-head{display:flex;justify-content:space-between;gap:.75rem;align-items:center}
+.dossier-card-head span{
+  font:900 1.05rem "Barlow Condensed",sans-serif;
+  color:var(--pink);
+}
+.dossier-card-head b{
+  color:var(--green);
+  font:800 .72rem "Barlow Condensed",sans-serif;
+  letter-spacing:.09em;
+}
+.dossier-link-card h2{
+  margin:.25rem 0 .15rem;
+  font:900 clamp(2.2rem,5vw,3.7rem)/.88 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+}
+.dossier-link-card strong{
+  color:var(--green);
+  font:800 .9rem "Barlow Condensed",sans-serif;
+  letter-spacing:.06em;
+}
+.dossier-link-card p{color:var(--muted);line-height:1.55}
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.9rem 0}
+.mini-stats span{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  padding:.48rem .38rem;
+  text-align:center;
+  color:var(--muted);
+  font:800 .72rem "Barlow Condensed",sans-serif;
+}
+.mini-stats b{display:block;color:#fff;font-size:1.05rem}
+.dossier-link-card em{
+  margin-top:auto;
+  color:var(--pink);
+  font:900 .85rem "Barlow Condensed",sans-serif;
+  letter-spacing:.08em;
+  font-style:normal;
+}
+
+/* INDIVIDUAL FILES */
+.character-file{padding:0!important}
+.character-profile-grid{
+  display:grid;
+  grid-template-columns:minmax(300px,.82fr) minmax(0,1.18fr);
+  min-height:620px;
+}
+.character-portrait{
+  margin:0;
+  position:relative;
+  min-height:620px;
+  background:#020304;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.character-portrait img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 18%;
+}
+.character-portrait:after{
+  content:"CLASSIFIED // TTD HQ";
+  position:absolute;
+  left:14px;
+  bottom:14px;
+  padding:.45rem .65rem;
+  border-radius:999px;
+  border:1px solid rgba(255,44,152,.45);
+  background:rgba(0,0,0,.78);
+  color:var(--pink);
+  font:900 .74rem "Barlow Condensed",sans-serif;
+  letter-spacing:.1em;
+}
+.character-data{padding:clamp(1.1rem,3vw,2rem);display:flex;flex-direction:column;justify-content:center}
+.character-file-head{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}
+.character-number{
+  min-width:72px;
+  min-height:72px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(167,255,0,.32);
+  border-radius:14px;
+  color:var(--green);
+  font:900 2rem "Barlow Condensed",sans-serif;
+  background:rgba(167,255,0,.05);
+}
+.character-file-head h1{
+  margin:.05rem 0 .2rem;
+  font:900 clamp(3rem,7vw,5.4rem)/.82 "Barlow Condensed",sans-serif;
+}
+.character-file-head strong{color:var(--green);font-family:"Barlow Condensed",sans-serif;letter-spacing:.06em}
+.character-file-head p:last-child{color:var(--muted);line-height:1.6}
+.character-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1.2rem 0}
+.character-stat-grid>div{
+  position:relative;
+  overflow:hidden;
+  padding:.78rem .8rem 1rem;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+.character-stat-grid span{color:var(--muted);font:800 .72rem "Barlow Condensed",sans-serif;letter-spacing:.08em}
+.character-stat-grid b{float:right;color:#fff;font:900 1.2rem "Barlow Condensed",sans-serif}
+.character-stat-grid i{display:block;clear:both;width:var(--w);height:4px;margin-top:.55rem;background:linear-gradient(90deg,var(--pink),var(--green));border-radius:999px}
+.character-notes-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-bottom:1rem}
+.character-notes-grid article{padding:.8rem;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025)}
+.character-notes-grid h2{margin:.1rem 0 .25rem;font:900 1.45rem "Barlow Condensed",sans-serif}
+.character-notes-grid p:last-child{color:var(--muted);font-size:.8rem;line-height:1.45}
+.character-data .action-link{align-self:flex-start;margin-top:.3rem}
+
+@media(max-width:800px){
+  .dossier-link-grid{grid-template-columns:1fr}
+  .character-profile-grid{grid-template-columns:1fr}
+  .character-portrait{min-height:560px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}
+}
+@media(max-width:520px){
+  .dossier-card-art{aspect-ratio:1/1.12}
+  .dossier-card-art img{object-position:center 18%}
+  .character-portrait{min-height:500px}
+  .character-file-head{grid-template-columns:1fr}
+  .character-number{width:64px;min-width:64px;min-height:60px}
+  .character-stat-grid{grid-template-columns:1fr 1fr}
+  .character-notes-grid{grid-template-columns:1fr}
+}
+</style>
+
+</head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
 <header class="hero-banner">
@@ -22,7 +191,7 @@
 <main class="app-shell page-shell">
 <section class="network-strip panel">
   <div><span class="pulse-dot"></span><span>DOSSIERS // CLASSIFIED</span></div>
-  <div>6 FILES ONLINE</div>
+  <div>7 FILES ONLINE</div>
 </section>
 <section class="panel page-hero">
   <p class="eyebrow">CORE ROSTER // TTD HQ</p>
@@ -31,84 +200,83 @@
 </section>
 <section class="dossier-link-grid">
 
-    <a class="panel dossier-link-card" href="hardcase-87.html">
-      <div class="dossier-card-head"><span>01</span><b>CLASSIFIED</b></div>
-      <h2>HARDCASE ’87</h2>
-      <strong>ENFORCER // TTD-87</strong>
-      <div class="mini-stats">
-        <span>STR <b>87</b></span>
-        <span>AGI <b>72</b></span>
-        <span>END <b>91</b></span>
-        <span>INT <b>45</b></span>
-      </div>
-      <p>Primary field legend. Bridge-blasting, civilian-rescuing, burger-holding problem solver. If a Titan City crisis needs subtlety, somebody else gets called.</p>
-      <em>OPEN DOSSIER →</em>
-    </a>
-    <a class="panel dossier-link-card" href="nikki-nitro.html">
-      <div class="dossier-card-head"><span>02</span><b>CLASSIFIED</b></div>
-      <h2>NIKKI NITRO</h2>
-      <strong>SPEED DEMON // TTD-NN</strong>
-      <div class="mini-stats">
-        <span>STR <b>64</b></span>
-        <span>AGI <b>97</b></span>
-        <span>END <b>68</b></span>
-        <span>INT <b>71</b></span>
-      </div>
-      <p>Titan City speed icon and neon trouble magnet. Fast, fearless and usually several bad decisions ahead of the rest of the crew.</p>
-      <em>OPEN DOSSIER →</em>
-    </a>
-    <a class="panel dossier-link-card" href="vexxa-blaze.html">
-      <div class="dossier-card-head"><span>03</span><b>CLASSIFIED</b></div>
-      <h2>VEXXA BLAZE</h2>
-      <strong>FIREBRAND // HEAVY ORDNANCE</strong>
-      <div class="mini-stats">
-        <span>STR <b>91</b></span>
-        <span>AGI <b>82</b></span>
-        <span>END <b>88</b></span>
-        <span>INT <b>73</b></span>
-      </div>
-      <p>Heavy weapons specialist built for off-world missions, jungle contact and anything requiring more ammunition than planning.</p>
-      <em>OPEN DOSSIER →</em>
-    </a>
-    <a class="panel dossier-link-card" href="grim-ledger.html">
-      <div class="dossier-card-head"><span>04</span><b>CLASSIFIED</b></div>
-      <h2>GRIM LEDGER</h2>
-      <strong>FINANCE WARLORD // TDI</strong>
-      <div class="mini-stats">
-        <span>STR <b>56</b></span>
-        <span>AGI <b>61</b></span>
-        <span>END <b>78</b></span>
-        <span>INT <b>99</b></span>
-      </div>
-      <p>Financial District predator. Knows every market, every loophole and exactly how much destruction can be depreciated.</p>
-      <em>OPEN DOSSIER →</em>
-    </a>
-    <a class="panel dossier-link-card" href="viper.html">
-      <div class="dossier-card-head"><span>05</span><b>CLASSIFIED</b></div>
-      <h2>VIPER</h2>
-      <strong>TOXIC ASSASSIN</strong>
-      <div class="mini-stats">
-        <span>STR <b>76</b></span>
-        <span>AGI <b>94</b></span>
-        <span>END <b>79</b></span>
-        <span>INT <b>86</b></span>
-      </div>
-      <p>Stealth, venom and sabotage. Usually appears after the lights go out and before the incident report becomes classified.</p>
-      <em>OPEN DOSSIER →</em>
-    </a>
-    <a class="panel dossier-link-card" href="captain-calorie.html">
-      <div class="dossier-card-head"><span>06</span><b>CLASSIFIED</b></div>
-      <h2>CAPTAIN CALORIE</h2>
-      <strong>NUTRITION WAR COMMANDER</strong>
-      <div class="mini-stats">
-        <span>STR <b>98</b></span>
-        <span>AGI <b>52</b></span>
-        <span>END <b>96</b></span>
-        <span>INT <b>62</b></span>
-      </div>
-      <p>Commander of the most dangerous food pyramid in history. Mass, mayhem and nutrition doctrine delivered at military scale.</p>
-      <em>OPEN DOSSIER →</em>
-    </a>
+<a class="panel dossier-link-card" href="hardcase-87.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/hardcase-87.png?v=1" alt="HARDCASE ’87 dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>01</span><b>CLASSIFIED</b></div>
+    <h2>HARDCASE ’87</h2>
+    <strong>ENFORCER // TTD-87</strong>
+    <div class="mini-stats"><span>STR <b>87</b></span><span>AGI <b>72</b></span><span>END <b>91</b></span><span>INT <b>45</b></span></div>
+    <p>Primary field legend. Bridge-blasting, civilian-rescuing, burger-holding problem solver. If a Titan City crisis needs subtlety, somebody else gets called.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
+<a class="panel dossier-link-card" href="nikki-nitro.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/nikki-nitro.png?v=1" alt="NIKKI NITRO dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>02</span><b>CLASSIFIED</b></div>
+    <h2>NIKKI NITRO</h2>
+    <strong>SPEED DEMON // TTD-NN</strong>
+    <div class="mini-stats"><span>STR <b>64</b></span><span>AGI <b>97</b></span><span>END <b>68</b></span><span>INT <b>71</b></span></div>
+    <p>Titan City speed icon and neon trouble magnet. Fast, fearless and usually several bad decisions ahead of the rest of the crew.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
+<a class="panel dossier-link-card" href="vexxa-blaze.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/vexxa-blaze.png?v=1" alt="VEXXA BLAZE dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>03</span><b>CLASSIFIED</b></div>
+    <h2>VEXXA BLAZE</h2>
+    <strong>FIREBRAND // HEAVY ORDNANCE</strong>
+    <div class="mini-stats"><span>STR <b>91</b></span><span>AGI <b>82</b></span><span>END <b>88</b></span><span>INT <b>73</b></span></div>
+    <p>Heavy weapons specialist built for off-world missions, jungle contact and anything requiring more ammunition than planning.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
+<a class="panel dossier-link-card" href="grim-ledger.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/grim-ledger.png?v=1" alt="GRIM LEDGER dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>04</span><b>CLASSIFIED</b></div>
+    <h2>GRIM LEDGER</h2>
+    <strong>FINANCE WARLORD // TDI</strong>
+    <div class="mini-stats"><span>STR <b>56</b></span><span>AGI <b>61</b></span><span>END <b>78</b></span><span>INT <b>99</b></span></div>
+    <p>Financial District predator. Knows every market, every loophole and exactly how much destruction can be depreciated.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
+<a class="panel dossier-link-card" href="viper.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/viper.png?v=1" alt="VIPER dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>05</span><b>CLASSIFIED</b></div>
+    <h2>VIPER</h2>
+    <strong>TOXIC ASSASSIN</strong>
+    <div class="mini-stats"><span>STR <b>76</b></span><span>AGI <b>94</b></span><span>END <b>79</b></span><span>INT <b>86</b></span></div>
+    <p>Stealth, venom and sabotage. Usually appears after the lights go out and before the incident report becomes classified.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
+<a class="panel dossier-link-card" href="captain-calorie.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/captain-calorie.png?v=1" alt="CAPTAIN CALORIE dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>06</span><b>CLASSIFIED</b></div>
+    <h2>CAPTAIN CALORIE</h2>
+    <strong>NUTRITION WAR COMMANDER</strong>
+    <div class="mini-stats"><span>STR <b>98</b></span><span>AGI <b>52</b></span><span>END <b>96</b></span><span>INT <b>62</b></span></div>
+    <p>Commander of the most dangerous food pyramid in history. Mass, mayhem and nutrition doctrine delivered at military scale.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
+<a class="panel dossier-link-card" href="creatina.html">
+  <div class="dossier-card-art"><img src="assets/images/dossiers/creatina.png?v=1" alt="CREATINA dossier portrait" loading="lazy"></div>
+  <div class="dossier-card-body">
+    <div class="dossier-card-head"><span>07</span><b>PROFILE ARMING</b></div>
+    <h2>CREATINA</h2>
+    <strong>TITAN BEACH // PERFORMANCE DIVISION</strong>
+    <div class="mini-stats"><span>STR <b>—</b></span><span>AGI <b>—</b></span><span>END <b>—</b></span><span>INT <b>—</b></span></div>
+    <p>Titan Beach performance specialist and Creatina field icon. Official combat metrics are still classified; visual file is now active.</p>
+    <em>OPEN DOSSIER →</em>
+  </div>
+</a>
 </section>
 </main>
 <nav class="bottom-nav" aria-label="TTD HQ navigation">

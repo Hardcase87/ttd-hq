@@ -1,18 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" />
+<head>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#08070d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="TTD HQ" />
-<title>NIKKI NITRO // TTD HQ</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" /></head>
+<link rel="stylesheet" href="styles.css" />
+<title>NIKKI NITRO // TTD HQ</title>
+
+<style>
+/* DOSSIERS // VISUAL LOCK */
+.dossier-link-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+.dossier-link-card{
+  display:flex!important;
+  flex-direction:column;
+  min-height:100%;
+  padding:0!important;
+  text-decoration:none;
+  color:var(--text);
+  overflow:hidden;
+  border-color:rgba(255,255,255,.10)!important;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.dossier-link-card:hover,.dossier-link-card:focus-visible{
+  transform:translateY(-3px);
+  border-color:rgba(167,255,0,.50)!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.42),0 0 28px rgba(167,255,0,.08);
+  outline:none;
+}
+.dossier-card-art{
+  position:relative;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  background:#020304;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.dossier-card-art img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 22%;
+  display:block;
+}
+.dossier-card-body{padding:1.1rem 1.15rem 1.2rem;display:flex;flex-direction:column;flex:1}
+.dossier-card-head{display:flex;justify-content:space-between;gap:.75rem;align-items:center}
+.dossier-card-head span{
+  font:900 1.05rem "Barlow Condensed",sans-serif;
+  color:var(--pink);
+}
+.dossier-card-head b{
+  color:var(--green);
+  font:800 .72rem "Barlow Condensed",sans-serif;
+  letter-spacing:.09em;
+}
+.dossier-link-card h2{
+  margin:.25rem 0 .15rem;
+  font:900 clamp(2.2rem,5vw,3.7rem)/.88 "Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+}
+.dossier-link-card strong{
+  color:var(--green);
+  font:800 .9rem "Barlow Condensed",sans-serif;
+  letter-spacing:.06em;
+}
+.dossier-link-card p{color:var(--muted);line-height:1.55}
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.9rem 0}
+.mini-stats span{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  padding:.48rem .38rem;
+  text-align:center;
+  color:var(--muted);
+  font:800 .72rem "Barlow Condensed",sans-serif;
+}
+.mini-stats b{display:block;color:#fff;font-size:1.05rem}
+.dossier-link-card em{
+  margin-top:auto;
+  color:var(--pink);
+  font:900 .85rem "Barlow Condensed",sans-serif;
+  letter-spacing:.08em;
+  font-style:normal;
+}
+
+/* INDIVIDUAL FILES */
+.character-file{padding:0!important}
+.character-profile-grid{
+  display:grid;
+  grid-template-columns:minmax(300px,.82fr) minmax(0,1.18fr);
+  min-height:620px;
+}
+.character-portrait{
+  margin:0;
+  position:relative;
+  min-height:620px;
+  background:#020304;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.character-portrait img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 18%;
+}
+.character-portrait:after{
+  content:"CLASSIFIED // TTD HQ";
+  position:absolute;
+  left:14px;
+  bottom:14px;
+  padding:.45rem .65rem;
+  border-radius:999px;
+  border:1px solid rgba(255,44,152,.45);
+  background:rgba(0,0,0,.78);
+  color:var(--pink);
+  font:900 .74rem "Barlow Condensed",sans-serif;
+  letter-spacing:.1em;
+}
+.character-data{padding:clamp(1.1rem,3vw,2rem);display:flex;flex-direction:column;justify-content:center}
+.character-file-head{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start}
+.character-number{
+  min-width:72px;
+  min-height:72px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(167,255,0,.32);
+  border-radius:14px;
+  color:var(--green);
+  font:900 2rem "Barlow Condensed",sans-serif;
+  background:rgba(167,255,0,.05);
+}
+.character-file-head h1{
+  margin:.05rem 0 .2rem;
+  font:900 clamp(3rem,7vw,5.4rem)/.82 "Barlow Condensed",sans-serif;
+}
+.character-file-head strong{color:var(--green);font-family:"Barlow Condensed",sans-serif;letter-spacing:.06em}
+.character-file-head p:last-child{color:var(--muted);line-height:1.6}
+.character-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1.2rem 0}
+.character-stat-grid>div{
+  position:relative;
+  overflow:hidden;
+  padding:.78rem .8rem 1rem;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+.character-stat-grid span{color:var(--muted);font:800 .72rem "Barlow Condensed",sans-serif;letter-spacing:.08em}
+.character-stat-grid b{float:right;color:#fff;font:900 1.2rem "Barlow Condensed",sans-serif}
+.character-stat-grid i{display:block;clear:both;width:var(--w);height:4px;margin-top:.55rem;background:linear-gradient(90deg,var(--pink),var(--green));border-radius:999px}
+.character-notes-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;margin-bottom:1rem}
+.character-notes-grid article{padding:.8rem;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025)}
+.character-notes-grid h2{margin:.1rem 0 .25rem;font:900 1.45rem "Barlow Condensed",sans-serif}
+.character-notes-grid p:last-child{color:var(--muted);font-size:.8rem;line-height:1.45}
+.character-data .action-link{align-self:flex-start;margin-top:.3rem}
+
+@media(max-width:800px){
+  .dossier-link-grid{grid-template-columns:1fr}
+  .character-profile-grid{grid-template-columns:1fr}
+  .character-portrait{min-height:560px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}
+}
+@media(max-width:520px){
+  .dossier-card-art{aspect-ratio:1/1.12}
+  .dossier-card-art img{object-position:center 18%}
+  .character-portrait{min-height:500px}
+  .character-file-head{grid-template-columns:1fr}
+  .character-number{width:64px;min-width:64px;min-height:60px}
+  .character-stat-grid{grid-template-columns:1fr 1fr}
+  .character-notes-grid{grid-template-columns:1fr}
+}
+</style>
+
+</head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
 <header class="hero-banner">
@@ -25,27 +194,31 @@
   <div>ACCESS // GRANTED</div>
 </section>
 <section class="panel character-file">
-  <div class="character-file-head">
-    <div class="character-number">02</div>
-    <div>
-      <p class="eyebrow">TTD HQ // CLASSIFIED PERSONNEL</p>
-      <h1>NIKKI NITRO</h1>
-      <strong>SPEED DEMON // TTD-NN</strong>
-      <p>Titan City speed icon and neon trouble magnet. Fast, fearless and usually several bad decisions ahead of the rest of the crew.</p>
-    </div>
-  </div>
-  <div class="character-stat-grid">
-    <div><span>STRENGTH</span><b>64</b><i style="--w:64%"></i></div>
-    <div><span>AGILITY</span><b>97</b><i style="--w:97%"></i></div>
-    <div><span>ENDURANCE</span><b>68</b><i style="--w:68%"></i></div>
-    <div><span>INTEL</span><b>71</b><i style="--w:71%"></i></div>
-  </div>
-  <div class="character-notes-grid">
+  <div class="character-profile-grid">
+    <figure class="character-portrait">
+      <img src="assets/images/dossiers/nikki-nitro.png?v=1" alt="NIKKI NITRO classified dossier portrait">
+    </figure>
+    <div class="character-data">
+      <div class="character-file-head">
+        <div class="character-number">02</div>
+        <div>
+          <p class="eyebrow">TTD HQ // CLASSIFIED PERSONNEL</p>
+          <h1>NIKKI NITRO</h1>
+          <strong>SPEED DEMON // TTD-NN</strong>
+          <p>Titan City speed icon and neon trouble magnet. Fast, fearless and usually several bad decisions ahead of the rest of the crew.</p>
+        </div>
+      </div>
+      <div class="character-stat-grid">
+        <div><span>STRENGTH</span><b>64</b><i style="--w:64%"></i></div><div><span>AGILITY</span><b>97</b><i style="--w:97%"></i></div><div><span>ENDURANCE</span><b>68</b><i style="--w:68%"></i></div><div><span>INTEL</span><b>71</b><i style="--w:71%"></i></div>
+      </div>
+      <div class="character-notes-grid">
     <article><p class="eyebrow">STATUS</p><h2>ACTIVE</h2><p>Field deployment authorized.</p></article>
     <article><p class="eyebrow">AFFILIATION</p><h2>TTD</h2><p>Titan City Network roster.</p></article>
     <article><p class="eyebrow">FIELD NOTE</p><h2>DO NOT UNDERESTIMATE</h2><p>Standard TTD personnel warning.</p></article>
   </div>
-  <a class="action-link" href="dossiers.html">← RETURN TO DOSSIERS</a>
+      <a class="action-link" href="dossiers.html">← RETURN TO DOSSIERS</a>
+    </div>
+  </div>
 </section>
 </main>
 <nav class="bottom-nav" aria-label="TTD HQ navigation">
