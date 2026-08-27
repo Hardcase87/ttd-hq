@@ -12,7 +12,108 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" /></head>
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* CITY MAP // LIVE GRID FIX */
+.city-live-map{padding:1rem}
+.city-live-map .panel-head{margin-bottom:.8rem}
+.city-map-stage{
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.1);
+  background:#030407;
+  min-height:420px;
+}
+.city-map-stage>img{
+  display:block;
+  width:100%;
+  min-height:420px;
+  object-fit:cover;
+  object-position:center;
+  filter:saturate(1.08) contrast(1.04);
+}
+.city-map-stage:after{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.08),transparent 28%,transparent 72%,rgba(0,0,0,.30)),
+    radial-gradient(circle at 50% 50%,transparent 42%,rgba(0,0,0,.28));
+}
+.map-node{
+  position:absolute;
+  z-index:3;
+  text-decoration:none;
+  min-width:142px;
+  padding:.58rem .68rem;
+  border:1px solid rgba(167,255,0,.5);
+  background:rgba(4,7,8,.86);
+  color:#fff;
+  border-radius:10px;
+  backdrop-filter:blur(7px);
+  box-shadow:0 0 0 1px rgba(255,44,152,.12) inset,0 0 20px rgba(167,255,0,.08);
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.map-node:hover,.map-node:focus-visible{
+  transform:scale(1.035);
+  border-color:var(--pink);
+  box-shadow:0 0 24px rgba(255,44,152,.2);
+  outline:none;
+}
+.map-node b{
+  display:block;
+  color:var(--green);
+  font:900 .92rem "Barlow Condensed",sans-serif;
+  letter-spacing:.06em;
+}
+.map-node small{display:block;color:var(--muted);font-size:.63rem;margin-top:.1rem}
+.map-node:before{
+  content:"";
+  display:inline-block;
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px var(--green);
+  margin-right:6px;
+}
+.map-node.n1{left:3%;top:10%}
+.map-node.n2{left:4%;bottom:11%}
+.map-node.n3{left:38%;top:6%}
+.map-node.n4{right:4%;top:12%}
+.map-node.n5{right:4%;bottom:12%}
+.map-node.n6{left:39%;bottom:6%}
+
+.map-status-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem;
+  margin-top:.8rem;
+}
+.map-status-row span{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;
+  padding:.42rem .62rem;
+  color:var(--muted);
+  background:rgba(255,255,255,.025);
+  font:800 .73rem "Barlow Condensed",sans-serif;
+  letter-spacing:.05em;
+}
+.map-status-row b{color:var(--green)}
+.district-link-card{display:block!important}
+.district-link-card em{display:block;margin-top:.8rem;color:var(--pink);font-style:normal;font-weight:900}
+@media(max-width:720px){
+  .city-map-stage{min-height:600px}
+  .city-map-stage>img{min-height:600px}
+  .map-node{min-width:126px;padding:.5rem .55rem}
+  .map-node.n1{left:3%;top:5%}
+  .map-node.n2{left:3%;top:24%;bottom:auto}
+  .map-node.n3{left:3%;top:43%}
+  .map-node.n4{right:3%;top:14%}
+  .map-node.n5{right:3%;top:34%;bottom:auto}
+  .map-node.n6{right:3%;bottom:8%;left:auto}
+}
+</style>
+</head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
 <header class="hero-banner">
@@ -22,15 +123,31 @@
 <main class="app-shell page-shell">
 <section class="network-strip panel">
   <div><span class="pulse-dot"></span><span>CITY MAP // LIVE GRID</span></div>
-  <div>6 DISTRICTS ONLINE</div>
+  <div>6 DISTRICTS // ACTIVE</div>
 </section>
 
-<section class="panel map-visual-hero">
+<section class="panel city-live-map">
   <div class="panel-head">
     <div><p class="eyebrow">TITAN CITY NETWORK</p><h1>CHOOSE A DISTRICT</h1></div>
     <span>LIVE</span>
   </div>
-  <img src="assets/images/titan-city-map-overview.png" alt="TTD HQ Titan City network overview" />
+
+  <div class="city-map-stage">
+    <img src="assets/images/module-city-map.png?v=2" alt="Titan City network overview" />
+    <a class="map-node n1" href="vhs-quarter.html"><b>01 // VHS QUARTER</b><small>ANALOG NEON</small></a>
+    <a class="map-node n2" href="nutrition-district.html"><b>02 // NUTRITION</b><small>SKULL JUICE / LOOPS</small></a>
+    <a class="map-node n3" href="titan-heights.html"><b>03 // TITAN HEIGHTS</b><small>HIGH-RISE TERRITORY</small></a>
+    <a class="map-node n4" href="titan-spire.html"><b>04 // TITAN SPIRE</b><small>NETWORK COMMAND</small></a>
+    <a class="map-node n5" href="financial-district.html"><b>05 // FINANCIAL</b><small>GRIM LEDGER TERRITORY</small></a>
+    <a class="map-node n6" href="military-district.html"><b>06 // MILITARY</b><small>TDI / DEFCON</small></a>
+  </div>
+
+  <div class="map-status-row">
+    <span><b>MAP IMAGE</b> // RESTORED</span>
+    <span><b>6 NODES</b> // CLICKABLE</span>
+    <span><b>MOBILE</b> // ACTIVE</span>
+    <span><b>LOCATION ART</b> // NEXT PASS</span>
+  </div>
 </section>
 
 <section class="district-link-grid">
