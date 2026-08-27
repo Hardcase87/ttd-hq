@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#08070d">
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Titan City 2099 #1 // TTD HQ</title>
+<style>
+.premium-hero{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);overflow:hidden;padding:0!important}
+.premium-hero img{width:100%;height:100%;min-height:640px;object-fit:cover;display:block}
+.premium-copy{padding:clamp(1.2rem,4vw,2.4rem);display:flex;flex-direction:column;justify-content:center}
+.premium-copy h1{font:900 clamp(3.3rem,7vw,6.4rem)/.82 "Barlow Condensed",sans-serif;margin:.2rem 0 .7rem}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0}
+.price-card{padding:1rem;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.025)}
+.price-card h2{margin:.15rem 0;font:900 2rem "Barlow Condensed",sans-serif}
+.price-card p{color:var(--muted);line-height:1.5}
+.pay-btn{display:flex;justify-content:center;align-items:center;min-height:52px;border-radius:10px;text-decoration:none;font:900 .95rem "Barlow Condensed",sans-serif;letter-spacing:.05em;margin-top:.7rem}
+.pay-btn.paypal{background:#ffc439;color:#111}
+.pay-btn.lightning{background:var(--green);color:#08070d}
+.pay-btn.disabled{opacity:.45;pointer-events:none;background:#222;color:#999;border:1px solid rgba(255,255,255,.1)}
+.delivery-note{margin-top:1rem;padding:1rem;border:1px solid rgba(57,215,255,.2);border-radius:12px;background:rgba(57,215,255,.04)}
+.delivery-note strong{color:#39d7ff}
+.lightning-address{display:block;overflow-wrap:anywhere;margin:.6rem 0;color:#fff;font-weight:800}
+@media(max-width:760px){
+  .premium-hero{grid-template-columns:1fr}
+  .premium-hero img{min-height:0;aspect-ratio:3/4;object-fit:cover}
+  .price-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div><div class="scanlines"></div>
+<header class="hero-banner">
+<a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a>
+</header>
+<main class="app-shell page-shell">
+<section class="network-strip panel">
+  <div><span class="pulse-dot"></span><span>TITAN CITY 2099 // PREMIUM FILE</span></div>
+  <div>ISSUE 01 // LIVE</div>
+</section>
+
+<section class="panel premium-hero">
+  <img src="assets/images/comics/titan-city-2099-01-cover.jpg?v=1" alt="Titan City 2099 Mutant City Rising cover">
+  <div class="premium-copy">
+    <p class="eyebrow">ALTERNATE UNIVERSE // STANDALONE TRILOGY</p>
+    <h1>MUTANT CITY RISING</h1>
+    <strong>TITAN CITY 2099 #1</strong>
+    <p>The ooze didn’t leak. It hatched. Hardcase ’87 and Nikki Nitro enter a broken alternate Titan City where Project Titan, Subject Zero and the city’s buried biological program have already started waking up.</p>
+
+    <div class="price-grid">
+      <article class="price-card">
+        <p class="eyebrow">FIAT // PAYPAL</p>
+        <h2>$7.99 AUD</h2>
+        <p>Hosted PayPal checkout. Final PDF delivered manually by TTD HQ after payment confirmation.</p>
+        <a class="pay-btn disabled" href="#" aria-disabled="true">PAYPAL LINK // ARMING</a>
+      </article>
+
+      <article class="price-card">
+        <p class="eyebrow">BITCOIN // LIGHTNING</p>
+        <h2>10,000 SATS</h2>
+        <p>Send exactly 10,000 sats to the TTD Lightning address, then email proof/payment reference to TTD HQ for delivery.</p>
+        <span class="lightning-address">ttd87@walletofsatoshi.com</span>
+        <button class="pay-btn lightning" id="copyLightning" type="button">COPY LIGHTNING ADDRESS</button>
+      </article>
+    </div>
+
+    <div class="delivery-note">
+      <strong>DIGITAL COMIC // MANUAL DELIVERY</strong>
+      <p>No public PDF link is exposed on the website. After confirmed payment, the full-resolution issue is delivered directly by email. Mainline Titan City Issues #1–#3 remain free.</p>
+    </div>
+  </div>
+</section>
+
+<section class="panel trilogy-strip">
+  <p class="eyebrow">2099 RELEASE FILE</p>
+  <h2>TRILOGY STATUS // 1 OF 3</h2>
+  <p>#1 Mutant City Rising is complete. #2 and #3 will continue this alternate-universe storyline later.</p>
+</section>
+
+<section class="issue-actions">
+<a class="action-link" href="comics.html">← COMIC LIBRARY</a>
+<a class="action-link" href="mailto:TTDHQ@proton.me?subject=Titan%20City%202099%20%231%20Purchase">EMAIL TTD HQ →</a>
+</section>
+</main>
+<nav class="bottom-nav">
+<a href="index.html">HQ</a>
+<a href="map.html">MAP</a>
+<a href="comics.html">COMICS</a>
+<a href="dossiers.html">CREW</a>
+<a href="tbn.html">TBN</a>
+</nav>
+<script>
+document.getElementById('copyLightning')?.addEventListener('click', async function(){
+  const v='ttd87@walletofsatoshi.com';
+  const old=this.textContent;
+  try{await navigator.clipboard.writeText(v);this.textContent='COPIED ✓';}
+  catch{this.textContent=v;}
+  setTimeout(()=>this.textContent=old,1800);
+});
+</script>
+<script src="app.js"></script>
+</body>
+</html>

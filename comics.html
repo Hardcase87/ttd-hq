@@ -12,7 +12,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<title>Comics // TTD HQ</title></head>
+<title>Comics // TTD HQ</title>
+<style>
+.premium-comic-card{border-color:rgba(255,44,152,.35)!important;box-shadow:0 0 30px rgba(255,44,152,.06)}
+.premium-comic-card .comic-status-badge{background:#ff2c98;color:#09070d}
+.premium-price{display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0}
+.premium-price span{border:1px solid rgba(167,255,0,.28);border-radius:999px;padding:.4rem .62rem;color:#cfff9c;background:rgba(167,255,0,.04);font:900 .78rem "Barlow Condensed",sans-serif}
+.trilogy-strip{margin-top:1rem;padding:1rem}
+.trilogy-strip strong{color:var(--pink)}
+</style>
+</head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
 <header class="hero-banner">
@@ -21,13 +30,14 @@
 <main class="app-shell page-shell">
 <section class="network-strip panel">
   <div><span class="pulse-dot"></span><span>COMICS // ARCHIVE</span></div>
-  <div>3 ISSUES ONLINE</div>
+  <div>3 FREE // 1 PREMIUM</div>
 </section>
 <section class="panel page-hero">
   <p class="eyebrow">TDI COMICS // TITAN CITY</p>
   <h1>COMIC LIBRARY</h1>
-  <p>Issues #1–#3 are unlocked and free. Tap a cover to launch the native TTD reader.</p>
+  <p>Issues #1–#3 stay unlocked and free. Titan City 2099 begins the first premium standalone alternate-universe trilogy.</p>
 </section>
+
 <section class="comic-library-grid">
     <a class="panel comic-library-card" href="issue-1.html">
       <div class="comic-cover-wrap">
@@ -40,6 +50,7 @@
         <span>READ NOW →</span>
       </div>
     </a>
+
     <a class="panel comic-library-card" href="issue-2.html">
       <div class="comic-cover-wrap">
         <span class="comic-status-badge free">FREE</span>
@@ -51,6 +62,7 @@
         <span>READ NOW →</span>
       </div>
     </a>
+
     <a class="panel comic-library-card" href="issue-3.html">
       <div class="comic-cover-wrap">
         <span class="comic-status-badge free">FREE</span>
@@ -62,23 +74,30 @@
         <span>READ NOW →</span>
       </div>
     </a>
-    <article class="panel comic-library-card future-comic-card">
-      <div class="future-comic-cover">
-        <span class="comic-status-badge paid">FUTURE PAID DROP</span>
-        <div class="future-issue-mark">#4</div>
-        <div class="future-skull">☠</div>
-        <p>TDI FILE SEALED</p>
+
+    <a class="panel comic-library-card premium-comic-card" href="titan-city-2099-01.html">
+      <div class="comic-cover-wrap">
+        <span class="comic-status-badge paid">PREMIUM // 2099</span>
+        <img src="assets/images/comics/titan-city-2099-01-cover.jpg?v=1" alt="Titan City 2099 Issue 1 Mutant City Rising cover">
       </div>
       <div>
-        <p class="eyebrow">ISSUE #4 // CLASSIFIED</p>
-        <h2>NEXT MISSION</h2>
-        <span class="future-price">$6.99 // 10,000 SATS</span>
+        <p class="eyebrow">TITAN CITY 2099 #1 // PAID RELEASE</p>
+        <h2>MUTANT CITY RISING</h2>
+        <div class="premium-price"><span>$7.99 AUD</span><span>10,000 SATS</span></div>
+        <span>OPEN PREMIUM FILE →</span>
       </div>
-    </article>
+    </a>
 </section>
+
+<section class="panel trilogy-strip">
+  <p class="eyebrow">ALTERNATE UNIVERSE // STANDALONE TRILOGY</p>
+  <h2>TITAN CITY 2099</h2>
+  <p><strong>#1 MUTANT CITY RISING</strong> is live. Issues #2 and #3 will continue the standalone 2099 timeline separately from the main Titan City continuity.</p>
+</section>
+
 <section class="panel comic-support-strip">
-  <div><p class="eyebrow">TTD COMMERCE</p><h2>FREE ARCHIVE NOW // PAID DROPS LATER</h2></div>
-  <a class="read-comic-btn" href="payments.html">SUPPORT / PAYMENT OPTIONS →</a>
+  <div><p class="eyebrow">TTD COMMERCE</p><h2>FREE MAIN ARCHIVE // PREMIUM 2099 DROPS</h2></div>
+  <a class="read-comic-btn" href="titan-city-2099-01.html">OPEN 2099 #1 →</a>
 </section>
 </main>
 <nav class="bottom-nav">
