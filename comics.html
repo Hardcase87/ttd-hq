@@ -1,112 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#08070d">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TTD HQ">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<title>Comics // TTD HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"><title>Comics Archive // TTD HQ</title>
 <style>
-.premium-comic-card{border-color:rgba(255,44,152,.35)!important;box-shadow:0 0 30px rgba(255,44,152,.06)}
-.premium-comic-card .comic-status-badge{background:#ff2c98;color:#09070d}
-.premium-price{display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0}
-.premium-price span{border:1px solid rgba(167,255,0,.28);border-radius:999px;padding:.4rem .62rem;color:#cfff9c;background:rgba(167,255,0,.04);font:900 .78rem "Barlow Condensed",sans-serif}
-.trilogy-strip{margin-top:1rem;padding:1rem}
-.trilogy-strip strong{color:var(--pink)}
-</style>
-</head>
-<body>
-<div class="bg-grid"></div><div class="scanlines"></div>
-<header class="hero-banner">
-<a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a>
-</header>
-<main class="app-shell page-shell">
-<section class="network-strip panel">
-  <div><span class="pulse-dot"></span><span>COMICS // ARCHIVE</span></div>
-  <div>3 FREE // 1 PREMIUM</div>
+:root{--p:#ff2d95;--g:#8aff2b;--c:#39d7ff}.c-shell{max-width:1480px;margin:auto;padding:12px 14px 110px}.c-hero{padding:clamp(18px,4vw,44px);background:radial-gradient(circle at 90% 20%,rgba(255,45,149,.12),transparent 32%),#090910}.c-hero h1{font:900 clamp(4rem,11vw,8rem)/.75 "Barlow Condensed";margin:.1rem 0;background:linear-gradient(90deg,#fff,var(--p),var(--g));-webkit-background-clip:text;color:transparent}.timeline{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.timeline span{padding:.4rem .6rem;border:1px solid rgba(255,255,255,.1);border-radius:999px;font:900 .72rem "Barlow Condensed"}.timeline .live{color:var(--g);border-color:rgba(138,255,43,.3)}
+.head{display:flex;justify-content:space-between;align-items:end;margin:22px 2px 10px}.head h2{margin:0;font:900 3.5rem/.9 "Barlow Condensed"}.head span{color:var(--g);font:900 .75rem "Barlow Condensed";letter-spacing:.1em}
+.books{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.book{padding:0!important;overflow:hidden;text-decoration:none;color:#fff}.cover{position:relative;aspect-ratio:3/4;overflow:hidden;background:#020304}.cover img{width:100%;height:100%;object-fit:cover}.badge{position:absolute;top:10px;left:10px;padding:.35rem .55rem;border-radius:999px;background:#050608;border:1px solid rgba(138,255,43,.4);color:var(--g);font:900 .7rem "Barlow Condensed"}.book-copy{padding:12px}.book h3{font:900 2rem/.9 "Barlow Condensed";margin:.1rem 0}.book p{font-size:.82rem;color:#aeb3bc}.book em{font-style:normal;color:var(--p);font:900 .78rem "Barlow Condensed"}.premium{grid-column:1/-1;display:grid!important;grid-template-columns:.75fr 1.25fr;border-color:rgba(255,45,149,.35)!important}.premium .cover{aspect-ratio:auto;min-height:460px}.premium .book-copy{padding:clamp(18px,4vw,44px);display:flex;flex-direction:column;justify-content:center}.premium h3{font-size:clamp(3rem,8vw,6rem)}.price{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.price span{padding:.4rem .6rem;border:1px solid rgba(138,255,43,.3);border-radius:999px;color:var(--g);font:900 .8rem "Barlow Condensed"}.classified{margin-top:12px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.slot{padding:12px;border:1px dashed rgba(255,255,255,.14);border-radius:12px}.slot b{color:var(--p);font:900 1.4rem "Barlow Condensed"}.slot p{font-size:.78rem;color:#9ba1ab}
+@media(max-width:760px){.books{grid-template-columns:1fr}.premium{grid-column:auto;grid-template-columns:1fr}.premium .cover{min-height:0;aspect-ratio:3/4}.classified{grid-template-columns:1fr}}
+</style></head><body><div class="bg-grid"></div><div class="scanlines"></div><header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a><div class="hero-overlay"></div></header><main class="c-shell">
+<section class="network-strip panel"><div><span class="pulse-dot"></span><span>COMICS // TDI ARCHIVE</span></div><div>MAIN TIMELINE + 2099</div></section>
+<section class="panel c-hero"><p class="eyebrow">TITAN CITY // OFFICIAL ARCHIVE</p><h1>COMIC VAULT</h1><p>Mainline Titan City remains unlocked. Titan City 2099 operates as a separate premium alternate-universe file.</p><div class="timeline"><span class="live">MAIN TIMELINE // #1–#3 FREE</span><span>2099 TIMELINE // PREMIUM</span><span>CLASSIFIED FILES // INCOMING</span></div></section>
+<div class="head"><div><p class="eyebrow">MAIN TIMELINE</p><h2>TITAN CITY</h2></div><span>3 ISSUES // UNLOCKED</span></div>
+<section class="books">
+<a class="panel book" href="issue-1.html"><div class="cover"><span class="badge">FREE // ISSUE 01</span><img src="assets/images/titan-city-issue-1-cover.png"></div><div class="book-copy"><h3>DISASTER IN THE SKIES</h3><p>Con Casino blimp disaster. Hardcase '87. TDI wreckage. The city starts leaking.</p><em>READ ISSUE #1 →</em></div></a>
+<a class="panel book" href="issue-2.html"><div class="cover"><span class="badge">FREE // ISSUE 02</span><img src="assets/images/titan-city-issue-2-cover.png"></div><div class="book-copy"><h3>THE OOZE BELOW</h3><p>The mutagen problem gets worse because of course it does.</p><em>READ ISSUE #2 →</em></div></a>
+<a class="panel book" href="issue-3.html"><div class="cover"><span class="badge">FREE // ISSUE 03</span><img src="assets/images/titan-city-issue-3-cover.png"></div><div class="book-copy"><h3>JUNGLE DEATH COMMAND</h3><p>Off-story military carnage with jungle command energy.</p><em>READ ISSUE #3 →</em></div></a>
+<a class="panel book premium" href="titan-city-2099-01.html"><div class="cover"><span class="badge" style="color:#ff2d95;border-color:rgba(255,45,149,.45)">PREMIUM // 2099</span><img src="assets/images/comics/titan-city-2099-01-cover.jpg?v=1"></div><div class="book-copy"><p class="eyebrow">ALTERNATE UNIVERSE // STANDALONE TRILOGY</p><h3>MUTANT CITY RISING</h3><p>Titan City 2099 begins a separate three-part timeline. Premium digital file. Manual delivery after payment.</p><div class="price"><span>$7.99 AUD</span><span>10,000 SATS</span></div><em>OPEN 2099 FILE →</em></div></a>
 </section>
-<section class="panel page-hero">
-  <p class="eyebrow">TDI COMICS // TITAN CITY</p>
-  <h1>COMIC LIBRARY</h1>
-  <p>Issues #1–#3 stay unlocked and free. Titan City 2099 begins the first premium standalone alternate-universe trilogy.</p>
-</section>
-
-<section class="comic-library-grid">
-    <a class="panel comic-library-card" href="issue-1.html">
-      <div class="comic-cover-wrap">
-        <span class="comic-status-badge free">FREE</span>
-        <img src="assets/images/titan-city-issue-1-cover.png" alt="Titan City Issue 1 cover">
-      </div>
-      <div>
-        <p class="eyebrow">ISSUE #1 // UNLOCKED</p>
-        <h2>DISASTER IN THE SKIES</h2>
-        <span>READ NOW →</span>
-      </div>
-    </a>
-
-    <a class="panel comic-library-card" href="issue-2.html">
-      <div class="comic-cover-wrap">
-        <span class="comic-status-badge free">FREE</span>
-        <img src="assets/images/titan-city-issue-2-cover.png" alt="Titan City Issue 2 cover">
-      </div>
-      <div>
-        <p class="eyebrow">ISSUE #2 // UNLOCKED</p>
-        <h2>THE OOZE BELOW</h2>
-        <span>READ NOW →</span>
-      </div>
-    </a>
-
-    <a class="panel comic-library-card" href="issue-3.html">
-      <div class="comic-cover-wrap">
-        <span class="comic-status-badge free">FREE</span>
-        <img src="assets/images/titan-city-issue-3-cover.png" alt="Titan City Issue 3 cover">
-      </div>
-      <div>
-        <p class="eyebrow">ISSUE #3 // UNLOCKED</p>
-        <h2>JUNGLE DEATH COMMAND</h2>
-        <span>READ NOW →</span>
-      </div>
-    </a>
-
-    <a class="panel comic-library-card premium-comic-card" href="titan-city-2099-01.html">
-      <div class="comic-cover-wrap">
-        <span class="comic-status-badge paid">PREMIUM // 2099</span>
-        <img src="assets/images/comics/titan-city-2099-01-cover.jpg?v=1" alt="Titan City 2099 Issue 1 Mutant City Rising cover">
-      </div>
-      <div>
-        <p class="eyebrow">TITAN CITY 2099 #1 // PAID RELEASE</p>
-        <h2>MUTANT CITY RISING</h2>
-        <div class="premium-price"><span>$7.99 AUD</span><span>10,000 SATS</span></div>
-        <span>OPEN PREMIUM FILE →</span>
-      </div>
-    </a>
-</section>
-
-<section class="panel trilogy-strip">
-  <p class="eyebrow">ALTERNATE UNIVERSE // STANDALONE TRILOGY</p>
-  <h2>TITAN CITY 2099</h2>
-  <p><strong>#1 MUTANT CITY RISING</strong> is live. Issues #2 and #3 will continue the standalone 2099 timeline separately from the main Titan City continuity.</p>
-</section>
-
-<section class="panel comic-support-strip">
-  <div><p class="eyebrow">TTD COMMERCE</p><h2>FREE MAIN ARCHIVE // PREMIUM 2099 DROPS</h2></div>
-  <a class="read-comic-btn" href="titan-city-2099-01.html">OPEN 2099 #1 →</a>
-</section>
-</main>
-<nav class="bottom-nav">
-<a href="index.html">HQ</a>
-<a href="map.html">MAP</a>
-<a href="comics.html">COMICS</a>
-<a href="dossiers.html">CREW</a>
-<a href="tbn.html">TBN</a>
-</nav>
-<script src="app.js"></script>
-</body>
-</html>
+<div class="head"><div><p class="eyebrow">CLASSIFIED ARCHIVE</p><h2>NEXT FILES</h2></div><span>SIGNAL RESERVED</span></div>
+<section class="panel classified"><div class="slot"><b>MAINLINE // NEXT</b><p>Next main Titan City deployment remains classified.</p></div><div class="slot"><b>2099 // FILE 02</b><p>Second standalone 2099 issue reserved.</p></div><div class="slot"><b>2099 // FILE 03</b><p>Final standalone 2099 issue reserved.</p></div></section>
+</main><nav class="bottom-nav" aria-label="TTD HQ navigation">
+<a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a>
+</nav><script src="app.js"></script></body></html>

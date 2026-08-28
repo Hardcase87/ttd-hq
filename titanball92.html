@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#08070d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"><title>Titan Ball '92 // TTD Arcade</title>
+<style>
+.tb-shell{max-width:1120px;margin:auto;padding:12px 14px 110px}.cab{padding:14px;border-radius:24px;border:1px solid rgba(138,255,43,.32);background:#06070a;box-shadow:0 0 50px rgba(138,255,43,.08)}.marquee{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px;font:900 1rem "Barlow Condensed";color:#8aff2b}.marquee strong{font-size:clamp(2rem,6vw,4rem);background:linear-gradient(90deg,#fff,#8aff2b,#ffe53b,#ff2d95);-webkit-background-clip:text;color:transparent}
+.screen{border:2px solid rgba(57,215,255,.25);border-radius:16px;overflow:hidden;background:#07110b}#titanBallCanvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;background:#07110b;touch-action:none}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.chip{padding:8px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.025);font:800 .75rem "Barlow Condensed"}.chip b{display:block;color:#8aff2b;font-size:1.2rem}
+.controls{display:grid;grid-template-columns:1fr 1fr .9fr;gap:10px;margin-top:12px}.controls button{min-height:66px;border-radius:16px;border:1px solid rgba(255,255,255,.15);background:#090a0e;color:#fff;font:900 1rem "Barlow Condensed";touch-action:manipulation}#tbJump{color:#39d7ff}#tbSmash{color:#ff2d95}#tbVolt{color:#ffe53b}.back{margin:12px 0;display:inline-flex;color:#8aff2b;font:900 .85rem "Barlow Condensed";text-decoration:none}
+@media(max-width:650px){.hud{grid-template-columns:1fr 1fr}.controls{grid-template-columns:1fr 1fr}#tbVolt{grid-column:1/-1}}
+</style></head><body><div class="bg-grid"></div><div class="scanlines"></div><header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a><div class="hero-overlay"></div></header><main class="tb-shell">
+<section class="network-strip panel"><div><span class="pulse-dot"></span><span>TTD ARCADE // CABINET 05</span></div><div>LIVE</div></section>
+<a class="back" href="arcade.html">← BACK TO ARCADE</a><section class="cab"><div class="marquee"><strong>TITAN BALL '92</strong><span>NO MERCY // NO REFUNDS</span></div><div class="screen"><canvas id="titanBallCanvas" width="960" height="540"></canvas></div>
+<div class="hud"><div class="chip">SCORE<b id="tbScore">000000</b></div><div class="chip">YARDS<b id="tbYards">0</b></div><div class="chip">HIGH SCORE<b id="tbHigh">000000</b></div><div class="chip">STATUS<b id="tbStatus">READY</b></div></div>
+<div class="controls"><button id="tbJump">▲ JUMP</button><button id="tbSmash">✹ SMASH</button><button id="tbVolt">⚡ VOLTAGE MODE</button></div></section></main><nav class="bottom-nav" aria-label="TTD HQ navigation">
+<a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a>
+</nav><script src="app.js"></script><script src="titanball.js"></script></body></html>

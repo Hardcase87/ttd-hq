@@ -1,176 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#08070d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<title>TTD Arcade // Titan City Network</title>
-
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"><title>TTD Arcade // Mutant Game Library</title>
 <style>
-.tb92-wrap{margin-top:1rem}
-.tb92-cabinet{position:relative;max-width:1050px;margin:0 auto;padding:14px;border-radius:28px;border:1px solid rgba(138,255,43,.30);background:linear-gradient(145deg,rgba(138,255,43,.05),rgba(255,45,149,.055)),#06070a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.025),0 0 50px rgba(138,255,43,.08)}
-.tb92-marquee{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:10px 12px 13px;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase}
-.tb92-marquee strong{font-size:clamp(1.5rem,5vw,3rem);line-height:.85;letter-spacing:.04em;background:linear-gradient(90deg,#fff,#8aff2b,#ffe53b,#ff2d95);-webkit-background-clip:text;background-clip:text;color:transparent}
-.tb92-marquee span{color:var(--green);font-weight:900;letter-spacing:.1em;font-size:.82rem}
-.tb92-screen-shell{position:relative;overflow:hidden;border:2px solid rgba(57,215,255,.20);border-radius:18px;background:#050807;box-shadow:inset 0 0 38px rgba(0,0,0,.92),0 0 22px rgba(57,215,255,.05)}
-#titanBallCanvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;touch-action:none;background:#07110b}
-.tb92-screen-shell:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 4px);mix-blend-mode:screen;opacity:.32}
-.tb92-hudbar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-.tb92-hudchip{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:8px 10px;background:rgba(255,255,255,.025);font-family:"Barlow Condensed",sans-serif}
-.tb92-hudchip:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--green),var(--pink),var(--blue));opacity:.35}
-.tb92-hudchip b{display:block;color:var(--muted);font-size:.68rem;letter-spacing:.08em}.tb92-hudchip span{font-size:1.05rem;font-weight:900;color:#fff}
-.tb92-controls{display:grid;grid-template-columns:1fr 1fr .9fr;gap:10px;margin-top:12px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.tb92-btn{min-height:68px;border:1px solid rgba(255,255,255,.13);border-radius:18px;color:#fff;font-family:"Barlow Condensed",sans-serif;font-size:1.05rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;box-shadow:inset 0 -5px 0 rgba(0,0,0,.28);touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-.tb92-btn:active,.tb92-btn.active{transform:translateY(3px);box-shadow:inset 0 -2px 0 rgba(0,0,0,.3)}
-.tb92-btn.jump{border-color:rgba(57,215,255,.45);color:var(--blue);background:linear-gradient(180deg,rgba(57,215,255,.10),rgba(57,215,255,.025))}
-.tb92-btn.smash{border-color:rgba(255,45,149,.55);color:var(--pink);background:linear-gradient(180deg,rgba(255,45,149,.12),rgba(255,45,149,.025))}
-.tb92-btn.volt{border-color:rgba(255,229,59,.45);color:var(--yellow);background:linear-gradient(180deg,rgba(255,229,59,.10),rgba(255,229,59,.025))}
-.tb92-btn.volt.ready{animation:voltPulse .55s infinite alternate;background:rgba(255,229,59,.11)}
-@keyframes voltPulse{to{box-shadow:0 0 24px rgba(255,229,59,.28),inset 0 -5px 0 rgba(0,0,0,.28)}}
-.tb92-help{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin:10px 2px 0;color:var(--muted);font-size:.78rem}.tb92-help strong{color:var(--green)}
-.tb92-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem}.tb92-grid article{padding:1rem}.tb92-grid h2{font-family:"Barlow Condensed",sans-serif;font-size:2rem;margin:.1rem 0}
-.tb92-pill{display:inline-flex;padding:.35rem .55rem;border-radius:999px;border:1px solid rgba(138,255,43,.25);color:var(--green);font-size:.75rem;font-weight:800;letter-spacing:.07em}
-.tb92-art-panel{overflow:hidden;padding:0;margin-top:1rem;border-color:rgba(255,45,149,.22)}.tb92-art-copy{padding:1rem 1.1rem .85rem;background:linear-gradient(90deg,rgba(255,45,149,.07),rgba(138,255,43,.035))}
-.tb92-art-copy h2{margin:.1rem 0;font-family:"Barlow Condensed",sans-serif;font-size:clamp(2rem,5vw,3.6rem);color:#fff;text-shadow:2px 2px 0 rgba(255,45,149,.35)}.tb92-art-panel img{display:block;width:100%;height:auto;border-top:1px solid rgba(255,255,255,.07)}
-
-.reb-cabinet-link{margin-top:1rem;padding:0!important;overflow:hidden;display:grid;grid-template-columns:minmax(210px,.72fr) 1.28fr;text-decoration:none;color:inherit;border-color:rgba(255,45,149,.32)!important;background:linear-gradient(135deg,rgba(255,45,149,.08),rgba(138,255,43,.05)),#07080b!important}
-.reb-cabinet-link img{width:100%;height:100%;min-height:245px;object-fit:cover;display:block}.reb-cabinet-copy{padding:1.2rem;display:flex;flex-direction:column;justify-content:center}
-.reb-cabinet-copy h2{margin:.1rem 0;font-family:"Barlow Condensed",sans-serif;font-size:clamp(2.6rem,7vw,5rem);line-height:.84;color:#ff2d95;text-shadow:2px 2px 0 rgba(138,255,43,.22)}.reb-cabinet-copy strong{color:var(--green);letter-spacing:.08em}
-.reb2{border-color:rgba(138,255,43,.45)!important;background:radial-gradient(circle at 80% 10%,rgba(138,255,43,.10),transparent 38%),linear-gradient(135deg,rgba(255,45,149,.10),rgba(138,255,43,.07)),#07080b!important}
-.reb2 .reb-cabinet-copy h2{background:linear-gradient(90deg,#8aff2b,#fff,#ff2d95);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
-.reb2-badge{display:inline-flex;align-self:flex-start;padding:.35rem .6rem;border-radius:999px;border:1px solid rgba(138,255,43,.38);color:#8aff2b;font:900 .78rem "Barlow Condensed",sans-serif;letter-spacing:.08em;margin-bottom:.5rem}
-
-@media(max-width:760px){
-  .tb92-cabinet{padding:9px;border-radius:20px}.tb92-marquee{padding:8px 7px 10px}.tb92-hudbar{grid-template-columns:1fr 1fr}.tb92-controls{grid-template-columns:1fr 1fr}.tb92-btn{min-height:62px;font-size:.98rem}.tb92-btn.volt{grid-column:1/-1;min-height:54px}.tb92-grid{grid-template-columns:1fr}
-  .reb-cabinet-link{grid-template-columns:1fr}.reb-cabinet-link img{max-height:360px}
-}
-</style>
-</head>
-
-<body>
-<div class="bg-grid"></div>
-<div class="scanlines"></div>
-
-<header class="hero-banner">
-  <a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ"></a>
-</header>
-
-<main class="app-shell page-shell">
-
-<section class="network-strip panel">
-  <div><span class="pulse-dot"></span><span>ARCADE // TITAN CITY</span></div>
-  <div>4 CABINETS ONLINE</div>
+:root{--mm-p:#ff2d95;--mm-g:#8aff2b;--mm-c:#39d7ff;--mm-y:#ffe53b;--mm-line:rgba(255,255,255,.09)}
+body{background:radial-gradient(circle at 80% 8%,rgba(255,45,149,.12),transparent 25%),radial-gradient(circle at 12% 32%,rgba(57,215,255,.08),transparent 25%),#06060a}
+.arc-shell{max-width:1480px;margin:auto;padding:12px 14px 110px}
+.arc-hero{position:relative;overflow:hidden;min-height:460px;border:1px solid rgba(255,45,149,.3);border-radius:24px;background:linear-gradient(90deg,rgba(5,5,9,.93),rgba(5,5,9,.48),rgba(5,5,9,.12)),url('assets/images/module-arcade.png') center/cover}
+.arc-copy{position:absolute;left:clamp(18px,4vw,54px);bottom:clamp(22px,5vw,58px);max-width:840px}
+.arc-copy h1{margin:.1rem 0;font:900 clamp(4.4rem,12vw,10rem)/.73 "Barlow Condensed";background:linear-gradient(90deg,#fff,var(--mm-g),var(--mm-p));-webkit-background-clip:text;color:transparent}
+.arc-copy p{max-width:700px;font-weight:700;color:#d7d9df}.stamp{display:inline-flex;padding:.42rem .68rem;border:1px solid rgba(138,255,43,.45);border-radius:999px;color:var(--mm-g);background:rgba(0,0,0,.72);font:900 .8rem "Barlow Condensed";letter-spacing:.1em}
+.library-head{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 10px;gap:12px}.library-head h2{margin:0;font:900 clamp(2.8rem,7vw,5rem)/.85 "Barlow Condensed"}.library-head span{color:var(--mm-g);font:900 .78rem "Barlow Condensed";letter-spacing:.1em}
+.game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.game-card{position:relative;min-height:430px;border:1px solid var(--mm-line);border-radius:20px;overflow:hidden;text-decoration:none;color:#fff;background:#08080d;transition:.2s}
+.game-card:hover{transform:translateY(-3px);border-color:rgba(138,255,43,.45);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.game-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.game-card:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 18%,rgba(4,4,8,.24) 45%,rgba(4,4,8,.97) 83%)}
+.game-copy{position:absolute;z-index:2;left:18px;right:18px;bottom:18px}.game-copy h3{font:900 clamp(2.4rem,6vw,4.4rem)/.82 "Barlow Condensed";margin:.12rem 0;text-transform:uppercase}.game-copy p{margin:.3rem 0;color:#c8cbd3;font-size:.88rem;max-width:640px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.tags span{padding:.3rem .5rem;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(0,0,0,.55);font:900 .68rem "Barlow Condensed";letter-spacing:.06em}
+.play{display:inline-flex;margin-top:6px;color:var(--mm-g);font:900 .9rem "Barlow Condensed";letter-spacing:.1em}.featured{grid-column:1/-1;min-height:520px}.featured .game-copy h3{font-size:clamp(3.4rem,9vw,7rem)}.featured img{object-position:center 48%}
+.arc-footer{margin-top:18px;padding:14px;border:1px solid rgba(255,45,149,.2);border-radius:14px;text-align:center;color:#8e939e;font:800 .78rem Inter}
+@media(max-width:760px){.game-grid{grid-template-columns:1fr}.featured{grid-column:auto;min-height:430px}.game-card{min-height:390px}.arc-hero{min-height:390px}}
+</style></head><body><div class="bg-grid"></div><div class="scanlines"></div><header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a><div class="hero-overlay"></div></header>
+<main class="arc-shell">
+<section class="network-strip panel"><div><span class="pulse-dot"></span><span>TTD ARCADE // LIVE FLOOR</span></div><div>6 CABINETS ONLINE</div></section>
+<section class="arc-hero"><div class="arc-copy"><span class="stamp">MUTANT GAME LIBRARY // NO DEMOS</span><h1>TTD ARCADE</h1><p>Six live browser games. Pick a cabinet. Hit start. Blame nobody.</p></div></section>
+<div class="library-head"><div><p class="eyebrow">BLOCKBUSTER LIBRARY</p><h2>SELECT YOUR DAMAGE</h2></div><span>ALL SYSTEMS // LIVE</span></div>
+<section class="game-grid">
+<a class="game-card featured" href="power-command.html"><img src="assets/images/ttd-power-command/power-command-concept.png" alt="Power Command"><div class="game-copy"><span class="stamp">FLAGSHIP // COMPLETE</span><h3>POWER COMMAND</h3><p>Six-sector global war machine. Missiles, Shield Burst, EMP, Rage and the Command Fortress.</p><div class="tags"><span>TACTICAL WAR</span><span>6 SECTORS</span><span>iPAD READY</span></div><span class="play">PLAY POWER COMMAND →</span></div></a>
+<a class="game-card" href="death-circuit.html"><img src="assets/death-circuit-concept.png" alt="Death Circuit"><div class="game-copy"><span class="stamp">MAXIMUM MAYHEM</span><h3>DEATH CIRCUIT</h3><p>Neon street racing through Titan City. Nitro, rivals, traffic and spectacularly questionable road safety.</p><div class="tags"><span>ARCADE RACER</span><span>NITRO</span><span>3 LAPS</span></div><span class="play">ENTER DEATH CIRCUIT →</span></div></a>
+<a class="game-card" href="reb-renal-failure-2.html?v=37"><img src="assets/images/reb-renal-failure-2/title-screen-v36.png" alt="REB Renal Revenge"><div class="game-copy"><span class="stamp">8-STAGE CAMPAIGN</span><h3>REB: RENAL REVENGE</h3><p>Heavy minigun fire, Renal Rage, mutant bosses and medical advice ignored at industrial scale.</p><div class="tags"><span>RUN & GUN</span><span>8 STAGES</span><span>3 DIFFICULTIES</span></div><span class="play">DEPLOY REB →</span></div></a>
+<a class="game-card" href="titanball94.html"><img src="assets/images/titanball94/stadium-v2.PNG" alt="Titan Ball 94"><div class="game-copy"><span class="stamp">MEGA DRIVE MUTATION</span><h3>TITAN BALL '94</h3><p>Mutant football with Dex, Nikki, Bruisers and enough illegal contact to require its own legal department.</p><div class="tags"><span>MUTANT FOOTBALL</span><span>MEGA DRIVE</span><span>ARCADE</span></div><span class="play">PLAY TITAN BALL '94 →</span></div></a>
+<a class="game-card" href="titanball92.html"><img src="assets/images/titanball92-arcade-art.png" alt="Titan Ball 92"><div class="game-copy"><span class="stamp">ORIGINAL CABINET</span><h3>TITAN BALL '92</h3><p>Dex Volt runs the field while Bobby Bank Roll invents penalties and mutants attempt workplace violence.</p><div class="tags"><span>100 YARDS</span><span>SMASH</span><span>VOLTAGE MODE</span></div><span class="play">PLAY TITAN BALL '92 →</span></div></a>
+<a class="game-card" href="reb-renal-failure.html"><img src="assets/images/reb-renal-failure/cover.jpg" alt="REB Renal Failure"><div class="game-copy"><span class="stamp">ORIGINAL DEPLOYMENT</span><h3>REB: RENAL FAILURE</h3><p>The first renal catastrophe. Ammo management, jungle fire and one extremely bad supplement protocol.</p><div class="tags"><span>CLASSIC REB</span><span>DRRRRRT</span><span>JUNGLE</span></div><span class="play">PLAY ORIGINAL →</span></div></a>
 </section>
-
-<section class="panel" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-  <div>
-    <p class="eyebrow">TITAN CITY ARCADE</p>
-    <h2 style="margin:.1rem 0">SELECT CABINET</h2>
-  </div>
-  <div class="issue-actions" style="margin:0">
-    <a class="read-comic-btn" href="arcade.html">TITAN BALL '92</a>
-    <a class="read-comic-btn" href="titanball94.html">TITAN BALL '94 // MEGA DRIVE →</a>
-    <a class="read-comic-btn" href="reb-renal-failure.html">REB: RENAL FAILURE →</a>
-    <a class="read-comic-btn" href="reb-renal-failure-2.html?v=37">REB: RENAL REVENGE // V3.7 →</a>
-  </div>
-</section>
-
-<a class="panel reb-cabinet-link reb2" href="reb-renal-failure-2.html?v=37" aria-label="Play REB Renal Revenge">
-  <img src="assets/images/reb-renal-failure-2/title-screen-v36.png" alt="REB Renal Revenge release cabinet art">
-  <div class="reb-cabinet-copy">
-    <span class="reb2-badge">CABINET 04 // RELEASE BUILD</span>
-    <p class="eyebrow">MEGA DRIVE RENAL EDITION // 8-STAGE CAMPAIGN</p>
-    <h2>REB: RENAL REVENGE</h2>
-    <p>Heavy minigun fire. Eight distinct stages. Renal Rage. Mega Drive soundtrack. Casual, Hard and the medically irresponsible RENAL FAILURE difficulty.</p>
-    <strong>PLAY V3.7 // FINAL DIFFICULTY LOCK // DRRRRRT →</strong>
-  </div>
-</a>
-
-<a class="panel reb-cabinet-link" href="reb-renal-failure.html" aria-label="Play REB Renal Failure">
-  <img src="assets/images/reb-renal-failure/cover.jpg" alt="REB Renal Failure cabinet art">
-  <div class="reb-cabinet-copy">
-    <p class="eyebrow">CABINET 03 // ORIGINAL DEPLOYMENT</p>
-    <h2>REB: RENAL FAILURE</h2>
-    <p>The original REB deployment. Hold DRRRRRT, manage ammo and survive the first renal catastrophe.</p>
-    <strong>PLAY ORIGINAL // DRRRRRT →</strong>
-  </div>
-</a>
-
-<section class="panel titanball-hero">
-  <img src="assets/images/module-arcade.png" alt="Titan Ball arcade module">
-  <div>
-    <p class="eyebrow">TITAN BALL // V13 FINAL MUTATION CABINET</p>
-    <h1>TITAN BALL '92</h1>
-    <p>Dex Volt has one job: run, smash, survive and reach the end zone before Bobby Bank Roll invents another penalty.</p>
-    <div class="status-row">
-      <span><b>PLAYER</b> DEX VOLT #7</span>
-      <span><b>MODE</b> ARCADE RUN</span>
-      <span><b>SPORTSMANSHIP</b> DENIED</span>
-    </div>
-  </div>
-</section>
-
-<section class="panel tb92-art-panel">
-  <div class="tb92-art-copy">
-    <p class="eyebrow">TITAN BALL // OFFICIAL CABINET ART</p>
-    <h2>NO MERCY // NO REFUNDS</h2>
-    <p>Dex Volt. Skull Juice. Mutant defenders. Bobby Bank Roll. One hundred yards of completely legitimate Titan City sport.</p>
-  </div>
-  <img src="assets/images/titanball92-arcade-art.png" alt="Titan Ball '92 neon retro arcade artwork">
-</section>
-
-<section class="tb92-wrap">
-  <div class="tb92-cabinet">
-    <div class="tb92-marquee"><strong>TITAN BALL '92</strong><span>INSERT MUTATION // PRESS START</span></div>
-    <div class="tb92-screen-shell"><canvas id="titanBallCanvas" width="960" height="540" aria-label="Titan Ball '92 browser arcade game"></canvas></div>
-    <div class="tb92-hudbar">
-      <div class="tb92-hudchip"><b>SCORE</b><span id="tbScore">000000</span></div>
-      <div class="tb92-hudchip"><b>YARDS</b><span id="tbYards">0</span></div>
-      <div class="tb92-hudchip"><b>HIGH SCORE</b><span id="tbHigh">000000</span></div>
-      <div class="tb92-hudchip"><b>STATUS</b><span id="tbStatus">READY</span></div>
-    </div>
-    <div class="tb92-controls">
-      <button class="tb92-btn jump" id="tbJump" type="button">▲ JUMP</button>
-      <button class="tb92-btn smash" id="tbSmash" type="button">✹ SMASH</button>
-      <button class="tb92-btn volt" id="tbVolt" type="button">⚡ VOLTAGE MODE</button>
-    </div>
-    <div class="tb92-help">
-      <span><strong>iPAD:</strong> tap controls // swipe not required</span>
-      <span><strong>KEYBOARD:</strong> SPACE jump // X smash // V voltage // ENTER start</span>
-    </div>
-  </div>
-</section>
-
-<section class="tb92-grid">
-  <article class="panel"><span class="tb92-pill">POWER-UP</span><h2>SKULL JUICE</h2><p>Grab the green cans to restore health and charge the Voltage meter.</p></article>
-  <article class="panel"><span class="tb92-pill">OFFICIALS</span><h2>BOBBY BANK ROLL</h2><p>The corrupt ref can throw penalty flags directly into your run. Smash first. Appeal never.</p></article>
-  <article class="panel"><span class="tb92-pill">OBJECTIVE</span><h2>100 YARDS</h2><p>Reach the end zone. Every touchdown makes the next drive faster and substantially less legal.</p></article>
-</section>
-
-</main>
-
-<nav class="bottom-nav">
-  <a href="index.html">HQ</a>
-  <a href="map.html">MAP</a>
-  <a href="comics.html">COMICS</a>
-  <a href="dossiers.html">CREW</a>
-  <a href="tbn.html">TBN</a>
-</nav>
-
-<script src="app.js"></script>
-<script src="titanball.js"></script>
-<script>
-for(const el of document.querySelectorAll(".tb92-btn")){
-  for(const ev of ["contextmenu","selectstart","dragstart"]) el.addEventListener(ev,e=>e.preventDefault());
-  el.addEventListener("touchstart",e=>{if(e.cancelable)e.preventDefault()},{passive:false});
-}
-</script>
-</body>
-</html>
+<div class="arc-footer">TTD ARCADE // SIX CABINETS // ZERO RESPONSIBLE ADULTS // TITAN CITY NETWORK</div>
+</main><nav class="bottom-nav" aria-label="TTD HQ navigation">
+<a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a>
+</nav><script src="app.js"></script></body></html>
