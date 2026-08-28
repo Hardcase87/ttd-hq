@@ -1,44 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#08070d" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="TTD HQ" />
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#07070c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css" />
-<title>TBN // TTD HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<title>TBN // Titan Broadcasting Network</title>
+<style>
+:root{--panel:#0d0d14;--pink:#ff2c98;--green:#97ff19;--cyan:#36d8ff;--yellow:#ffe23d;--muted:#9ba0ad;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box}body{background:radial-gradient(circle at 85% 7%,rgba(255,44,152,.12),transparent 26%),radial-gradient(circle at 8% 45%,rgba(151,255,25,.07),transparent 24%),#07070c;color:#f5f5f6}
+.tbn-shell{max-width:1480px;margin:auto;padding:12px 14px 110px}.tbn-topline{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 14px;border:1px solid rgba(255,44,152,.28);background:#0a0910;border-radius:14px;margin:10px 0}.live-dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:#ff315e;box-shadow:0 0 16px #ff315e;margin-right:8px;animation:pulse 1s infinite}@keyframes pulse{50%{opacity:.38}}.tbn-topline strong,.eyebrow{font:900 .78rem "Barlow Condensed",sans-serif;letter-spacing:.13em;text-transform:uppercase}.tbn-topline .status{color:var(--green)}
+.tbn-hero{display:grid;grid-template-columns:1.35fr .65fr;min-height:540px;overflow:hidden;border:1px solid rgba(255,44,152,.24);border-radius:22px;background:#090910;position:relative}.tbn-hero-main{position:relative;min-height:540px;background:linear-gradient(90deg,rgba(5,5,8,.15),rgba(5,5,8,.2)),url('assets/images/module-tbn.png') center/cover no-repeat}.tbn-hero-main:after{content:"";position:absolute;inset:auto 0 0;height:48%;background:linear-gradient(transparent,rgba(5,5,8,.98))}.breaking{position:absolute;left:18px;top:18px;z-index:2;background:var(--pink);color:#08070d;padding:8px 13px;font:900 .9rem "Barlow Condensed";letter-spacing:.08em;transform:skew(-7deg)}.hero-story{position:absolute;left:22px;right:22px;bottom:22px;z-index:3}.hero-story h1{font:900 clamp(3rem,7vw,6.5rem)/.78 "Barlow Condensed";text-transform:uppercase;margin:0 0 12px;max-width:900px}.hero-story h1 span{color:var(--green)}.hero-story p{font-size:1rem;max-width:760px;color:#d3d3d9;margin:0}
+.tbn-newswire{padding:16px;background:linear-gradient(180deg,#111019,#0a0a0f);border-left:1px solid var(--line)}.tbn-newswire h2{font:900 2rem "Barlow Condensed";margin:4px 0 12px}.wire-item{display:grid;grid-template-columns:55px 1fr;gap:10px;padding:13px 0;border-top:1px solid var(--line)}.wire-item time{font:800 .72rem Inter;color:#707786}.wire-item b{display:block;font:900 1.08rem "Barlow Condensed";text-transform:uppercase}.wire-item span{font-size:.8rem;color:var(--muted)}
+.market-strip{margin-top:12px;border:1px solid rgba(151,255,25,.22);border-radius:16px;overflow:hidden;background:#090b08}.market-head{display:flex;justify-content:space-between;padding:9px 12px;background:#11170d;color:var(--green);font:900 .82rem "Barlow Condensed";letter-spacing:.1em}.market-grid{display:grid;grid-template-columns:repeat(7,1fr)}.market-cell{padding:13px 10px;border-right:1px solid var(--line);min-height:100px}.market-cell:last-child{border-right:0}.market-cell b{display:block;color:#d6d7da;font:900 .82rem "Barlow Condensed"}.market-cell strong{font:900 1.35rem "Barlow Condensed";display:block;margin-top:8px}.up{color:var(--green)}.market-cell small{color:#777d88}
+.ticker{margin:10px 0 0;overflow:hidden;border:1px solid rgba(255,44,152,.2);background:#09080d;white-space:nowrap}.ticker-track{display:inline-block;padding:9px 0;animation:ticker 32s linear infinite;font:900 .78rem "Barlow Condensed";letter-spacing:.08em}.ticker-track span{margin:0 26px;color:#cfd0d4}.ticker-track em{font-style:normal;color:var(--pink)}@keyframes ticker{to{transform:translateX(-50%)}}
+.section-title{display:flex;justify-content:space-between;align-items:end;margin:22px 0 10px}.section-title h2{margin:0;font:900 clamp(2.2rem,5vw,4rem)/.9 "Barlow Condensed";text-transform:uppercase}.section-title span{color:var(--green);font:900 .76rem "Barlow Condensed";letter-spacing:.1em}.broadcast-grid{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:12px}.broadcast-card{position:relative;min-height:350px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#0d0d14}.broadcast-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;filter:saturate(1.05) contrast(1.05)}.broadcast-card:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(4,4,7,.98))}.card-copy{position:absolute;z-index:2;left:16px;right:16px;bottom:16px}.card-copy .eyebrow{color:var(--green)}.card-copy h3{font:900 2rem/.92 "Barlow Condensed";margin:4px 0;text-transform:uppercase}.card-copy p{font-size:.82rem;color:#c6c8cf;margin:5px 0}.red-tag{display:inline-block;background:#f43158;color:#fff;padding:4px 8px;font:900 .68rem "Barlow Condensed";letter-spacing:.08em}
+.ad-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.ad{min-height:240px;border-radius:16px;border:1px solid var(--line);overflow:hidden;position:relative;background:#0d0d14}.ad img{width:100%;height:100%;object-fit:cover;position:absolute}.ad:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(4,4,7,.97))}.ad div{position:absolute;z-index:2;left:13px;right:13px;bottom:13px}.ad b{font:900 1.55rem "Barlow Condensed";display:block;text-transform:uppercase}.ad span{font-size:.72rem;color:#bbbfc8}.archive{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.show{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#12121a,#09090e);padding:12px;min-height:150px}.show .num{color:var(--pink);font:900 .72rem "Barlow Condensed"}.show h3{font:900 1.35rem "Barlow Condensed";text-transform:uppercase;margin:9px 0 6px}.show p{font-size:.75rem;color:var(--muted)}.tbn-footer{margin-top:20px;border-top:2px solid var(--pink);padding:14px 4px 0;display:flex;justify-content:space-between;gap:15px;color:#8d929d;font-size:.76rem}
+@media(max-width:900px){.tbn-hero{grid-template-columns:1fr}.tbn-newswire{border-left:0;border-top:1px solid var(--line)}.market-grid{grid-template-columns:repeat(2,1fr)}.market-cell{border-bottom:1px solid var(--line)}.broadcast-grid{grid-template-columns:1fr 1fr}.broadcast-card:first-child{grid-column:1/-1}.ad-grid{grid-template-columns:1fr 1fr}.archive{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.tbn-shell{padding-left:8px;padding-right:8px}.tbn-hero-main{min-height:480px}.hero-story h1{font-size:3rem}.broadcast-grid,.ad-grid,.archive{grid-template-columns:1fr}.broadcast-card:first-child{grid-column:auto}.market-grid{grid-template-columns:1fr 1fr}.tbn-footer{flex-direction:column}.tbn-newswire{padding:12px}}
+</style>
 </head>
 <body>
 <div class="bg-grid"></div><div class="scanlines"></div>
-<header class="hero-banner">
-  <a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network" /></a>
-  <div class="hero-overlay"></div>
-</header>
-<main class="app-shell page-shell">
-<section class="network-strip panel">
-  <div><span class="pulse-dot"></span><span>TBN // LIVE FEED</span></div>
-  <div>TTD HQ // ONLINE</div>
+<header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner.png" alt="TTD HQ Titan City Network"></a></header>
+<main class="tbn-shell">
+<section class="tbn-topline"><div><span class="live-dot"></span><strong>TBN // TITAN BROADCASTING NETWORK</strong></div><div class="status">WE REPORT. YOU OBEY.</div></section>
+<section class="tbn-hero">
+<div class="tbn-hero-main"><div class="breaking">⚡ BREAKING BROADCAST</div><div class="hero-story"><div class="eyebrow">GRIM LEDGER // MARKET REPORT // LIVE</div><h1>TDI STOCK UP <span>666%</span> DESPITE SELLING ABSOLUTELY NOTHING</h1><p>Senior financial correspondent Grim Ledger confirms fundamentals are “irrelevant when the chart looks this anabolic.” Titan City investors instructed to obey, invest and repeat.</p></div></div>
+<aside class="tbn-newswire"><div class="eyebrow" style="color:var(--pink)">LIVE CITY NEWSWIRE</div><h2>TITAN CITY // NOW</h2><div class="wire-item"><time>2 MIN</time><div><b>TDI denies everything</b><span>Company spokesman confirms denial was prepared before incident occurred.</span></div></div><div class="wire-item"><time>7 MIN</time><div><b>Skull Juice shipment disappears</b><span>Nutrition District reports “acceptable levels of theft.”</span></div></div><div class="wire-item"><time>12 MIN</time><div><b>Titan Ball referee investigated</b><span>Bobby Bank Roll reportedly seen purchasing third yacht before kickoff.</span></div></div><div class="wire-item"><time>18 MIN</time><div><b>Creatina declares beach emergency</b><span>Hydration levels classified as aggressively insufficient.</span></div></div><div class="wire-item"><time>25 MIN</time><div><b>Mortis Compliance sweep begins</b><span>Residents reminded that questions remain technically legal.</span></div></div></aside>
 </section>
-<section class="panel page-hero">
-  <p class="eyebrow">TBN // LIVE FEED</p>
-  <h1>TITAN BROADCASTING NETWORK</h1>
-</section>
-<section class="panel feed-panel big-feed"><div class="panel-head"><div><p class="eyebrow">ON AIR</p><h2>Broadcast Queue</h2></div><span>LIVE</span></div><ul class="feed-list"><li><b>EMERGENCY BROADCAST</b><span>Power surge detected in VHS Quarter. Civilians advised to ignore all common sense.</span></li><li><b>TITAN SPIRE ALERT</b><span>Security protocol DELTA active. Network integrity remains questionable.</span></li><li><b>NUTRITION DISTRICT</b><span>Skull Juice shipment complete. Casualties unknown. Gains confirmed.</span></li><li><b>TITAN BALL</b><span>Dex Volt cleared for excessive contact. Referee Bobby Bank Roll unavailable for comment.</span></li><li><b>TDI WATCH</b><span>Unidentified crate activity reported near Military District Hangar 7.</span></li><li><b>ALIEN SIGNAL</b><span>Deep-band transmission detected beyond Titan airspace. Translation: probably bad.</span></li></ul></section>
+<section class="market-strip"><div class="market-head"><span>📈 TBN MARKET REPORT // DATA DEFINITELY REAL</span><span>LIVE FEED</span></div><div class="market-grid"><div class="market-cell"><b>TDI</b><strong>$187.87</strong><small class="up">▲ +666.00%</small></div><div class="market-cell"><b>SKULL JUICE</b><strong>$67.45</strong><small class="up">▲ +12.34%</small></div><div class="market-cell"><b>MUTANT LOOPS</b><strong>$9.87</strong><small class="up">▲ +9.87%</small></div><div class="market-cell"><b>TITAN BALL</b><strong>$43.21</strong><small class="up">▲ +5.66%</small></div><div class="market-cell"><b>VHS</b><strong>$21.98</strong><small class="up">▲ +15.42%</small></div><div class="market-cell"><b>MASS</b><strong>$45.21</strong><small class="up">▲ +8.91%</small></div><div class="market-cell"><b>DEATHCOIN</b><strong>$0.00187</strong><small class="up">▲ +4.20%</small></div></div></section>
+<div class="ticker"><div class="ticker-track"><span><em>BREAKING:</em> MUTANT LOOPS DECLARED A VEGETABLE BY TDI</span><span><em>MARKETS:</em> GRIM LEDGER REMAINS EXTREMELY BULLISH FOR LEGAL REASONS</span><span><em>SPORT:</em> TITAN BALL INTRODUCES OPTIONAL CONCUSSION PROTOCOL</span><span><em>NUTRITION:</em> CAPTAIN CALORIE RECOMMENDS SECOND BREAKFAST AND THIRD DINNER</span><span><em>BREAKING:</em> MUTANT LOOPS DECLARED A VEGETABLE BY TDI</span><span><em>MARKETS:</em> GRIM LEDGER REMAINS EXTREMELY BULLISH FOR LEGAL REASONS</span></div></div>
+<div class="section-title"><div><span class="eyebrow" style="color:var(--pink)">NOW PLAYING</span><h2>TBN BROADCAST GRID</h2></div><span>NO COMMERCIALS // JUST PROPAGANDA</span></div>
+<section class="broadcast-grid"><article class="broadcast-card"><img src="assets/images/dossiers/grim-ledger.png" alt="Grim Ledger"><div class="card-copy"><span class="red-tag">LIVE</span><div class="eyebrow">GRIM LEDGER // MARKETS</div><h3>Market Report</h3><p>Titan City's only source of financial truth. Accuracy not included.</p></div></article><article class="broadcast-card"><img src="assets/images/dossiers/captain-calorie.png" alt="Captain Calorie"><div class="card-copy"><div class="eyebrow">12:00 // NUTRITION DISTRICT</div><h3>Bad Nutrition Tip</h3><p>Eat large. Think small. Blame genetics.</p></div></article><article class="broadcast-card"><img src="assets/images/dossiers/creatina.png" alt="Creatina"><div class="card-copy"><div class="eyebrow">15:00 // TITAN BEACH</div><h3>Maximum Hydration</h3><p>Three grams. Twelve litres. One toilet. Zero mercy.</p></div></article></section>
+<div class="section-title"><div><span class="eyebrow" style="color:var(--green)">MANDATORY VIEWING</span><h2>SPONSORED PROPAGANDA</h2></div><span>ALL ADS ARE COMPULSORY</span></div>
+<section class="ad-grid"><a class="ad" href="store.html"><img src="assets/images/module-store.png" alt="TTD Store"><div><b>SKULL JUICE</b><span>100% mutant fuel. Side effects considered personal growth.</span></div></a><a class="ad" href="dossiers.html"><img src="assets/images/dossiers/nikki-nitro.png" alt="Nikki Nitro"><div><b>NIKKI NITRO</b><span>Beauty hits hard. Titan City hits harder.</span></div></a><a class="ad" href="arcade.html"><img src="assets/images/module-arcade.png" alt="TTD Arcade"><div><b>TITAN BALL</b><span>Watch. Bet. Obey. Survive if convenient.</span></div></a><a class="ad" href="comics.html"><img src="assets/images/module-comics.png" alt="Titan City Comics"><div><b>TITAN CITY COMICS</b><span>Official history. Unofficial casualty count.</span></div></a></section>
+<div class="section-title"><div><span class="eyebrow" style="color:var(--cyan)">TBN ARCHIVE</span><h2>NETWORK SHOWS</h2></div><span>24/7 // SIGNAL NEVER DIES</span></div>
+<section class="archive"><div class="show"><div class="num">TBN-001</div><h3>Grim Ledger // Markets</h3><p>Markets rise. Markets fall. Grim remains disturbingly confident.</p></div><div class="show"><div class="num">TBN-002</div><h3>Captain Calorie // Bad Advice</h3><p>Daily nutritional misinformation approved by nobody.</p></div><div class="show"><div class="num">TBN-003</div><h3>Titan Ball Tonight</h3><p>Scores, violence, sponsorship violations and suspicious officiating.</p></div><div class="show"><div class="num">TBN-004</div><h3>Emergency Network</h3><p>When Titan City catches fire, TBN gets better ratings.</p></div><div class="show"><div class="num">TBN-005</div><h3>Mortis Compliance Minute</h3><p>Sixty seconds of reassurance that somehow feels like a threat.</p></div></section>
+<footer class="tbn-footer"><div><strong style="color:var(--pink)">TBN //</strong> TITAN BROADCASTING NETWORK</div><div>OBEY. INVEST. REPEAT. // PROGRAMMED TO WIN.</div></footer>
 </main>
-<nav class="bottom-nav" aria-label="TTD HQ navigation">
-  <a href="index.html">HQ</a>
-  <a href="map.html">MAP</a>
-  <a href="comics.html">COMICS</a>
-  <a href="dossiers.html">CREW</a>
-  <a href="tbn.html">TBN</a>
-</nav>
+<nav class="bottom-nav" aria-label="TTD HQ navigation"><a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="arcade.html">ARCADE</a><a href="store.html">STORE</a></nav>
 <script src="app.js"></script>
-</body>
-</html>
+</body></html>
