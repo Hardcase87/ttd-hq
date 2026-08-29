@@ -45,7 +45,7 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 <div id="shell">
 <canvas id="game"></canvas>
 <div id="topbar">
- <div id="brand">TTD DEATH CIRCUIT // GRAPHICS BUILD</div>
+ <div id="brand">TTD DEATH CIRCUIT // GRAPHICS BUILD 2</div>
  <div id="hud">
   <div class="chip">SPD <b id="spd">0</b></div>
   <div class="chip">GEAR <b id="gear">1</b></div>
@@ -245,27 +245,51 @@ function roadsideImage(im,x,y,s,baseW=150){
 
 function roadAndScenery(horizon,bottom,curve){
  const d=district();
- if(dcGrass.complete&&dcGrass.naturalWidth){
-  const pat=ctx.createPattern(dcGrass,'repeat');
-  if(pat){
-   ctx.save();
-   ctx.globalAlpha=.72;
-   ctx.fillStyle=pat;
-   ctx.translate(0,-((state.pos*.12)%dcGrass.naturalHeight));
-   ctx.fillRect(0,horizon,W,bottom-horizon+dcGrass.naturalHeight);
-   ctx.restore();
-  }
- } else {
-  ctx.fillStyle=d.grass1;ctx.fillRect(0,horizon,W,bottom-horizon);
- }
+ // Roadside base only. Real grass texture is clipped into the left/right wedges per slice below.
+ ctx.fillStyle=d.grass1;ctx.fillRect(0,horizon,W,bottom-horizon);
+ const grassPattern=(dcGrass.complete&&dcGrass.naturalWidth)?ctx.createPattern(dcGrass,'repeat'):null;
  const slices=76;
  for(let i=slices;i>=1;i--){
   const p=i/slices,p0=(i-1)/slices;
   const y=lerp(horizon,bottom,Math.pow(p,.76)),y0=lerp(horizon,bottom,Math.pow(p0,.76));
   const a=proj(p,curve),b=proj(p0,curve);
-  // depth shade over the real grass texture
-  ctx.fillStyle=((i+Math.floor(state.pos/ROAD.segLen))%2)?'rgba(10,35,15,.10)':'rgba(35,75,28,.08)';
-  ctx.fillRect(0,y0,W,Math.max(1,y-y0+1));
+  // REAL GRASS: clip texture strictly to the roadside wedges. Never draw over road or sky.
+  if(grassPattern){
+   ctx.save();
+   ctx.globalAlpha=.92;
+   ctx.fillStyle=grassPattern;
+
+   // left verge
+   ctx.beginPath();
+   ctx.moveTo(0,y0);
+   ctx.lineTo(b.center-b.half,y0);
+   ctx.lineTo(a.center-a.half,y);
+   ctx.lineTo(0,y);
+   ctx.closePath();
+   ctx.clip();
+   ctx.fillRect(0,y0,W,Math.max(2,y-y0+2));
+   ctx.restore();
+
+   // right verge
+   ctx.save();
+   ctx.globalAlpha=.92;
+   ctx.fillStyle=grassPattern;
+   ctx.beginPath();
+   ctx.moveTo(b.center+b.half,y0);
+   ctx.lineTo(W,y0);
+   ctx.lineTo(W,y);
+   ctx.lineTo(a.center+a.half,y);
+   ctx.closePath();
+   ctx.clip();
+   ctx.fillRect(0,y0,W,Math.max(2,y-y0+2));
+   ctx.restore();
+  } else {
+   ctx.fillStyle=((i+Math.floor(state.pos/ROAD.segLen))%2)?d.grass1:d.grass2;
+   ctx.beginPath();
+   ctx.moveTo(0,y0);ctx.lineTo(b.center-b.half,y0);ctx.lineTo(a.center-a.half,y);ctx.lineTo(0,y);ctx.closePath();ctx.fill();
+   ctx.beginPath();
+   ctx.moveTo(b.center+b.half,y0);ctx.lineTo(W,y0);ctx.lineTo(W,y);ctx.lineTo(a.center+a.half,y);ctx.closePath();ctx.fill();
+  }
 
   // shoulder
   const shoulder=a.half*1.10, shoulder0=b.half*1.10;
