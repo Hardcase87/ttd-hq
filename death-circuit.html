@@ -45,7 +45,7 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 <div id="shell">
 <canvas id="game"></canvas>
 <div id="topbar">
- <div id="brand">TTD DEATH CIRCUIT // TITAN CITY</div>
+ <div id="brand">TTD DEATH CIRCUIT // GRAPHICS BUILD</div>
  <div id="hud">
   <div class="chip">SPD <b id="spd">0</b></div>
   <div class="chip">GEAR <b id="gear">1</b></div>
@@ -77,6 +77,17 @@ addEventListener('resize',resize,{passive:true}); resize();
 
 const img=src=>{const i=new Image();i.src=src;return i};
 const concept=img('assets/death-circuit-concept.png');
+const dcGrass=img('assets/death-circuit-v7/grass.png');
+const dcSkyline=img('assets/death-circuit-v7/skyline.png');
+const dcBillboards=[
+ img('assets/death-circuit-v7/billboard-skull-juice.png'),
+ img('assets/death-circuit-v7/billboard-death-circuit.png'),
+ img('assets/death-circuit-v7/billboard-titan-babe.png'),
+ img('assets/death-circuit-v7/billboard-mortis.png'),
+ img('assets/death-circuit-v7/billboard-tdi.png')
+];
+const dcChevron=img('assets/death-circuit-v7/road-chevron.png');
+const dcBarricade=img('assets/death-circuit-v7/road-barricade.png');
 const playerIdle=img('assets/death-circuit-v5/mayhem-rear-idle.PNG');
 const playerBoost=img('assets/death-circuit-v5/mayhem-rear-boost.png');
 const rivalImgs=[
@@ -148,6 +159,16 @@ function toast(t){const el=document.getElementById('toast');el.textContent=t;el.
 
 function sky(horizon){
  const d=district();
+ if(dcSkyline.complete&&dcSkyline.naturalWidth){
+  const iw=dcSkyline.naturalWidth,ih=dcSkyline.naturalHeight;
+  const scale=Math.max(W/iw,(horizon*1.34)/ih);
+  const dw=iw*scale,dh=ih*scale;
+  const sx=((state.pos*.018)%(Math.max(1,dw-W)));
+  ctx.save();
+  ctx.globalAlpha=.92;
+  ctx.drawImage(dcSkyline,-sx,-dh+horizon*1.08,dw,dh);
+  ctx.restore();
+ }
  let g=ctx.createLinearGradient(0,0,0,horizon);g.addColorStop(0,d.sky1);g.addColorStop(.55,d.sky2);g.addColorStop(1,'#ff9b61');ctx.fillStyle=g;ctx.fillRect(0,0,W,horizon+2);
  const sx=W*.5+Math.sin(state.time*.03)*W*.03, sy=horizon*.38, sr=Math.min(W,H)*.11;
  ctx.save();ctx.fillStyle=d.sun;ctx.shadowColor=d.sun;ctx.shadowBlur=30;ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();ctx.restore();
@@ -197,25 +218,53 @@ function tower(x,y,s){
 function tank(x,y,s){
  ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#1f2a1f';ctx.fillRect(-22,-35,44,35);ctx.beginPath();ctx.ellipse(0,-35,22,8,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8aff2b';ctx.globalAlpha=.3;ctx.fillRect(-17,-27,34,4);ctx.restore();
 }
-function billboard(x,y,s,sign){
- ctx.save();ctx.translate(x,y);ctx.scale(s,s);
- ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(-72,-52,144,78);
- ctx.strokeStyle=sign.c;ctx.lineWidth=4;ctx.shadowColor=sign.c;ctx.shadowBlur=14;ctx.strokeRect(-72,-52,144,78);
- ctx.shadowBlur=0;ctx.fillStyle=sign.c;ctx.textAlign='center';ctx.font='900 18px Arial Black';ctx.fillText(sign.brand,0,-20);
- ctx.fillStyle='#fff';ctx.font='900 8px monospace';ctx.fillText(sign.copy,0,0);
- ctx.fillStyle='#24212b';ctx.fillRect(-4,26,8,48);ctx.restore();
+function billboard(x,y,s,index){
+ const im=dcBillboards[index%dcBillboards.length];
+ if(!im||!im.complete||!im.naturalWidth)return;
+ const ratio=im.naturalWidth/im.naturalHeight;
+ const h=128*s,w=h*ratio;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.shadowColor=index===3?'#39d7ff':'#ff2d95';
+ ctx.shadowBlur=18*s;
+ ctx.drawImage(im,-w/2,-h,w,h);
+ ctx.restore();
+}
+
+function roadsideImage(im,x,y,s,baseW=150){
+ if(!im||!im.complete||!im.naturalWidth)return;
+ const ratio=im.naturalWidth/im.naturalHeight;
+ const w=baseW*s,h=w/ratio;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.shadowColor='#ff2d95';
+ ctx.shadowBlur=12*s;
+ ctx.drawImage(im,-w/2,-h,w,h);
+ ctx.restore();
 }
 
 function roadAndScenery(horizon,bottom,curve){
  const d=district();
- ctx.fillStyle=d.grass1;ctx.fillRect(0,horizon,W,bottom-horizon);
+ if(dcGrass.complete&&dcGrass.naturalWidth){
+  const pat=ctx.createPattern(dcGrass,'repeat');
+  if(pat){
+   ctx.save();
+   ctx.globalAlpha=.72;
+   ctx.fillStyle=pat;
+   ctx.translate(0,-((state.pos*.12)%dcGrass.naturalHeight));
+   ctx.fillRect(0,horizon,W,bottom-horizon+dcGrass.naturalHeight);
+   ctx.restore();
+  }
+ } else {
+  ctx.fillStyle=d.grass1;ctx.fillRect(0,horizon,W,bottom-horizon);
+ }
  const slices=76;
  for(let i=slices;i>=1;i--){
   const p=i/slices,p0=(i-1)/slices;
   const y=lerp(horizon,bottom,Math.pow(p,.76)),y0=lerp(horizon,bottom,Math.pow(p0,.76));
   const a=proj(p,curve),b=proj(p0,curve);
-  // moving grass bands
-  ctx.fillStyle=((i+Math.floor(state.pos/ROAD.segLen))%2)?d.grass1:d.grass2;
+  // depth shade over the real grass texture
+  ctx.fillStyle=((i+Math.floor(state.pos/ROAD.segLen))%2)?'rgba(10,35,15,.10)':'rgba(35,75,28,.08)';
   ctx.fillRect(0,y0,W,Math.max(1,y-y0+1));
 
   // shoulder
@@ -246,6 +295,12 @@ function roadAndScenery(horizon,bottom,curve){
  for(let i=1;i<=35;i++){let p=i/35,pr=proj(p,curve),y=lerp(horizon,bottom,Math.pow(p,.76));if(last){ctx.beginPath();ctx.moveTo(last.l,yLast);ctx.lineTo(pr.center-pr.half,y);ctx.stroke();ctx.beginPath();ctx.moveTo(last.r,yLast);ctx.lineTo(pr.center+pr.half,y);ctx.stroke()}last={l:pr.center-pr.half,r:pr.center+pr.half};var yLast=y}
  ctx.restore();
 
+ // hero Death Circuit billboard on the far horizon
+ {
+  const hp=.26, hpr=proj(hp,curve), hy=lerp(horizon,bottom,Math.pow(hp,.76));
+  billboard(hpr.center,hy-W*.014,.34,1);
+ }
+
  // roadside props projected by repeating virtual objects
  const spacing=980,total=TRACK_LEN(),baseIndex=Math.floor(state.pos/spacing);
  for(let k=0;k<18;k++){
@@ -258,8 +313,10 @@ function roadAndScenery(horizon,bottom,curve){
   const side=((baseIndex+k)%2)?-1:1;
   const x=pr.center+side*(pr.half+W*(.035+.10*p));
   const sc=.18+p*1.05;
-  const sel=(baseIndex+k)%6;
-  if(sel===0||sel===3)billboard(x,y,sc,SIGNS[(baseIndex+k)%SIGNS.length]);
+  const sel=(baseIndex+k)%8;
+  if(sel===0||sel===4)billboard(x,y,sc*.92,(baseIndex+k)%dcBillboards.length);
+  else if(sel===2)roadsideImage(dcChevron,x,y,sc*.76,105);
+  else if(sel===6)roadsideImage(dcBarricade,x,y,sc*.72,130);
   else if(d.prop==='palm')palm(x,y,sc,side);
   else if(d.prop==='tank')tank(x,y,sc);
   else tower(x,y,sc);
