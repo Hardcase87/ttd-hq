@@ -17,7 +17,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .chip b{color:var(--g)}
 #controls{position:absolute;z-index:8;left:10px;right:10px;bottom:max(34px,calc(env(safe-area-inset-bottom) + 30px));display:grid;grid-template-columns:330px minmax(300px,1fr) 180px;gap:14px;align-items:end;pointer-events:none}
 .ctrl{pointer-events:auto}.steer,.pedals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{min-height:60px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.82);color:#fff;font-weight:900;font-size:15px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
+button{min-height:60px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.76);color:#fff;font-weight:900;font-size:15px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.35);touch-action:none;-webkit-tap-highlight-color:transparent}
 button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 #left,#right{min-height:92px;color:var(--c);border-color:rgba(57,215,255,.72);font-size:34px;box-shadow:0 0 0 1px rgba(57,215,255,.18), inset 0 -5px 0 rgba(0,0,0,.35), 0 0 18px rgba(57,215,255,.16)}
 #throttle{color:var(--g);border-color:rgba(138,255,43,.60);min-height:66px}
@@ -45,7 +45,7 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 <div id="shell">
 <canvas id="game"></canvas>
 <div id="topbar">
- <div id="brand">TTD DEATH CIRCUIT // CORE DRIVING FIX 2</div>
+ <div id="brand">TTD DEATH CIRCUIT // OUTRUN VISUAL PASS 1</div>
  <div id="hud">
   <div class="chip">SPD <b id="spd">0</b></div>
   <div class="chip">GEAR <b id="gear">1</b></div>
@@ -178,6 +178,14 @@ function sky(horizon){
  haze.addColorStop(.55,'rgba(12,7,18,.08)');
  haze.addColorStop(1,'rgba(8,6,10,.20)');
  ctx.fillStyle=haze;ctx.fillRect(0,horizon-38,W,96);
+
+ // OutRun horizon bloom: joins the skyline to the asphalt and gives the scene depth.
+ const bloom=ctx.createLinearGradient(0,horizon-44,0,horizon+84);
+ bloom.addColorStop(0,'rgba(255,45,149,0)');
+ bloom.addColorStop(.48,'rgba(255,45,149,.12)');
+ bloom.addColorStop(.68,'rgba(57,215,255,.08)');
+ bloom.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=bloom;ctx.fillRect(0,horizon-44,W,128);
 }
 
 function roadCurve(){
@@ -286,7 +294,7 @@ function roadAndScenery(horizon,bottom,curve){
   ctx.beginPath();ctx.moveTo(a.center+a.half,y);ctx.lineTo(a.center+shoulder,y);ctx.lineTo(b.center+shoulder0,y0);ctx.lineTo(b.center+b.half,y0);ctx.fill();
 
   // asphalt
-  ctx.fillStyle=((i+Math.floor(state.pos/ROAD.segLen))%2)?'#19171d':'#15141a';
+  ctx.fillStyle=((i+Math.floor(state.pos/ROAD.segLen))%2)?'#12121a':'#0d0e15';
   ctx.beginPath();ctx.moveTo(a.center-a.half,y);ctx.lineTo(a.center+a.half,y);ctx.lineTo(b.center+b.half,y0);ctx.lineTo(b.center-b.half,y0);ctx.fill();
 
   // center lane dashes and second-lane dashes
@@ -299,14 +307,32 @@ function roadAndScenery(horizon,bottom,curve){
   }
 
   // road gloss
-  if(i%9===0){ctx.strokeStyle='rgba(255,45,149,.05)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.center-a.half*.55,y);ctx.lineTo(a.center+a.half*.55,y);ctx.stroke()}
+  if(i%8===0){
+   const pulse=((i+Math.floor(state.pos/ROAD.segLen))%16===0);
+   ctx.strokeStyle=pulse?'rgba(255,45,149,.16)':'rgba(57,215,255,.07)';ctx.lineWidth=Math.max(1,2.5*p);
+   ctx.beginPath();ctx.moveTo(a.center-a.half*.76,y);ctx.lineTo(a.center+a.half*.76,y);ctx.stroke();
+  }
  }
  // edge neon
  let last=null;
- ctx.save();ctx.lineWidth=2;ctx.strokeStyle=d.edge;ctx.shadowColor=d.edge;ctx.shadowBlur=8;
+ ctx.save();ctx.lineWidth=3;ctx.strokeStyle=d.edge;ctx.shadowColor=d.edge;ctx.shadowBlur=16;
  for(let i=1;i<=35;i++){let p=i/35,pr=proj(p,curve),y=lerp(horizon,bottom,Math.pow(p,.76));if(last){ctx.beginPath();ctx.moveTo(last.l,yLast);ctx.lineTo(pr.center-pr.half,y);ctx.stroke();ctx.beginPath();ctx.moveTo(last.r,yLast);ctx.lineTo(pr.center+pr.half,y);ctx.stroke()}last={l:pr.center-pr.half,r:pr.center+pr.half};var yLast=y}
  ctx.restore();
 
+ // Wet neon reflections running down the asphalt toward the player.
+ ctx.save();
+ ctx.globalCompositeOperation='screen';
+ for(const lane of [-.64,0,.64]){
+  const x0=W*.5+lane*W*.022;
+  const x1=W*.5+lane*W*.32;
+  const rg=ctx.createLinearGradient(0,horizon,0,bottom);
+  rg.addColorStop(0,'rgba(255,45,149,.02)');
+  rg.addColorStop(.52,lane===0?'rgba(255,45,149,.08)':'rgba(57,215,255,.06)');
+  rg.addColorStop(1,lane===0?'rgba(255,45,149,.17)':'rgba(57,215,255,.11)');
+  ctx.strokeStyle=rg;ctx.lineWidth=lane===0?7:5;ctx.shadowColor=lane===0?'#ff2d95':'#39d7ff';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.moveTo(x0,horizon+8);ctx.lineTo(x1,bottom);ctx.stroke();
+ }
+ ctx.restore();
 
  // Roadside graphics: each sign has a permanent world position and side of the circuit.
  const total=TRACK_LEN();
@@ -333,12 +359,15 @@ function roadAndScenery(horizon,bottom,curve){
 function player(){
  const boost=input.nitro&&state.nitro>0&&state.mode==='play';
  const im=boost?playerBoost:playerIdle;
- const w=clamp(W*.18,145,260),h=w*.54;
- // state.x is now the actual lane position, independent of road/camera projection.
+ const w=clamp(W*.205,170,295),h=w*.54;
+ // state.x is the actual lane position, independent of road/camera projection.
  const x=W*.5+state.x*W*.285;
- const y=H*.92-h;
+ // Keep Mayhem visually ABOVE the touch controls instead of buried underneath them.
+ const carBase=H*.825;
+ const y=carBase-h;
  const turn=input.steer;
- ctx.save();ctx.globalAlpha=.30;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y+h*.88,w*.42,h*.18,0,0,Math.PI*2);ctx.fill();ctx.restore();
+ ctx.save();ctx.globalAlpha=.42;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(x,y+h*.91,w*.46,h*.19,0,0,Math.PI*2);ctx.fill();ctx.restore();
+ ctx.save();ctx.globalCompositeOperation='screen';const cg=ctx.createRadialGradient(x,y+h*.82,8,x,y+h*.82,w*.54);cg.addColorStop(0,'rgba(255,45,149,.24)');cg.addColorStop(.48,'rgba(57,215,255,.10)');cg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=cg;ctx.fillRect(x-w*.62,y+h*.50,w*1.24,h*.64);ctx.restore();
  if(boost){
   ctx.save();ctx.globalCompositeOperation='screen';
   let g=ctx.createRadialGradient(x,y+h*.82,2,x,y+h*.82,w*.38);
@@ -362,6 +391,14 @@ function speedFx(){
   let y=(i*47+state.time*420)%(H*.86),side=i%2?-1:1,x=side<0?Math.random()*W*.18:W-Math.random()*W*.18;
   ctx.strokeStyle=i%3===0?'rgba(57,215,255,.35)':'rgba(255,45,149,.32)';ctx.lineWidth=1+s*3;
   ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+side*(18+s*52),y+4);ctx.stroke();
+ }
+ // road-bound streaks sell speed without filling the whole screen
+ for(let i=0;i<12;i++){
+  const yy=H*.54+((i*71+state.time*540)%(H*.28));
+  const spread=(yy-H*.54)/(H*.28);
+  const xx=W*.5+((i%2?-1:1)*W*(.05+.30*spread));
+  ctx.strokeStyle=i%3===0?'rgba(255,45,149,.22)':'rgba(57,215,255,.15)';
+  ctx.lineWidth=1+3*spread;ctx.beginPath();ctx.moveTo(xx,yy);ctx.lineTo(xx+(i%2?-1:1)*(8+30*spread),yy+10+28*spread);ctx.stroke();
  }
  ctx.restore();
 }
