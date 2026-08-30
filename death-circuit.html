@@ -45,13 +45,13 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 <div id="shell">
 <canvas id="game"></canvas>
 <div id="topbar">
- <div id="brand">TTD DEATH CIRCUIT // OUTRUN VISUAL PASS 1</div>
+ <div id="brand">TTD DEATH CIRCUIT // DISTRICT RUN V1</div>
  <div id="hud">
   <div class="chip">SPD <b id="spd">0</b></div>
   <div class="chip">GEAR <b id="gear">1</b></div>
   <div class="chip">ROAD <b id="district">VHS QUARTER</b></div>
-  <div class="chip">CHECK <b id="check">0/5</b></div>
-  <div class="chip">LAP <b id="lap">1/3</b></div>
+  <div class="chip">CHECK <b id="check">0/18</b></div>
+  <div class="chip">SECTOR <b id="lap">1/6</b></div>
   <div class="chip">SCORE <b id="score">000000</b></div>
   <div class="chip">NITRO <b id="nitroVal">100</b></div>
  </div>
@@ -93,52 +93,131 @@ const playerBoost=img('assets/death-circuit-v5/mayhem-rear-boost.png');
 const input={left:0,right:0,gas:0,brake:0,nitro:0,steer:0};
 const state={mode:'title',speed:0,pos:0,x:0,last:performance.now(),time:0,score:0,checkpoints:0,lap:1,nitro:100,combo:1,crash:0,flash:0,finish:false,districtIndex:0,shake:0,lastCheckpoint:0};
 const DISTRICTS=[
- {name:'VHS QUARTER',sky1:'#2d0a45',sky2:'#f24973',sun:'#ffe060',grass1:'#173d2a',grass2:'#1e5b36',edge:'#39d7ff',city:'#140c22',prop:'palm'},
- {name:'FINANCIAL DISTRICT',sky1:'#101b3e',sky2:'#ff2d95',sun:'#ffe53b',grass1:'#0d2630',grass2:'#123440',edge:'#ffe53b',city:'#0b111f',prop:'tower'},
- {name:'NUTRITION DISTRICT',sky1:'#0d3223',sky2:'#f07b3b',sun:'#fff176',grass1:'#25551f',grass2:'#347326',edge:'#8aff2b',city:'#152015',prop:'tank'},
- {name:'MILITARY ZONE',sky1:'#071827',sky2:'#b5364f',sun:'#ffb34d',grass1:'#29322b',grass2:'#3a4537',edge:'#39d7ff',city:'#101417',prop:'tower'},
- {name:'TITAN HEIGHTS',sky1:'#2b0a39',sky2:'#ff73ad',sun:'#ffe990',grass1:'#11263d',grass2:'#173550',edge:'#ff2d95',city:'#120a1b',prop:'palm'},
- {name:'TITAN RUN',sky1:'#16032b',sky2:'#e95a42',sun:'#ffe53b',grass1:'#1d3e25',grass2:'#295431',edge:'#39d7ff',city:'#110917',prop:'palm'}
+ {name:'VHS QUARTER',sky1:'#2d0a45',sky2:'#f24973',grass1:'#173d2a',grass2:'#1e5b36',edge:'#39d7ff',city:'#140c22',prop:'palm',wash:'rgba(255,45,149,.08)'},
+ {name:'FINANCIAL DISTRICT',sky1:'#101b3e',sky2:'#ff2d95',grass1:'#0d2630',grass2:'#123440',edge:'#ffe53b',city:'#0b111f',prop:'tower',wash:'rgba(255,229,59,.055)'},
+ {name:'NUTRITION DISTRICT',sky1:'#0d3223',sky2:'#f07b3b',grass1:'#25551f',grass2:'#347326',edge:'#8aff2b',city:'#152015',prop:'tank',wash:'rgba(138,255,43,.075)'},
+ {name:'MILITARY ZONE',sky1:'#071827',sky2:'#b5364f',grass1:'#29322b',grass2:'#3a4537',edge:'#39d7ff',city:'#101417',prop:'tower',wash:'rgba(57,215,255,.055)'},
+ {name:'TITAN HEIGHTS',sky1:'#2b0a39',sky2:'#ff73ad',grass1:'#11263d',grass2:'#173550',edge:'#ff2d95',city:'#120a1b',prop:'palm',wash:'rgba(255,45,149,.075)'},
+ {name:'TITAN RUN',sky1:'#16032b',sky2:'#e95a42',grass1:'#1d3e25',grass2:'#295431',edge:'#39d7ff',city:'#110917',prop:'palm',wash:'rgba(255,80,40,.07)'}
 ];
 
-const FIXED_SIGNS=[
- {z:5200,side:-1,type:'billboard',asset:0},
- {z:14200,side:1,type:'billboard',asset:1},
- {z:23800,side:-1,type:'chevron'},
- {z:33200,side:1,type:'billboard',asset:2},
- {z:43000,side:-1,type:'billboard',asset:3},
- {z:52600,side:1,type:'barricade'},
- {z:62400,side:-1,type:'billboard',asset:4},
- {z:72400,side:1,type:'billboard',asset:1}
-];
+const FIXED_SIGNS=[];
 
-const ROAD={segLen:200,segments:[],drawDistance:105};
-function addRoad(n,curve=0,hill=0){
+const ROAD={segLen:200,segments:[],drawDistance:118};
+const DISTRICT_RANGES=[];
+
+function addRoad(n,curve=0,hill=0,districtIndex=0){
  const s=ROAD.segments.length;
  for(let i=0;i<n;i++){
   const t=i/Math.max(1,n-1);
-  ROAD.segments.push({curve:curve*Math.sin(Math.PI*t),hill:hill*Math.sin(Math.PI*t),stripe:(s+i)%2});
+  ROAD.segments.push({
+   curve:curve*Math.sin(Math.PI*t),
+   hill:hill*Math.sin(Math.PI*t),
+   stripe:(s+i)%2,
+   district:districtIndex
+  });
  }
 }
-addRoad(44,0,.02);addRoad(55,.72,.05);addRoad(35,-.45,-.04);addRoad(65,-.82,.04);addRoad(42,.35,0);addRoad(65,.62,.05);addRoad(54,-.6,.03);addRoad(48,0,-.03);
+
+function buildDistrict(index,parts){
+ const start=ROAD.segments.length;
+ for(const part of parts)addRoad(part[0],part[1],part[2],index);
+ const end=ROAD.segments.length;
+ DISTRICT_RANGES.push({startSeg:start,endSeg:end,index});
+}
+
+// Each district is a physical part of one continuous Titan City run.
+// Long straights are intentional: they let the skyline/signage breathe between major corners.
+buildDistrict(0,[
+ [46,0,.02],[58,.58,.03],[34,-.30,-.02],[42,0,.01]
+]);
+buildDistrict(1,[
+ [54,0,.01],[62,-.72,.04],[40,.34,.02],[38,0,-.02]
+]);
+buildDistrict(2,[
+ [45,.20,.02],[60,.68,.05],[48,-.55,-.04],[34,0,.01]
+]);
+buildDistrict(3,[
+ [50,0,-.01],[68,-.82,.04],[36,.42,.03],[42,0,.02]
+]);
+buildDistrict(4,[
+ [48,.22,.03],[60,.62,.05],[50,-.66,.03],[36,0,-.02]
+]);
+buildDistrict(5,[
+ [58,0,.02],[70,.78,.06],[42,-.48,-.03],[56,0,.01]
+]);
+
 const TRACK_LEN=()=>ROAD.segments.length*ROAD.segLen;
-const segAt=z=>ROAD.segments[Math.floor(z/ROAD.segLen)%ROAD.segments.length];
+const segAt=z=>ROAD.segments[Math.min(ROAD.segments.length-1,Math.max(0,Math.floor(z/ROAD.segLen)))];
+
+// Permanent signs: actual world coordinates, no repeating loop.
+(function seedFixedSigns(){
+ const total=TRACK_LEN();
+ const slots=[
+  [.035,-1,'billboard',0],[.085,1,'billboard',1],
+  [.145,-1,'chevron',0],[.205,1,'billboard',2],
+  [.275,-1,'billboard',3],[.335,1,'barricade',0],
+  [.405,-1,'billboard',4],[.475,1,'billboard',1],
+  [.545,-1,'chevron',0],[.615,1,'billboard',0],
+  [.685,-1,'billboard',2],[.755,1,'barricade',0],
+  [.825,-1,'billboard',3],[.895,1,'billboard',4],
+  [.955,-1,'billboard',1]
+ ];
+ for(const s of slots)FIXED_SIGNS.push({z:total*s[0],side:s[1],type:s[2],asset:s[3]});
+})();
 
 const rivals=[],traffic=[],checks=[];
 function seed(){
  rivals.length=0;traffic.length=0;checks.length=0;
  const total=TRACK_LEN();
- for(let i=0;i<5;i++)checks.push({z:total*(i+1)/6,passed:false});
+ // 3 checkpoints per district = 18 total.
+ for(let i=1;i<=18;i++)checks.push({z:total*i/19,passed:false});
 }
 seed();
 
 function wrapDist(z){
- const total=TRACK_LEN();let d=z-state.pos;
- while(d<0)d+=total;while(d>=total)d-=total;return d;
+ // Kept for compatibility with old helper calls. This build is a one-way run, not a loop.
+ return z-state.pos;
 }
-function district(){return DISTRICTS[state.districtIndex%DISTRICTS.length]}
+
+function districtInfoAt(z=state.pos){
+ const seg=Math.min(ROAD.segments.length-1,Math.max(0,Math.floor(z/ROAD.segLen)));
+ let range=DISTRICT_RANGES[DISTRICT_RANGES.length-1];
+ for(const r of DISTRICT_RANGES){if(seg>=r.startSeg&&seg<r.endSeg){range=r;break}}
+ const span=Math.max(1,range.endSeg-range.startSeg);
+ const local=(seg-range.startSeg)/span;
+ const current=range.index;
+ const next=Math.min(DISTRICTS.length-1,current+1);
+ // Blend during the last 18% of a district so scenery changes before the district gate.
+ const mix=current===next?0:clamp((local-.82)/.18,0,1);
+ return {current,next,mix,local,range};
+}
+function district(){return DISTRICTS[districtInfoAt().current]}
+function visualDistrict(){return districtInfoAt()}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function lerp(a,b,t){return a+(b-a)*t}
+function hexRgb(hex){
+ const h=hex.replace('#','');
+ return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+}
+function blendHex(a,b,t){
+ const A=hexRgb(a),B=hexRgb(b);
+ const c=A.map((v,i)=>Math.round(lerp(v,B[i],t)));
+ return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function currentPalette(){
+ const info=visualDistrict(),a=DISTRICTS[info.current],b=DISTRICTS[info.next],t=info.mix;
+ return {
+  name:t>.58?b.name:a.name,
+  edge:blendHex(a.edge,b.edge,t),
+  grass1:blendHex(a.grass1,b.grass1,t),
+  grass2:blendHex(a.grass2,b.grass2,t),
+  sky1:blendHex(a.sky1,b.sky1,t),
+  sky2:blendHex(a.sky2,b.sky2,t),
+  prop:t>.5?b.prop:a.prop,
+  wash:t>.5?b.wash:a.wash
+ };
+}
 function drawImg(i,x,y,w,h,a=1){
  if(!i||!i.complete||!i.naturalWidth)return false;
  ctx.save();ctx.globalAlpha=a;ctx.drawImage(i,x,y,w,h);ctx.restore();return true;
@@ -149,7 +228,7 @@ function glowText(txt,x,y,size,color,align='center'){
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.opacity='1';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.opacity='0',1100)}
 
 function sky(horizon){
- const d=district();
+ const d=currentPalette();
  // Solid backing prevents seams if the art is still loading.
  const g=ctx.createLinearGradient(0,0,0,horizon+90);
  g.addColorStop(0,d.sky1);g.addColorStop(.78,d.sky2);g.addColorStop(1,'#120814');
@@ -186,12 +265,24 @@ function sky(horizon){
  bloom.addColorStop(.68,'rgba(57,215,255,.08)');
  bloom.addColorStop(1,'rgba(0,0,0,0)');
  ctx.fillStyle=bloom;ctx.fillRect(0,horizon-44,W,128);
+
+ // District atmosphere wash changes gradually with track position.
+ ctx.save();
+ ctx.globalCompositeOperation='screen';
+ ctx.fillStyle=d.wash||'rgba(255,45,149,.04)';
+ ctx.fillRect(0,0,W,horizon+70);
+ ctx.restore();
 }
 
 function roadCurve(){
- let idx=Math.floor(state.pos/ROAD.segLen)%ROAD.segments.length,curve=0;
- for(let i=0;i<14;i++)curve+=ROAD.segments[(idx+i)%ROAD.segments.length].curve*(1-i/15);
- return curve/8;
+ const idx=Math.min(ROAD.segments.length-1,Math.max(0,Math.floor(state.pos/ROAD.segLen)));
+ let curve=0,weight=0;
+ for(let i=0;i<18;i++){
+  const j=Math.min(ROAD.segments.length-1,idx+i);
+  const w=1-i/19;
+  curve+=ROAD.segments[j].curve*w;weight+=w;
+ }
+ return weight?curve/weight:0;
 }
 
 function proj(p,curve){
@@ -240,7 +331,7 @@ function roadsideImage(im,x,y,s,baseW=260){
 }
 
 function roadAndScenery(horizon,bottom,curve){
- const d=district();
+ const d=currentPalette();
  // Roadside base only. Real grass texture is clipped into the left/right wedges per slice below.
  ctx.fillStyle=d.grass1;ctx.fillRect(0,horizon,W,bottom-horizon);
  const grassPattern=(dcGrass.complete&&dcGrass.naturalWidth)?ctx.createPattern(dcGrass,'repeat'):null;
@@ -334,12 +425,31 @@ function roadAndScenery(horizon,bottom,curve){
  }
  ctx.restore();
 
+ // District scenery: sparse, fixed-feeling roadside silhouettes that change by zone.
+ const info=visualDistrict();
+ const zoneStart=info.range.startSeg*ROAD.segLen;
+ const zoneEnd=info.range.endSeg*ROAD.segLen;
+ const propSpacing=4600;
+ const firstProp=Math.ceil(zoneStart/propSpacing)*propSpacing;
+ for(let wz=firstProp;wz<zoneEnd;wz+=propSpacing){
+  const dist=wz-state.pos;
+  if(dist<=0||dist>ROAD.drawDistance*ROAD.segLen)continue;
+  const p=1-dist/(ROAD.drawDistance*ROAD.segLen);
+  if(p<=.045)continue;
+  const pp=Math.pow(p,.88),pr=proj(pp,curve),yy=lerp(horizon,bottom,Math.pow(p,.76));
+  const side=((Math.floor(wz/propSpacing)+info.current)%2)?-1:1;
+  const xx=pr.center+side*(pr.half+W*(.055+.11*p));
+  const sc=.20+p*.92;
+  if(d.prop==='palm')palm(xx,yy,sc,side);
+  else if(d.prop==='tank')tank(xx,yy,sc);
+  else tower(xx,yy,sc);
+ }
+
  // Roadside graphics: each sign has a permanent world position and side of the circuit.
  const total=TRACK_LEN();
  for(const sign of FIXED_SIGNS){
-  let dist=sign.z-state.pos;
-  while(dist<0)dist+=total;
-  if(dist>ROAD.drawDistance*ROAD.segLen)continue;
+  const dist=sign.z-state.pos;
+  if(dist<=0||dist>ROAD.drawDistance*ROAD.segLen)continue;
   const p=1-dist/(ROAD.drawDistance*ROAD.segLen);
   if(p<=.035)continue;
   const pp=Math.pow(p,.88),pr=proj(pp,curve),y=lerp(horizon,bottom,Math.pow(p,.76));
@@ -414,20 +524,29 @@ function drawTitle(){
 }
 function drawFinish(){
  ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,H);
- glowText('CIRCUIT CLEARED',W*.5,H*.39,Math.max(38,W*.06),'#8aff2b');
+ glowText('TITAN CITY CLEARED',W*.5,H*.39,Math.max(38,W*.06),'#8aff2b');
  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 18px monospace';ctx.fillText(`SCORE ${String(Math.round(state.score)).padStart(6,'0')}`,W*.5,H*.47);
- ctx.fillStyle='#ff2d95';ctx.font='900 12px monospace';ctx.fillText('TITAN CITY SURVIVED. BARELY.',W*.5,H*.53);
+ ctx.fillStyle='#ff2d95';ctx.font='900 12px monospace';ctx.fillText('SIX DISTRICTS. ONE RUN. NO REFUNDS.',W*.5,H*.53);
 }
 
 function update(dt){
  state.time+=dt;state.flash=Math.max(0,state.flash-dt);state.crash=Math.max(0,state.crash-dt);state.shake=Math.max(0,state.shake-dt*20);
  if(state.mode!=='play')return;
+
+ const beforeInfo=districtInfoAt(state.pos);
  const boost=input.nitro&&state.nitro>0;
  const accel=input.gas?(boost?122:78):0;
  const brake=input.brake?150:0;
- state.speed+= (accel-brake-14-state.speed*.018)*dt;
+ state.speed+=(accel-brake-14-state.speed*.018)*dt;
  state.speed=clamp(state.speed,0,boost?315:285);
- if(boost){state.nitro=Math.max(0,state.nitro-24*dt);state.score+=30*dt}else state.nitro=Math.min(100,state.nitro+4.5*dt);
+
+ if(boost){
+  state.nitro=Math.max(0,state.nitro-24*dt);
+  state.score+=30*dt;
+ }else{
+  state.nitro=Math.min(100,state.nitro+4.5*dt);
+ }
+
  const steerTarget=input.right-input.left;
  input.steer+=(steerTarget-input.steer)*Math.min(1,dt*12.5);
  const speedAssist=.90+state.speed/300;
@@ -435,19 +554,38 @@ function update(dt){
  if(input.brake&&Math.abs(input.steer)>.08)state.x+=input.steer*dt*.30;
  if(!input.left&&!input.right)input.steer*=Math.pow(.78,dt*60);
  state.x=clamp(state.x,-.94,.94);
+
  state.pos+=state.speed*dt*17;
  const total=TRACK_LEN();
- if(state.pos>=total){
-  state.pos-=total;state.lap++;
-  checks.forEach(x=>x.passed=false);state.checkpoints=0;
-  state.districtIndex=(state.districtIndex+1)%DISTRICTS.length;toast(DISTRICTS[state.districtIndex].name);
-  if(state.lap>3){state.mode='finish';state.finish=true;return}
+
+ if(state.pos>=total-80){
+  state.pos=total-80;
+  state.speed=0;
+  state.mode='finish';
+  state.finish=true;
+  toast('TITAN RUN // COMPLETE');
+  return;
  }
- // checkpoints
+
+ const afterInfo=districtInfoAt(state.pos);
+ if(afterInfo.current!==beforeInfo.current){
+  state.districtIndex=afterInfo.current;
+  state.flash=.10;
+  toast(`${DISTRICTS[afterInfo.current].name} // ENTER`);
+ }
+
+ // Checkpoints are one-shot across the full city run.
  for(const cp of checks){
   const d=cp.z-state.pos;
-  if(!cp.passed && d<120 && d>-260){cp.passed=true;state.checkpoints++;state.score+=250;state.flash=.16;toast(`CHECKPOINT ${state.checkpoints}/5`)}
+  if(!cp.passed&&d<140&&d>-300){
+   cp.passed=true;
+   state.checkpoints++;
+   state.score+=250;
+   state.flash=.12;
+   toast(`CHECKPOINT ${state.checkpoints}/18`);
+  }
  }
+
  state.score+=state.speed*dt*.14;
 }
 
@@ -468,18 +606,24 @@ function render(){
  ctx.restore();syncHud();
 }
 function syncHud(){
+ const info=districtInfoAt(state.pos);
  document.getElementById('spd').textContent=Math.round(state.speed);
  document.getElementById('gear').textContent=clamp(Math.floor(state.speed/52)+1,1,6);
- document.getElementById('district').textContent=district().name;
- document.getElementById('check').textContent=`${state.checkpoints}/5`;
- document.getElementById('lap').textContent=`${Math.min(state.lap,3)}/3`;
+ document.getElementById('district').textContent=DISTRICTS[info.current].name;
+ document.getElementById('check').textContent=`${state.checkpoints}/18`;
+ document.getElementById('lap').textContent=`${info.current+1}/6`;
  document.getElementById('score').textContent=String(Math.round(state.score)).padStart(6,'0');
  document.getElementById('nitroVal').textContent=Math.round(state.nitro);
 }
 
 function reset(){
- input.steer=0;Object.assign(state,{mode:'play',speed:0,pos:0,x:0,score:0,checkpoints:0,lap:1,nitro:100,combo:1,crash:0,flash:.15,finish:false,districtIndex:0,shake:0});
- seed();toast('VHS QUARTER // GO');
+ input.steer=0;
+ Object.assign(state,{
+  mode:'play',speed:0,pos:0,x:0,score:0,checkpoints:0,lap:1,nitro:100,
+  combo:1,crash:0,flash:.15,finish:false,districtIndex:0,shake:0
+ });
+ seed();
+ toast('VHS QUARTER // DEPLOY');
 }
 function bindHold(id,key){
  const el=document.getElementById(id);
