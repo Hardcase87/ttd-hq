@@ -45,7 +45,7 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 <div id="shell">
 <canvas id="game"></canvas>
 <div id="topbar">
- <div id="brand">TTD DEATH CIRCUIT // DISTRICT RUN V1</div>
+ <div id="brand">TTD DEATH CIRCUIT // VISUAL ASSAULT V2</div>
  <div id="hud">
   <div class="chip">SPD <b id="spd">0</b></div>
   <div class="chip">GEAR <b id="gear">1</b></div>
@@ -93,11 +93,11 @@ const playerBoost=img('assets/death-circuit-v5/mayhem-rear-boost.png');
 const input={left:0,right:0,gas:0,brake:0,nitro:0,steer:0};
 const state={mode:'title',speed:0,pos:0,x:0,last:performance.now(),time:0,score:0,checkpoints:0,lap:1,nitro:100,combo:1,crash:0,flash:0,finish:false,districtIndex:0,shake:0,lastCheckpoint:0};
 const DISTRICTS=[
- {name:'VHS QUARTER',sky1:'#2d0a45',sky2:'#f24973',grass1:'#173d2a',grass2:'#1e5b36',edge:'#39d7ff',city:'#140c22',prop:'palm',wash:'rgba(255,45,149,.08)'},
- {name:'FINANCIAL DISTRICT',sky1:'#101b3e',sky2:'#ff2d95',grass1:'#0d2630',grass2:'#123440',edge:'#ffe53b',city:'#0b111f',prop:'tower',wash:'rgba(255,229,59,.055)'},
- {name:'NUTRITION DISTRICT',sky1:'#0d3223',sky2:'#f07b3b',grass1:'#25551f',grass2:'#347326',edge:'#8aff2b',city:'#152015',prop:'tank',wash:'rgba(138,255,43,.075)'},
- {name:'MILITARY ZONE',sky1:'#071827',sky2:'#b5364f',grass1:'#29322b',grass2:'#3a4537',edge:'#39d7ff',city:'#101417',prop:'tower',wash:'rgba(57,215,255,.055)'},
- {name:'TITAN HEIGHTS',sky1:'#2b0a39',sky2:'#ff73ad',grass1:'#11263d',grass2:'#173550',edge:'#ff2d95',city:'#120a1b',prop:'palm',wash:'rgba(255,45,149,.075)'},
+ {name:'VHS QUARTER',sky1:'#2d0a45',sky2:'#f24973',grass1:'#173d2a',grass2:'#1e5b36',edge:'#39d7ff',city:'#140c22',prop:'palm',wash:'rgba(255,45,149,.08)',weather:'mist',accent:'#ff2d95'},
+ {name:'FINANCIAL DISTRICT',sky1:'#101b3e',sky2:'#ff2d95',grass1:'#0d2630',grass2:'#123440',edge:'#ffe53b',city:'#0b111f',prop:'tower',wash:'rgba(255,229,59,.055)',weather:'rain',accent:'#ffe53b'},
+ {name:'NUTRITION DISTRICT',sky1:'#0d3223',sky2:'#f07b3b',grass1:'#25551f',grass2:'#347326',edge:'#8aff2b',city:'#152015',prop:'tank',wash:'rgba(138,255,43,.075)',weather:'toxic',accent:'#8aff2b'},
+ {name:'MILITARY ZONE',sky1:'#071827',sky2:'#b5364f',grass1:'#29322b',grass2:'#3a4537',edge:'#39d7ff',city:'#101417',prop:'tower',wash:'rgba(57,215,255,.055)',weather:'search',accent:'#39d7ff'},
+ {name:'TITAN HEIGHTS',sky1:'#2b0a39',sky2:'#ff73ad',grass1:'#11263d',grass2:'#173550',edge:'#ff2d95',city:'#120a1b',prop:'tower',wash:'rgba(255,45,149,.075)',weather:'clean',accent:'#ff2d95'},
  {name:'TITAN RUN',sky1:'#16032b',sky2:'#e95a42',grass1:'#1d3e25',grass2:'#295431',edge:'#39d7ff',city:'#110917',prop:'palm',wash:'rgba(255,80,40,.07)'}
 ];
 
@@ -166,6 +166,12 @@ const segAt=z=>ROAD.segments[Math.min(ROAD.segments.length-1,Math.max(0,Math.flo
  for(const s of slots)FIXED_SIGNS.push({z:total*s[0],side:s[1],type:s[2],asset:s[3]});
 })();
 
+const DISTRICT_GATES=DISTRICT_RANGES.slice(1).map(r=>({
+ z:r.startSeg*ROAD.segLen,
+ name:DISTRICTS[r.index].name,
+ color:DISTRICTS[r.index].accent
+}));
+
 const rivals=[],traffic=[],checks=[];
 function seed(){
  rivals.length=0;traffic.length=0;checks.length=0;
@@ -215,7 +221,10 @@ function currentPalette(){
   sky1:blendHex(a.sky1,b.sky1,t),
   sky2:blendHex(a.sky2,b.sky2,t),
   prop:t>.5?b.prop:a.prop,
-  wash:t>.5?b.wash:a.wash
+  wash:t>.5?b.wash:a.wash,
+  weather:t>.5?b.weather:a.weather,
+  accent:t>.5?b.accent:a.accent,
+  index:t>.5?info.next:info.current
  };
 }
 function drawImg(i,x,y,w,h,a=1){
@@ -225,7 +234,7 @@ function drawImg(i,x,y,w,h,a=1){
 function glowText(txt,x,y,size,color,align='center'){
  ctx.save();ctx.textAlign=align;ctx.font=`900 ${size}px "Arial Black",Arial`;ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=size*.25;ctx.fillText(txt,x,y);ctx.restore();
 }
-function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.opacity='1';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.opacity='0',1100)}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.opacity='1';clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.opacity='0',1450)}
 
 function sky(horizon){
  const d=currentPalette();
@@ -305,6 +314,81 @@ function tower(x,y,s){
 function tank(x,y,s){
  ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#1f2a1f';ctx.fillRect(-22,-35,44,35);ctx.beginPath();ctx.ellipse(0,-35,22,8,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8aff2b';ctx.globalAlpha=.3;ctx.fillRect(-17,-27,34,4);ctx.restore();
 }
+
+function streetLamp(x,y,s,side=1,color='#ff2d95'){
+ ctx.save();ctx.translate(x,y);ctx.scale(s*side,s);
+ ctx.strokeStyle='#15151c';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-78);ctx.quadraticCurveTo(0,-92,14,-92);ctx.lineTo(28,-92);ctx.stroke();
+ ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=16;ctx.beginPath();ctx.arc(28,-89,4.5,0,Math.PI*2);ctx.fill();ctx.restore();
+}
+function cityBlock(x,y,s,color='#39d7ff',gold=false){
+ ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+ ctx.fillStyle='#090b12';ctx.fillRect(-32,-110,64,110);
+ ctx.fillStyle=gold?'#ffe53b':color;ctx.globalAlpha=.38;
+ for(let yy=-98;yy<-12;yy+=13)for(let xx=-24;xx<=20;xx+=11)if(((xx+yy)>>2)%3)ctx.fillRect(xx,yy,4,6);
+ ctx.globalAlpha=1;ctx.fillStyle=color;ctx.fillRect(-3,-126,6,16);
+ ctx.restore();
+}
+function pipeRack(x,y,s){
+ ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+ ctx.strokeStyle='#28302a';ctx.lineWidth=9;
+ for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(-38+k*18,0);ctx.lineTo(-38+k*18,-55-k*8);ctx.quadraticCurveTo(-38+k*18,-70-k*8,-22+k*18,-70-k*8);ctx.stroke()}
+ ctx.strokeStyle='#8aff2b';ctx.globalAlpha=.38;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-42,-20);ctx.lineTo(28,-20);ctx.stroke();ctx.restore();
+}
+function bunker(x,y,s){
+ ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+ ctx.fillStyle='#171b1c';ctx.beginPath();ctx.moveTo(-46,0);ctx.lineTo(-34,-34);ctx.lineTo(34,-34);ctx.lineTo(46,0);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#39d7ff';ctx.globalAlpha=.25;ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle='#ff2d95';ctx.globalAlpha=.65;ctx.fillRect(-10,-25,20,3);ctx.restore();
+}
+function districtGate(name,color,horizon,bottom,curve,dist){
+ const max=ROAD.drawDistance*ROAD.segLen;
+ if(dist<=0||dist>max)return;
+ const p=1-dist/max;if(p<.06)return;
+ const pr=proj(Math.pow(p,.88),curve),y=lerp(horizon,bottom,Math.pow(p,.76));
+ const s=.30+p*1.30,w=260*s,h=64*s;
+ ctx.save();ctx.translate(pr.center,y);
+ ctx.strokeStyle='#0b0b10';ctx.lineWidth=10*s;ctx.beginPath();ctx.moveTo(-w*.58,0);ctx.lineTo(-w*.58,-h*.95);ctx.lineTo(w*.58,-h*.95);ctx.lineTo(w*.58,0);ctx.stroke();
+ ctx.fillStyle='rgba(5,5,10,.88)';ctx.fillRect(-w*.52,-h*1.28,w*1.04,h*.58);
+ ctx.strokeStyle=color;ctx.lineWidth=2.5*s;ctx.shadowColor=color;ctx.shadowBlur=14*s;ctx.strokeRect(-w*.52,-h*1.28,w*1.04,h*.58);
+ ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(9,20*s)}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText(name,0,-h*.99);
+ ctx.restore();
+}
+function drawWeather(d,horizon){
+ ctx.save();
+ if(d.weather==='rain'||d.weather==='storm'){
+  const count=d.weather==='storm'?70:42;
+  ctx.strokeStyle=d.weather==='storm'?'rgba(220,235,255,.28)':'rgba(220,235,255,.18)';
+  ctx.lineWidth=1;
+  for(let i=0;i<count;i++){
+   const x=(i*137+state.time*390)%(W+80)-40;
+   const y=(i*83+state.time*610)%(H*.88);
+   ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7,y+19);ctx.stroke();
+  }
+ }
+ if(d.weather==='toxic'){
+  for(let i=0;i<11;i++){
+   const x=(i*181+Math.sin(state.time*.5+i)*44)%W;
+   const y=horizon+40+(i%5)*38;
+   const r=28+(i%4)*19;
+   const g=ctx.createRadialGradient(x,y,0,x,y,r);
+   g.addColorStop(0,'rgba(138,255,43,.10)');g.addColorStop(1,'rgba(138,255,43,0)');
+   ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);
+  }
+ }
+ if(d.weather==='search'||d.weather==='storm'){
+  ctx.globalCompositeOperation='screen';
+  const beams=d.weather==='storm'?3:2;
+  for(let i=0;i<beams;i++){
+   const bx=W*(.18+i/(Math.max(1,beams-1))*.64);
+   const sway=Math.sin(state.time*.55+i*2.1)*W*.10;
+   ctx.fillStyle='rgba(130,210,255,.055)';
+   ctx.beginPath();ctx.moveTo(bx,-10);ctx.lineTo(bx+sway-55,horizon+40);ctx.lineTo(bx+sway+55,horizon+40);ctx.closePath();ctx.fill();
+  }
+ }
+ ctx.restore();
+}
+
 function billboard(x,y,s,index){
  const im=dcBillboards[index%dcBillboards.length];
  if(!im||!im.complete||!im.naturalWidth)return;
@@ -425,25 +509,57 @@ function roadAndScenery(horizon,bottom,curve){
  }
  ctx.restore();
 
- // District scenery: sparse, fixed-feeling roadside silhouettes that change by zone.
+ // District scenery: actual visual identities for each part of Titan City.
  const info=visualDistrict();
  const zoneStart=info.range.startSeg*ROAD.segLen;
  const zoneEnd=info.range.endSeg*ROAD.segLen;
- const propSpacing=4600;
+ const propSpacing=2800;
  const firstProp=Math.ceil(zoneStart/propSpacing)*propSpacing;
  for(let wz=firstProp;wz<zoneEnd;wz+=propSpacing){
   const dist=wz-state.pos;
   if(dist<=0||dist>ROAD.drawDistance*ROAD.segLen)continue;
   const p=1-dist/(ROAD.drawDistance*ROAD.segLen);
   if(p<=.045)continue;
-  const pp=Math.pow(p,.88),pr=proj(pp,curve),yy=lerp(horizon,bottom,Math.pow(p,.76));
+  const pr=proj(Math.pow(p,.88),curve),yy=lerp(horizon,bottom,Math.pow(p,.76));
   const side=((Math.floor(wz/propSpacing)+info.current)%2)?-1:1;
-  const xx=pr.center+side*(pr.half+W*(.055+.11*p));
-  const sc=.20+p*.92;
-  if(d.prop==='palm')palm(xx,yy,sc,side);
-  else if(d.prop==='tank')tank(xx,yy,sc);
-  else tower(xx,yy,sc);
+  const xx=pr.center+side*(pr.half+W*(.048+.105*p));
+  const sc=.18+p*.92;
+  const district=d.index;
+
+  if(district===0){
+   // VHS Quarter: palms, magenta lamps, occasional low neon city blocks.
+   if((Math.floor(wz/propSpacing)%3)===0)cityBlock(xx,yy,sc*.72,'#ff2d95',false);
+   else palm(xx,yy,sc,side);
+   streetLamp(pr.center+side*(pr.half+W*.035),yy,sc*.72,side,'#ff2d95');
+  }else if(district===1){
+   // Financial: dense verticals + warm gold lighting.
+   cityBlock(xx,yy,sc*1.12,'#39d7ff',true);
+   if((Math.floor(wz/propSpacing)%2)===0)cityBlock(xx+side*42*sc,yy,sc*.86,'#ffe53b',true);
+   streetLamp(pr.center+side*(pr.half+W*.032),yy,sc*.78,side,'#ffe53b');
+  }else if(district===2){
+   // Nutrition: tanks, pipes and toxic green industrial glow.
+   tank(xx,yy,sc*1.18);pipeRack(xx+side*38*sc,yy,sc*.84);
+   streetLamp(pr.center+side*(pr.half+W*.032),yy,sc*.70,side,'#8aff2b');
+  }else if(district===3){
+   // Military: bunkers and cold searchlight infrastructure.
+   bunker(xx,yy,sc*1.30);
+   if((Math.floor(wz/propSpacing)%2)===0)tower(xx+side*38*sc,yy,sc*.88);
+   streetLamp(pr.center+side*(pr.half+W*.032),yy,sc*.76,side,'#39d7ff');
+  }else if(district===4){
+   // Titan Heights: tall clean towers, dense pink/cyan light.
+   cityBlock(xx,yy,sc*1.34,'#ff2d95',false);
+   cityBlock(xx+side*48*sc,yy,sc*.96,'#39d7ff',false);
+   streetLamp(pr.center+side*(pr.half+W*.03),yy,sc*.74,side,'#ff2d95');
+  }else{
+   // Titan Run: maximum-density finale, alternating towers and palms.
+   cityBlock(xx,yy,sc*1.38,(Math.floor(wz/propSpacing)%2)?'#ff2d95':'#39d7ff',false);
+   if((Math.floor(wz/propSpacing)%3)===0)palm(xx-side*50*sc,yy,sc*.82,side);
+   streetLamp(pr.center+side*(pr.half+W*.028),yy,sc*.80,side,(Math.floor(wz/propSpacing)%2)?'#ff2d95':'#39d7ff');
+  }
  }
+
+ // Big physical district gates. They sit at the exact start of each new sector.
+ for(const gate of DISTRICT_GATES)districtGate(gate.name,gate.color,horizon,bottom,curve,gate.z-state.pos);
 
  // Roadside graphics: each sign has a permanent world position and side of the circuit.
  const total=TRACK_LEN();
@@ -459,6 +575,21 @@ function roadAndScenery(horizon,bottom,curve){
   else if(sign.type==='barricade')roadsideImage(dcBarricade,x,y,sc*.58,300);
   else billboard(x,y,sc*.70,sign.asset||0);
  }
+ // District roadside walls / curb glow increase city density near the player.
+ if(d.index>=1){
+  for(let k=3;k<15;k+=2){
+   const p=k/18,pr=proj(p,curve),yy=lerp(horizon,bottom,Math.pow(p,.78));
+   const wallH=12+42*p,off=pr.half+W*(.018+.035*p);
+   ctx.fillStyle=d.index===2?'rgba(25,44,25,.72)':d.index===3?'rgba(19,23,26,.76)':'rgba(10,10,18,.68)';
+   ctx.fillRect(pr.center-off-W*.025,yy-wallH,W*.025,wallH);
+   ctx.fillRect(pr.center+off,yy-wallH,W*.025,wallH);
+   ctx.fillStyle=d.edge;ctx.globalAlpha=.28;
+   ctx.fillRect(pr.center-off-W*.025,yy-wallH,2,wallH);
+   ctx.fillRect(pr.center+off,yy-wallH,2,wallH);
+   ctx.globalAlpha=1;
+  }
+ }
+
  // roadside reflector poles
  for(let k=0;k<12;k++){
   const p=k/22,yy=lerp(horizon,bottom,Math.pow(p,.78)),pr=proj(p,curve),s=2+8*p;
@@ -596,7 +727,16 @@ function render(){
  ctx.save();ctx.translate(shakeX,shakeY);
  const horizon=H*.40,bottom=H*.96,curve=roadCurve();
  sky(horizon);
+ drawWeather(currentPalette(),horizon);
  roadAndScenery(horizon,bottom,curve);
+ // Low road haze thickens in industrial/military sectors without obscuring controls.
+ const vd=currentPalette();
+ if(vd.index===2||vd.index===3||vd.index===5){
+  const low=ctx.createLinearGradient(0,horizon,0,bottom);
+  low.addColorStop(0,vd.index===2?'rgba(138,255,43,.055)':'rgba(90,120,150,.025)');
+  low.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=low;ctx.fillRect(0,horizon,W,bottom-horizon);
+ }
  speedFx();player();
  // atmosphere
  let fog=ctx.createLinearGradient(0,horizon*.75,0,horizon*1.25);fog.addColorStop(0,'rgba(255,255,255,0)');fog.addColorStop(1,'rgba(255,160,120,.08)');ctx.fillStyle=fog;ctx.fillRect(0,horizon*.72,W,horizon*.5);
