@@ -66,3 +66,48 @@ body,p,li,small,input,select,textarea{font-family:var(--font-body)}
 @media(max-width:560px){
   .tbn-hero h1,.arc-copy h1,.d-hero h1,.c-hero h1,.store-hero h1,.hq-main h1{letter-spacing:0!important}
 }
+
+
+/* TTD PEARL OVERRIDE // remove electric blue titles */
+:root{
+  --ttd-pearl:#f3efe8;
+  --ttd-pearl-soft:#e6ded2;
+}
+
+/* Main offenders: arcade / feature card headings and blue CTA text */
+.game-copy h3,
+.card-copy h3,
+.library-head h2,
+.book h3,
+.product-copy h3,
+.featured-drop-copy h3,
+.bundle-card h3,
+.commerce-card h3,
+.drop-price,
+.product-price{
+  color:var(--ttd-pearl)!important;
+  text-shadow:0 0 10px rgba(255,255,255,.06);
+}
+
+.game-copy a,
+.card-copy a,
+.book a,
+.quick a,
+.play,
+.card-copy .link,
+.game-copy .link,
+.store-primary,
+.store-secondary{
+  color:var(--ttd-pearl-soft)!important;
+}
+
+/* Keep hover/focus feeling alive without the blue */
+.game-copy a:hover,
+.card-copy a:hover,
+.book a:hover,
+.quick a:hover,
+.play:hover,
+.store-primary:hover,
+.store-secondary:hover{
+  color:#ffffff!important;
+}
