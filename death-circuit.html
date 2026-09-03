@@ -45,13 +45,15 @@ button:active,.active{transform:translateY(2px);filter:brightness(1.3)}
 <div id="shell">
 <canvas id="game"></canvas>
 <div id="topbar">
- <div id="brand">TTD DEATH CIRCUIT // VISUAL ASSAULT V2</div>
+ <div id="brand">TTD DEATH CIRCUIT // GENESIS FINISH V8</div>
  <div id="hud">
   <div class="chip">SPD <b id="spd">0</b></div>
   <div class="chip">GEAR <b id="gear">1</b></div>
   <div class="chip">ROAD <b id="district">VHS QUARTER</b></div>
   <div class="chip">CHECK <b id="check">0/18</b></div>
   <div class="chip">SECTOR <b id="lap">1/6</b></div>
+  <div class="chip">RIVALS <b id="enemies">20</b></div>
+  <div class="chip">TIME <b id="timer">0:00</b></div>
   <div class="chip">SCORE <b id="score">000000</b></div>
   <div class="chip">NITRO <b id="nitroVal">100</b></div>
  </div>
@@ -76,29 +78,39 @@ addEventListener('resize',resize,{passive:true}); resize();
 
 const img=src=>{const i=new Image();i.src=src;return i};
 const concept=img('assets/death-circuit-concept.png');
-const dcGrass=img('assets/death-circuit-v7/grass.png');
-const dcSkyline=img('assets/death-circuit-v7/skyline.png');
+const dcGrass=img('assets/death-circuit-v8/grass.webp');
+const dcSkyline=img('assets/death-circuit-v8/skyline.webp');
 const dcBillboards=[
- img('assets/death-circuit-v7/billboard-skull-juice.png'),
- img('assets/death-circuit-v7/billboard-death-circuit.png'),
- img('assets/death-circuit-v7/billboard-titan-babe.png'),
- img('assets/death-circuit-v7/billboard-mortis.png'),
- img('assets/death-circuit-v7/billboard-tdi.png')
+ img('assets/death-circuit-v8/billboard-skull-juice.webp'),
+ img('assets/death-circuit-v8/billboard-death-circuit.webp'),
+ img('assets/death-circuit-v8/billboard-titan-babe.webp'),
+ img('assets/death-circuit-v8/billboard-mortis.webp'),
+ img('assets/death-circuit-v8/billboard-tdi.webp')
 ];
-const dcChevron=img('assets/death-circuit-v7/road-chevron.png');
-const dcBarricade=img('assets/death-circuit-v7/road-barricade.png');
-const playerIdle=img('assets/death-circuit-v5/mayhem-rear-idle.PNG');
-const playerBoost=img('assets/death-circuit-v5/mayhem-rear-boost.png');
+const dcChevron=img('assets/death-circuit-v8/road-chevron.webp');
+const dcBarricade=img('assets/death-circuit-v8/road-barricade.webp');
+const playerIdle=img('assets/death-circuit-v8/mayhem-idle.webp');
+const playerBoost=img('assets/death-circuit-v8/mayhem-boost.webp');
+const rivalImgs=[
+ img('assets/death-circuit-v8/enforcer.webp'),
+ img('assets/death-circuit-v8/neon-runner.webp'),
+ img('assets/death-circuit-v8/military-interceptor.webp')
+];
+const trafficImgs=[
+ img('assets/death-circuit-v8/credit-viper.webp'),
+ img('assets/death-circuit-v8/nutri-haul.webp'),
+ img('assets/death-circuit-v8/alien-drifter.webp')
+];
 
 const input={left:0,right:0,gas:0,brake:0,nitro:0,steer:0};
-const state={mode:'title',speed:0,pos:0,x:0,last:performance.now(),time:0,score:0,checkpoints:0,lap:1,nitro:100,combo:1,crash:0,flash:0,finish:false,districtIndex:0,shake:0,lastCheckpoint:0};
+const state={mode:'title',speed:0,pos:0,x:0,last:performance.now(),time:0,runTime:0,score:0,checkpoints:0,lap:1,nitro:100,combo:1,crash:0,flash:0,finish:false,districtIndex:0,districtBanner:0,shake:0,collisionLock:0,enemiesPassed:0,enemiesDestroyed:0,lastCheckpoint:0};
 const DISTRICTS=[
- {name:'VHS QUARTER',sky1:'#2d0a45',sky2:'#f24973',grass1:'#173d2a',grass2:'#1e5b36',edge:'#39d7ff',city:'#140c22',prop:'palm',wash:'rgba(255,45,149,.08)',weather:'mist',accent:'#ff2d95'},
- {name:'FINANCIAL DISTRICT',sky1:'#101b3e',sky2:'#ff2d95',grass1:'#0d2630',grass2:'#123440',edge:'#ffe53b',city:'#0b111f',prop:'tower',wash:'rgba(255,229,59,.055)',weather:'rain',accent:'#ffe53b'},
- {name:'NUTRITION DISTRICT',sky1:'#0d3223',sky2:'#f07b3b',grass1:'#25551f',grass2:'#347326',edge:'#8aff2b',city:'#152015',prop:'tank',wash:'rgba(138,255,43,.075)',weather:'toxic',accent:'#8aff2b'},
- {name:'MILITARY ZONE',sky1:'#071827',sky2:'#b5364f',grass1:'#29322b',grass2:'#3a4537',edge:'#39d7ff',city:'#101417',prop:'tower',wash:'rgba(57,215,255,.055)',weather:'search',accent:'#39d7ff'},
- {name:'TITAN HEIGHTS',sky1:'#2b0a39',sky2:'#ff73ad',grass1:'#11263d',grass2:'#173550',edge:'#ff2d95',city:'#120a1b',prop:'tower',wash:'rgba(255,45,149,.075)',weather:'clean',accent:'#ff2d95'},
- {name:'TITAN RUN',sky1:'#16032b',sky2:'#e95a42',grass1:'#1d3e25',grass2:'#295431',edge:'#39d7ff',city:'#110917',prop:'palm',wash:'rgba(255,80,40,.07)'}
+ {name:'VHS QUARTER',route:'REWIND OR DIE',sky1:'#2d0a45',sky2:'#f24973',grass1:'#173d2a',grass2:'#1e5b36',edge:'#39d7ff',city:'#140c22',prop:'palm',wash:'rgba(255,45,149,.08)',weather:'mist',accent:'#ff2d95'},
+ {name:'FINANCIAL DISTRICT',route:'CREDIT IS A WEAPON',sky1:'#101b3e',sky2:'#ff2d95',grass1:'#0d2630',grass2:'#123440',edge:'#ffe53b',city:'#0b111f',prop:'tower',wash:'rgba(255,229,59,.055)',weather:'rain',accent:'#ffe53b'},
+ {name:'NUTRITION DISTRICT',route:'100% MUTANT ENERGY',sky1:'#0d3223',sky2:'#f07b3b',grass1:'#25551f',grass2:'#347326',edge:'#8aff2b',city:'#152015',prop:'tank',wash:'rgba(138,255,43,.075)',weather:'toxic',accent:'#8aff2b'},
+ {name:'MILITARY ZONE',route:'RESTRICTED ROAD',sky1:'#071827',sky2:'#b5364f',grass1:'#29322b',grass2:'#3a4537',edge:'#39d7ff',city:'#101417',prop:'tower',wash:'rgba(57,215,255,.055)',weather:'search',accent:'#39d7ff'},
+ {name:'TITAN HEIGHTS',route:'POWER LIVES ABOVE',sky1:'#2b0a39',sky2:'#ff73ad',grass1:'#11263d',grass2:'#173550',edge:'#ff2d95',city:'#120a1b',prop:'tower',wash:'rgba(255,45,149,.075)',weather:'clean',accent:'#ff2d95'},
+ {name:'TITAN RUN',route:'CITY LIMITS TERMINATED',sky1:'#16032b',sky2:'#e95a42',grass1:'#1d3e25',grass2:'#295431',edge:'#39d7ff',city:'#110917',prop:'palm',wash:'rgba(255,80,40,.07)',weather:'storm',accent:'#ff2d95'}
 ];
 
 const FIXED_SIGNS=[];
@@ -152,32 +164,42 @@ const segAt=z=>ROAD.segments[Math.min(ROAD.segments.length-1,Math.max(0,Math.flo
 
 // Permanent signs: actual world coordinates, no repeating loop.
 (function seedFixedSigns(){
- const total=TRACK_LEN();
- const slots=[
-  [.035,-1,'billboard',0],[.085,1,'billboard',1],
-  [.145,-1,'chevron',0],[.205,1,'billboard',2],
-  [.275,-1,'billboard',3],[.335,1,'barricade',0],
-  [.405,-1,'billboard',4],[.475,1,'billboard',1],
-  [.545,-1,'chevron',0],[.615,1,'billboard',0],
-  [.685,-1,'billboard',2],[.755,1,'barricade',0],
-  [.825,-1,'billboard',3],[.895,1,'billboard',4],
-  [.955,-1,'billboard',1]
- ];
- for(const s of slots)FIXED_SIGNS.push({z:total*s[0],side:s[1],type:s[2],asset:s[3]});
+ for(const r of DISTRICT_RANGES){
+  const start=r.startSeg*ROAD.segLen,end=r.endSeg*ROAD.segLen,span=end-start;
+  const flip=r.index%2?-1:1;
+  FIXED_SIGNS.push({z:start+span*.14,side:-flip,type:'billboard',asset:r.index%dcBillboards.length});
+  FIXED_SIGNS.push({z:start+span*.38,side:flip,type:'route',district:r.index});
+  FIXED_SIGNS.push({z:start+span*.64,side:-flip,type:'billboard',asset:(r.index+2)%dcBillboards.length});
+  FIXED_SIGNS.push({z:start+span*.84,side:flip,type:r.index%2?'barricade':'chevron',asset:0});
+ }
 })();
 
 const DISTRICT_GATES=DISTRICT_RANGES.slice(1).map(r=>({
  z:r.startSeg*ROAD.segLen,
  name:DISTRICTS[r.index].name,
- color:DISTRICTS[r.index].accent
+ color:DISTRICTS[r.index].accent,
+ index:r.index
 }));
 
 const rivals=[],traffic=[],checks=[];
+const TOTAL_ENEMIES=20;
+const allEnemies=()=>traffic.concat(rivals);
 function seed(){
  rivals.length=0;traffic.length=0;checks.length=0;
  const total=TRACK_LEN();
  // 3 checkpoints per district = 18 total.
  for(let i=1;i<=18;i++)checks.push({z:total*i/19,passed:false});
+ // Twenty opponents are stretched across the full city, not dumped into one traffic knot.
+ const lanes=[-.62,.38,-.16,.58,-.43,.08,.49,-.55,.22,-.30];
+ for(let i=0;i<TOTAL_ENEMIES;i++){
+  const district=Math.min(5,Math.floor(i/3.34));
+  const o={
+   id:i,z:total*(.045+i*.90/(TOTAL_ENEMIES-1)),lane:lanes[i%lanes.length],
+   baseLane:lanes[i%lanes.length],speed:62+(i%5)*13,district,
+   kind:i%3,phase:i*.91,alive:true,passed:false,nearMiss:false,lastD:Infinity
+  };
+  if(i%4===3)rivals.push(o);else traffic.push(o);
+ }
 }
 seed();
 
@@ -260,6 +282,9 @@ function sky(horizon){
   ctx.restore();
  }
 
+ // Each sector gets a readable 16-bit horizon silhouette over the shared Titan City skyline.
+ districtBackdrop(d,horizon);
+
  // A narrow haze joins city and track; NO synthetic sun, NO dark gap.
  const haze=ctx.createLinearGradient(0,horizon-38,0,horizon+58);
  haze.addColorStop(0,'rgba(10,4,18,0)');
@@ -340,7 +365,41 @@ function bunker(x,y,s){
  ctx.strokeStyle='#39d7ff';ctx.globalAlpha=.25;ctx.lineWidth=2;ctx.stroke();
  ctx.fillStyle='#ff2d95';ctx.globalAlpha=.65;ctx.fillRect(-10,-25,20,3);ctx.restore();
 }
-function districtGate(name,color,horizon,bottom,curve,dist){
+
+function districtBackdrop(d,horizon){
+ const base=horizon+18;
+ ctx.save();ctx.globalAlpha=.78;
+ if(d.index===0){
+  for(let i=0;i<9;i++)palm(W*(.03+i*.12),base,.42+(i%3)*.08,i%2?-1:1);
+ }else if(d.index===1){
+  for(let i=0;i<12;i++)cityBlock(W*(.02+i*.09),base,.48+(i%4)*.15,i%2?'#ffe53b':'#39d7ff',true);
+ }else if(d.index===2){
+  for(let i=0;i<9;i++){const x=W*(.03+i*.12);tank(x,base,.62+(i%2)*.18);pipeRack(x+34,base,.48)}
+ }else if(d.index===3){
+  for(let i=0;i<10;i++){const x=W*(.02+i*.11);bunker(x,base,.72);if(i%2===0)tower(x+28,base,.55)}
+ }else if(d.index===4){
+  for(let i=0;i<14;i++)cityBlock(W*(.01+i*.075),base,.62+(i%5)*.16,i%2?'#ff2d95':'#39d7ff',false);
+ }else{
+  for(let i=0;i<14;i++){const x=W*(.01+i*.075);cityBlock(x,base,.55+(i%4)*.17,i%2?'#ff2d95':'#39d7ff',false);if(i%4===0)palm(x+35,base,.46,i%2?-1:1)}
+ }
+ ctx.restore();
+}
+
+function districtRoadSign(x,y,s,d,side){
+ const w=225*s,h=82*s;
+ ctx.save();ctx.translate(x,y);
+ ctx.strokeStyle='#17171d';ctx.lineWidth=Math.max(2,8*s);
+ ctx.beginPath();ctx.moveTo(-w*.34,0);ctx.lineTo(-w*.34,-h*.92);ctx.moveTo(w*.34,0);ctx.lineTo(w*.34,-h*.92);ctx.stroke();
+ ctx.fillStyle='rgba(4,5,9,.94)';ctx.strokeStyle=d.accent;ctx.lineWidth=Math.max(1,2.5*s);ctx.shadowColor=d.accent;ctx.shadowBlur=14*s;
+ ctx.fillRect(-w/2,-h*1.28,w,h*.72);ctx.strokeRect(-w/2,-h*1.28,w,h*.72);
+ ctx.shadowBlur=0;ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillStyle=d.accent;ctx.font=`900 ${Math.max(7,10*s)}px monospace`;ctx.fillText(`TTD ROUTE 87 // SECTOR ${String(d.index+1).padStart(2,'0')}`,0,-h*1.10);
+ ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(9,17*s)}px "Arial Black",Arial`;ctx.fillText(d.name,0,-h*.86);
+ ctx.fillStyle=d.accent;ctx.font=`900 ${Math.max(6,8*s)}px monospace`;ctx.fillText(`${side<0?'◀':'▶'} ${d.route}`,0,-h*.66);
+ ctx.restore();
+}
+
+function districtGate(name,color,horizon,bottom,curve,dist,index){
  const max=ROAD.drawDistance*ROAD.segLen;
  if(dist<=0||dist>max)return;
  const p=1-dist/max;if(p<.06)return;
@@ -350,8 +409,10 @@ function districtGate(name,color,horizon,bottom,curve,dist){
  ctx.strokeStyle='#0b0b10';ctx.lineWidth=10*s;ctx.beginPath();ctx.moveTo(-w*.58,0);ctx.lineTo(-w*.58,-h*.95);ctx.lineTo(w*.58,-h*.95);ctx.lineTo(w*.58,0);ctx.stroke();
  ctx.fillStyle='rgba(5,5,10,.88)';ctx.fillRect(-w*.52,-h*1.28,w*1.04,h*.58);
  ctx.strokeStyle=color;ctx.lineWidth=2.5*s;ctx.shadowColor=color;ctx.shadowBlur=14*s;ctx.strokeRect(-w*.52,-h*1.28,w*1.04,h*.58);
- ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(9,20*s)}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText(name,0,-h*.99);
+ ctx.fillStyle=color;ctx.font=`900 ${Math.max(6,9*s)}px monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText(`ENTER SECTOR ${String(index+1).padStart(2,'0')}`,0,-h*1.13);
+ ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(9,20*s)}px Arial`;
+ ctx.fillText(name,0,-h*.91);
  ctx.restore();
 }
 function drawWeather(d,horizon){
@@ -559,7 +620,7 @@ function roadAndScenery(horizon,bottom,curve){
  }
 
  // Big physical district gates. They sit at the exact start of each new sector.
- for(const gate of DISTRICT_GATES)districtGate(gate.name,gate.color,horizon,bottom,curve,gate.z-state.pos);
+ for(const gate of DISTRICT_GATES)districtGate(gate.name,gate.color,horizon,bottom,curve,gate.z-state.pos,gate.index);
 
  // Roadside graphics: each sign has a permanent world position and side of the circuit.
  const total=TRACK_LEN();
@@ -569,10 +630,11 @@ function roadAndScenery(horizon,bottom,curve){
   const p=1-dist/(ROAD.drawDistance*ROAD.segLen);
   if(p<=.035)continue;
   const pp=Math.pow(p,.88),pr=proj(pp,curve),y=lerp(horizon,bottom,Math.pow(p,.76));
-  const x=pr.center+sign.side*(pr.half+W*(.075+.15*p));
+  const x=pr.center+sign.side*(pr.half+W*(.045+.10*p));
   const sc=.30+p*1.46;
   if(sign.type==='chevron')roadsideImage(dcChevron,x,y,sc*.62,250);
   else if(sign.type==='barricade')roadsideImage(dcBarricade,x,y,sc*.58,300);
+  else if(sign.type==='route')districtRoadSign(x,y,sc*.62,DISTRICTS[sign.district],sign.side);
   else billboard(x,y,sc*.70,sign.asset||0);
  }
  // District roadside walls / curb glow increase city density near the player.
@@ -597,10 +659,75 @@ function roadAndScenery(horizon,bottom,curve){
  }
 }
 
+function enemyImage(o){
+ return (o.id%4===3?rivalImgs:trafficImgs)[o.kind%3];
+}
+
+function drawEnemyTraffic(horizon,bottom,curve){
+ const max=ROAD.drawDistance*ROAD.segLen*.72,list=[];
+ for(const o of allEnemies()){
+  const dist=o.z-state.pos;
+  if(o.alive&&!o.passed&&dist>0&&dist<max)list.push({o,dist});
+ }
+ list.sort((a,b)=>b.dist-a.dist);
+ for(const item of list){
+  const o=item.o,p=1-item.dist/max,pp=Math.pow(p,.88),pr=proj(pp,curve);
+  const y=lerp(horizon,bottom,Math.pow(p,.76));
+  const x=pr.center+o.lane*pr.half*.76;
+  const im=enemyImage(o),w=clamp(18+p*176,18,194);
+  const ratio=(im&&im.complete&&im.naturalWidth)?im.naturalHeight/im.naturalWidth:.62;
+  const h=w*ratio,isRival=o.id%4===3;
+  ctx.save();ctx.translate(x,y);
+  ctx.globalAlpha=.28;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(0,1,w*.43,h*.10,0,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;ctx.shadowColor=isRival?'#ff2d95':DISTRICTS[o.district].accent;ctx.shadowBlur=(4+14*p)*(isRival?1.25:.72);
+  if(im&&im.complete&&im.naturalWidth)ctx.drawImage(im,-w/2,-h,w,h);
+  else{ctx.fillStyle=isRival?'#ff2d95':'#39d7ff';ctx.fillRect(-w/2,-h,w,h)}
+  if(isRival&&p>.22){
+   ctx.shadowBlur=0;ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(-w*.32,-h-12*p,w*.64,9*p);
+   ctx.fillStyle='#ff2d95';ctx.fillRect(-w*.30,-h-10*p,w*.60,4*p);
+  }
+  ctx.restore();
+ }
+}
+
+function updateEnemyTraffic(dt){
+ const total=TRACK_LEN();
+ state.collisionLock=Math.max(0,state.collisionLock-dt);
+ for(const o of allEnemies()){
+  if(!o.alive||o.passed)continue;
+  o.z=Math.min(total-420,o.z+o.speed*dt*5.2);
+  if(o.id%4===3)o.lane=clamp(o.baseLane+Math.sin(state.time*1.25+o.phase)*.17,-.70,.70);
+  else if(o.kind===2)o.lane=clamp(o.baseLane+Math.sin(state.time*.62+o.phase)*.055,-.70,.70);
+  const dist=o.z-state.pos,lat=Math.abs(o.lane-state.x);
+
+  if(state.collisionLock<=0&&dist<135&&dist>-35&&lat<.18){
+   if(input.nitro&&state.nitro>0&&state.speed>225){
+    o.alive=false;o.passed=true;state.enemiesPassed++;state.enemiesDestroyed++;
+    state.score+=1800*state.combo;state.combo=clamp(state.combo+1,1,6);
+    state.flash=.22;state.shake=13;state.collisionLock=.35;toast('RIVAL TERMINATED // +1800');
+   }else{
+    state.speed*=.46;state.combo=1;state.crash=.72;state.flash=.16;state.shake=24;state.collisionLock=.95;
+    o.z=Math.min(total-420,o.z+1500);o.baseLane=-o.baseLane;o.lane=o.baseLane;
+    toast('IMPACT // DRIVE THROUGH IT');
+   }
+  }
+
+  if(!o.passed&&dist<-105){
+   o.passed=true;state.enemiesPassed++;
+   const near=lat<.34;
+   state.score+=near?650*state.combo:300;
+   if(near){state.combo=clamp(state.combo+1,1,6);toast(`NEAR MISS // COMBO x${state.combo}`)}
+  }
+  o.lastD=dist;
+ }
+}
+
 function player(){
  const boost=input.nitro&&state.nitro>0&&state.mode==='play';
  const im=boost?playerBoost:playerIdle;
- const w=clamp(W*.205,170,295),h=w*.54;
+ const w=clamp(W*.205,170,295);
+ const ratio=(im&&im.complete&&im.naturalWidth)?im.naturalHeight/im.naturalWidth:.67;
+ const h=w*ratio;
  // state.x is the actual lane position, independent of road/camera projection.
  const x=W*.5+state.x*W*.285;
  // Keep Mayhem visually ABOVE the touch controls instead of buried underneath them.
@@ -648,21 +775,39 @@ function drawTitle(){
  else{sky(H*.44);ctx.fillStyle='#0b0910';ctx.fillRect(0,H*.44,W,H*.56)}
  glowText('TTD',W*.5,H*.24,Math.max(32,W*.055),'#8aff2b');
  glowText('DEATH CIRCUIT',W*.5,H*.34,Math.max(42,W*.074),'#ff2d95');
- ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(12,W*.016)}px monospace`;ctx.fillText('PURE CIRCUIT TEST // MAYHEM // TRACK // NITRO',W*.5,H*.405);
+ ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(12,W*.016)}px monospace`;ctx.fillText('16-BIT TITAN RUN // 6 DISTRICTS // 20 RIVALS',W*.5,H*.405);
  ctx.fillStyle='rgba(0,0,0,.72)';ctx.strokeStyle='rgba(138,255,43,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(W*.5-150,H*.56,300,58,16);ctx.fill();ctx.stroke();
  ctx.fillStyle='#8aff2b';ctx.font='900 18px monospace';ctx.fillText('PRESS START',W*.5,H*.595);
  ctx.fillStyle='#fff';ctx.font='900 10px monospace';ctx.fillText('THROTTLE // STEER // BRAKE-DRIFT // NITRO',W*.5,H*.66);
+}
+function formatTime(seconds){
+ const whole=Math.max(0,Math.floor(seconds)),m=Math.floor(whole/60),s=String(whole%60).padStart(2,'0');
+ return `${m}:${s}`;
+}
+function drawDistrictChange(){
+ if(state.districtBanner<=0||state.mode!=='play')return;
+ const d=DISTRICTS[state.districtIndex],fade=clamp(state.districtBanner/.45,0,1),alpha=Math.min(1,fade);
+ ctx.save();ctx.globalAlpha=alpha;
+ const top=H*.18,band=H*.19,g=ctx.createLinearGradient(0,top,0,top+band);
+ g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.22,'rgba(0,0,0,.82)');g.addColorStop(.78,'rgba(0,0,0,.82)');g.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=g;ctx.fillRect(0,top,W,band);
+ ctx.textAlign='center';ctx.fillStyle=d.accent;ctx.font=`900 ${Math.max(10,W*.012)}px monospace`;ctx.fillText(`SECTOR ${String(state.districtIndex+1).padStart(2,'0')} // TTD ROUTE 87`,W*.5,top+band*.38);
+ glowText(d.name,W*.5,top+band*.67,Math.max(28,W*.043),'#f4f1e9');
+ ctx.fillStyle=d.accent;ctx.font=`900 ${Math.max(9,W*.010)}px monospace`;ctx.fillText(d.route,W*.5,top+band*.86);
+ ctx.restore();
 }
 function drawFinish(){
  ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,W,H);
  glowText('TITAN CITY CLEARED',W*.5,H*.39,Math.max(38,W*.06),'#8aff2b');
  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 18px monospace';ctx.fillText(`SCORE ${String(Math.round(state.score)).padStart(6,'0')}`,W*.5,H*.47);
- ctx.fillStyle='#ff2d95';ctx.font='900 12px monospace';ctx.fillText('SIX DISTRICTS. ONE RUN. NO REFUNDS.',W*.5,H*.53);
+ ctx.fillStyle='#39d7ff';ctx.font='900 12px monospace';ctx.fillText(`TIME ${formatTime(state.runTime)} // RIVALS PASSED ${state.enemiesPassed}/${TOTAL_ENEMIES} // DESTROYED ${state.enemiesDestroyed}`,W*.5,H*.515);
+ ctx.fillStyle='#ff2d95';ctx.fillText('SIX DISTRICTS. ONE RUN. NO REFUNDS.',W*.5,H*.56);
 }
 
 function update(dt){
- state.time+=dt;state.flash=Math.max(0,state.flash-dt);state.crash=Math.max(0,state.crash-dt);state.shake=Math.max(0,state.shake-dt*20);
+ state.time+=dt;state.flash=Math.max(0,state.flash-dt);state.crash=Math.max(0,state.crash-dt);state.shake=Math.max(0,state.shake-dt*20);state.districtBanner=Math.max(0,state.districtBanner-dt);
  if(state.mode!=='play')return;
+ state.runTime+=dt;
 
  const beforeInfo=districtInfoAt(state.pos);
  const boost=input.nitro&&state.nitro>0;
@@ -688,6 +833,7 @@ function update(dt){
 
  state.pos+=state.speed*dt*17;
  const total=TRACK_LEN();
+ updateEnemyTraffic(dt);
 
  if(state.pos>=total-80){
   state.pos=total-80;
@@ -701,7 +847,7 @@ function update(dt){
  const afterInfo=districtInfoAt(state.pos);
  if(afterInfo.current!==beforeInfo.current){
   state.districtIndex=afterInfo.current;
-  state.flash=.10;
+  state.flash=.10;state.districtBanner=2.4;
   toast(`${DISTRICTS[afterInfo.current].name} // ENTER`);
  }
 
@@ -737,11 +883,12 @@ function render(){
   low.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=low;ctx.fillRect(0,horizon,W,bottom-horizon);
  }
- speedFx();player();
+ drawEnemyTraffic(horizon,bottom,curve);speedFx();player();
  // atmosphere
  let fog=ctx.createLinearGradient(0,horizon*.75,0,horizon*1.25);fog.addColorStop(0,'rgba(255,255,255,0)');fog.addColorStop(1,'rgba(255,160,120,.08)');ctx.fillStyle=fog;ctx.fillRect(0,horizon*.72,W,horizon*.5);
  if(state.crash>0){ctx.fillStyle=`rgba(255,45,149,${state.crash*.28})`;ctx.fillRect(0,0,W,H)}
  if(state.flash>0){ctx.fillStyle=`rgba(255,229,59,${state.flash*.22})`;ctx.fillRect(0,0,W,H)}
+ drawDistrictChange();
  if(state.mode==='finish')drawFinish();
  ctx.restore();syncHud();
 }
@@ -752,6 +899,8 @@ function syncHud(){
  document.getElementById('district').textContent=DISTRICTS[info.current].name;
  document.getElementById('check').textContent=`${state.checkpoints}/18`;
  document.getElementById('lap').textContent=`${info.current+1}/6`;
+ document.getElementById('enemies').textContent=String(Math.max(0,TOTAL_ENEMIES-state.enemiesPassed));
+ document.getElementById('timer').textContent=formatTime(state.runTime);
  document.getElementById('score').textContent=String(Math.round(state.score)).padStart(6,'0');
  document.getElementById('nitroVal').textContent=Math.round(state.nitro);
 }
@@ -759,8 +908,8 @@ function syncHud(){
 function reset(){
  input.steer=0;
  Object.assign(state,{
-  mode:'play',speed:0,pos:0,x:0,score:0,checkpoints:0,lap:1,nitro:100,
-  combo:1,crash:0,flash:.15,finish:false,districtIndex:0,shake:0
+  mode:'play',speed:0,pos:0,x:0,runTime:0,score:0,checkpoints:0,lap:1,nitro:100,
+  combo:1,crash:0,flash:.15,finish:false,districtIndex:0,districtBanner:2.4,shake:0,collisionLock:0,enemiesPassed:0,enemiesDestroyed:0
  });
  seed();
  toast('VHS QUARTER // DEPLOY');
