@@ -1,4 +1,4 @@
-const CACHE = 'ttd-hq-v12-repair-pack';
+const CACHE = 'ttd-hq-v12.1-fit-clearance';
 const CORE = [
   './',
   './index.html',

@@ -226,6 +226,22 @@
   }
 }
 
+/* Lock image proportions across Safari/iPad breakpoints. */
+.hero-banner img{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:3/1!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+.hq-logo img{
+  width:min(100%,360px)!important;
+  height:auto!important;
+  aspect-ratio:1/1!important;
+  object-fit:contain!important;
+}
+
 /* Bottom-nav safe-area / thumb polish across modern iPhones. */
 .bottom-nav{
   bottom:max(6px,env(safe-area-inset-bottom))!important;
@@ -238,7 +254,7 @@
 }
 
 /* Desktop navigation becomes an edge rail instead of covering page CTAs and game UI. */
-@media(min-width:1000px){
+@media(min-width:760px){
   .bottom-nav{
     left:auto!important;right:12px!important;top:50%!important;bottom:auto!important;
     transform:translateY(-50%)!important;width:84px!important;

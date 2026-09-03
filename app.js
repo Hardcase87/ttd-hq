@@ -123,7 +123,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
   if (!document.querySelector('link[data-ttd-commercial-css]')) {
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = 'commercial.css?v=2';
+    css.href = 'commercial.css?v=12.1';
     css.dataset.ttdCommercialCss = '1';
     document.head.appendChild(css);
   }
@@ -312,7 +312,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./sw.js?v=12', {
+      const registration = await navigator.serviceWorker.register('./sw.js?v=12.1', {
         updateViaCache: 'none'
       });
       await registration.update();
