@@ -1,4 +1,4 @@
-const CACHE = 'ttd-hq-v12.1-fit-clearance';
+const CACHE = 'ttd-hq-v12.2-bottom-dock';
 const CORE = [
   './',
   './index.html',

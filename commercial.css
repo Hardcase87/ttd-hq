@@ -253,17 +253,6 @@
   justify-content:center;
 }
 
-/* Desktop navigation becomes an edge rail instead of covering page CTAs and game UI. */
-@media(min-width:760px){
-  .bottom-nav{
-    left:auto!important;right:12px!important;top:50%!important;bottom:auto!important;
-    transform:translateY(-50%)!important;width:84px!important;
-    grid-template-columns:1fr!important;gap:5px!important;padding:6px!important;
-  }
-  .bottom-nav a{min-height:42px!important;padding:.62rem .3rem!important;font-size:.72rem!important}
-  .ttd-commercial-footer{margin-bottom:1.25rem}
-}
-
 /* Prevent accidental horizontal scroll from long commerce/order content. */
 html,body{max-width:100%;overflow-x:hidden}
 img{max-width:100%}
