@@ -1,4 +1,4 @@
-const CACHE = 'ttd-hq-v11-hardcore-checkout';
+const CACHE = 'ttd-hq-v12-repair-pack';
 const CORE = [
   './',
   './index.html',
@@ -20,11 +20,20 @@ const CORE = [
   './store-checkout-bridge.js',
   './payment-order-bridge.js',
   './styles.css',
+  './base.css',
   './commercial.css',
   './app.js',
   './manifest.json',
-  './assets/images/ttd-banner.png',
-  './assets/images/ttd-logo-app.png'
+  './assets/images/ttd-banner-hq.webp',
+  './assets/images/ttd-logo-app-hq.webp',
+  './assets/images/module-city-map-hq.webp',
+  './assets/images/module-comics-hq.webp',
+  './assets/images/module-dossiers-hq.webp',
+  './assets/images/module-tbn-hq.webp',
+  './assets/images/module-arcade-hq.webp',
+  './assets/images/module-store-hq.webp',
+  './assets/images/ttd-power-command/power-command-concept-hq.webp',
+  './assets/images/reb-renal-failure-2/title-screen-v36-hq.webp'
 ];
 
 self.addEventListener('install', event => {

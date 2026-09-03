@@ -1,4 +1,4 @@
-@import url("https://raw.githack.com/Hardcase87/ttd-hq/77e561d49b6a0bf8e76d3367402f6298491484d1/styles.css");
+@import url("./base.css?v=12");
 @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&family=Teko:wght@600;700&display=swap");
 
 /* TTD OFFICIAL TYPOGRAPHY SYSTEM // FONT-ONLY OVERLAY */
@@ -77,6 +77,7 @@ body,p,li,small,input,select,textarea{font-family:var(--font-body)}
 /* Main offenders: arcade / feature card headings and blue CTA text */
 .game-copy h3,
 .card-copy h3,
+.dep-copy h3,
 .library-head h2,
 .book h3,
 .product-copy h3,
@@ -98,6 +99,10 @@ body,p,li,small,input,select,textarea{font-family:var(--font-body)}
 .game-copy .link,
 .store-primary,
 .store-secondary{
+  color:var(--ttd-pearl-soft)!important;
+}
+
+.dep-copy>span{
   color:var(--ttd-pearl-soft)!important;
 }
 

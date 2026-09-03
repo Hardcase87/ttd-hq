@@ -36,6 +36,34 @@
   background:linear-gradient(180deg,rgba(138,255,43,.08),rgba(138,255,43,.02))!important;
 }
 
+/* Clear front doors for first-time visitors without diluting the chaos. */
+.hq-entry-actions{
+  display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1.15rem;
+}
+.hq-entry-actions a,
+.ttd-start-here>a{
+  display:inline-flex;align-items:center;justify-content:center;min-height:46px;
+  padding:.7rem .9rem;border:1px solid rgba(255,255,255,.13);border-radius:11px;
+  color:#f3efe8;text-decoration:none;font:900 .83rem "Barlow Condensed",sans-serif;
+  letter-spacing:.07em;
+}
+.hq-entry-actions a:first-child,
+.ttd-start-here>a{
+  color:#050608;background:#8aff2b;border-color:#8aff2b;
+  box-shadow:0 0 24px rgba(138,255,43,.12);
+}
+.ttd-start-here{
+  display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;
+  margin-top:12px;padding:1rem 1.15rem!important;
+  border-color:rgba(138,255,43,.30)!important;
+  background:radial-gradient(circle at 10% 100%,rgba(138,255,43,.08),transparent 35%),rgba(7,8,11,.96)!important;
+}
+.ttd-start-here h2{
+  margin:.08rem 0;font:900 clamp(2rem,5vw,3.2rem)/.9 "Barlow Condensed",sans-serif;
+  color:#f3efe8;text-transform:uppercase;
+}
+.ttd-start-here p:last-child{margin:.4rem 0 0;color:#bdc1ca}
+
 .ttd-home-commercial-status{
   margin-top:1rem!important;display:grid!important;
   grid-template-columns:1.15fr .85fr!important;gap:1rem!important;align-items:center!important;
@@ -209,6 +237,17 @@
   justify-content:center;
 }
 
+/* Desktop navigation becomes an edge rail instead of covering page CTAs and game UI. */
+@media(min-width:1000px){
+  .bottom-nav{
+    left:auto!important;right:12px!important;top:50%!important;bottom:auto!important;
+    transform:translateY(-50%)!important;width:84px!important;
+    grid-template-columns:1fr!important;gap:5px!important;padding:6px!important;
+  }
+  .bottom-nav a{min-height:42px!important;padding:.62rem .3rem!important;font-size:.72rem!important}
+  .ttd-commercial-footer{margin-bottom:1.25rem}
+}
+
 /* Prevent accidental horizontal scroll from long commerce/order content. */
 html,body{max-width:100%;overflow-x:hidden}
 img{max-width:100%}
@@ -234,4 +273,7 @@ img{max-width:100%}
   .ttd-status-chips{justify-content:flex-start}
   .ttd-legal-grid{grid-template-columns:1fr}
   .ttd-legal-card.wide{grid-column:auto}
+  .ttd-start-here{grid-template-columns:1fr}
+  .ttd-start-here>a{width:100%}
+  main{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
 }

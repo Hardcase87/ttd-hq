@@ -123,7 +123,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
   if (!document.querySelector('link[data-ttd-commercial-css]')) {
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = 'commercial.css?v=1';
+    css.href = 'commercial.css?v=2';
     css.dataset.ttdCommercialCss = '1';
     document.head.appendChild(css);
   }
@@ -138,7 +138,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
     },
     'arcade.html': {
       title: 'TTD Arcade // Tactical Terror Division',
-      description: 'Five browser arcade cabinets live inside Titan City: Power Command, Titan Ball 92, Titan Ball 94, REB Renal Failure and REB Renal Revenge.',
+      description: 'Six browser arcade cabinets live inside Titan City: Power Command, Death Circuit, Titan Ball 92, Titan Ball 94, REB Renal Failure and REB Renal Revenge.',
       image: '/assets/images/module-arcade.png'
     },
     'comics.html': {
@@ -243,34 +243,11 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
     else document.body.appendChild(footer);
   }
 
-  /* Homepage commercial status strip. */
-  if (path === 'index.html' && !document.querySelector('.ttd-home-commercial-status')) {
-    const main = document.querySelector('main');
-    if (main) {
-      const status = document.createElement('section');
-      status.className = 'panel ttd-home-commercial-status';
-      status.innerHTML = `
-        <div>
-          <p class="eyebrow">TTD HQ // NETWORK STATUS</p>
-          <h2>THE CITY IS OPEN.</h2>
-          <p>Power Command deployed. REB: Renal Revenge deployed. Five arcade cabinets live. Three Titan City issues free. Loot Vault Drop 001 arming.</p>
-        </div>
-        <div class="ttd-status-chips">
-          <a href="power-command.html">POWER COMMAND // LIVE</a>
-          <a href="arcade.html">5 CABINETS</a>
-          <a href="comics.html">3 FREE COMICS</a>
-          <a href="store.html">LOOT VAULT // ARMING</a>
-        </div>
-      `;
-      main.appendChild(status);
-    }
-  }
-
-  /* Arcade completion patch: Cabinet 05 // Power Command. */
+  /* Legacy Arcade completion patch. Current Arcade already ships Power Command. */
   const arcadeMarker = [...document.querySelectorAll('.network-strip *')]
     .some(el => (el.textContent || '').includes('ARCADE // TITAN CITY'));
 
-  if ((path === 'arcade.html' || arcadeMarker) && !document.querySelector('[data-power-command-cabinet]')) {
+  if ((path === 'arcade.html' || arcadeMarker) && !document.querySelector('a[href="power-command.html"]')) {
     document.querySelectorAll('.network-strip > div').forEach(el => {
       if ((el.textContent || '').includes('4 CABINETS ONLINE')) {
         el.textContent = '5 CABINETS ONLINE';
@@ -335,7 +312,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./sw.js?v=10', {
+      const registration = await navigator.serviceWorker.register('./sw.js?v=12', {
         updateViaCache: 'none'
       });
       await registration.update();
