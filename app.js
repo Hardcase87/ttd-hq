@@ -138,7 +138,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
     },
     'arcade.html': {
       title: 'TTD Arcade // Tactical Terror Division',
-      description: 'Six browser arcade cabinets live inside Titan City: Power Command, Death Circuit, Titan Ball 92, Titan Ball 94, REB Renal Failure and REB Renal Revenge.',
+      description: 'Five browser arcade cabinets are live inside Titan City while Death Circuit undergoes its standalone Xogot rebuild.',
       image: '/assets/images/module-arcade.png'
     },
     'comics.html': {

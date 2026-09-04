@@ -1,4 +1,4 @@
-const CACHE = 'ttd-hq-v12.2-bottom-dock';
+const CACHE = 'ttd-hq-v12.3-death-circuit-lock';
 const CORE = [
   './',
   './index.html',

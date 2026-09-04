@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#08070d">
-<meta name="description" content="Play six free browser games inside the Tactical Terror Division Arcade, including Power Command and REB: Renal Revenge.">
+<meta name="description" content="Play five free browser games inside the Tactical Terror Division Arcade while Death Circuit is rebuilt for Xogot.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
@@ -21,6 +21,10 @@ body{background:radial-gradient(circle at 80% 8%,rgba(255,45,149,.12),transparen
 .game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .game-card{position:relative;min-height:430px;border:1px solid var(--mm-line);border-radius:20px;overflow:hidden;text-decoration:none;color:#fff;background:#08080d;transition:.2s}
 .game-card:hover{transform:translateY(-3px);border-color:rgba(138,255,43,.45);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.game-card--disabled{cursor:default;border-color:rgba(255,45,149,.34);pointer-events:none}
+.game-card--disabled:hover{transform:none;box-shadow:none}
+.game-card--disabled img{filter:saturate(.72) brightness(.62)}
+.game-card--disabled:before{content:"XOGOT REBUILD";position:absolute;z-index:3;right:16px;top:16px;padding:.52rem .72rem;border:1px solid rgba(255,45,149,.66);border-radius:999px;background:rgba(4,4,8,.88);color:var(--mm-p);font:900 .76rem "Barlow Condensed";letter-spacing:.12em}
 .game-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.game-card:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 18%,rgba(4,4,8,.24) 45%,rgba(4,4,8,.97) 83%)}
 .game-copy{position:absolute;z-index:2;left:18px;right:18px;bottom:18px}.game-copy h3{font:900 clamp(2.4rem,6vw,4.4rem)/.82 "Barlow Condensed";margin:.12rem 0;text-transform:uppercase}.game-copy p{margin:.3rem 0;color:#c8cbd3;font-size:.88rem;max-width:640px}
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.tags span{padding:.3rem .5rem;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(0,0,0,.55);font:900 .68rem "Barlow Condensed";letter-spacing:.06em}
@@ -29,18 +33,18 @@ body{background:radial-gradient(circle at 80% 8%,rgba(255,45,149,.12),transparen
 @media(max-width:760px){.game-grid{grid-template-columns:1fr}.featured{grid-column:auto;min-height:430px}.game-card{min-height:390px}.arc-hero{min-height:390px}}
 </style></head><body><div class="bg-grid"></div><div class="scanlines"></div><header class="hero-banner"><a href="index.html"><img src="assets/images/ttd-banner-hq.webp" alt="TTD HQ Titan City Network" width="1800" height="600" fetchpriority="high" decoding="async"></a><div class="hero-overlay"></div></header>
 <main class="arc-shell">
-<section class="network-strip panel"><div><span class="pulse-dot"></span><span>TTD ARCADE // LIVE FLOOR</span></div><div>6 CABINETS ONLINE</div></section>
-<section class="arc-hero"><div class="arc-copy"><span class="stamp">MUTANT GAME LIBRARY // NO DEMOS</span><h1>TTD ARCADE</h1><p>Six live browser games. Pick a cabinet. Hit start. Blame nobody.</p></div></section>
+<section class="network-strip panel"><div><span class="pulse-dot"></span><span>TTD ARCADE // LIVE FLOOR</span></div><div>5 LIVE // 1 REBUILDING</div></section>
+<section class="arc-hero"><div class="arc-copy"><span class="stamp">MUTANT GAME LIBRARY // NO DEMOS</span><h1>TTD ARCADE</h1><p>Five live browser games. Death Circuit is currently being rebuilt for Xogot deployment.</p></div></section>
 <div class="library-head"><div><p class="eyebrow">BLOCKBUSTER LIBRARY</p><h2>SELECT YOUR DAMAGE</h2></div><span>ALL SYSTEMS // LIVE</span></div>
 <section class="game-grid">
 <a class="game-card featured" href="power-command.html"><img src="assets/images/ttd-power-command/power-command-concept-hq.webp" alt="Power Command" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">FLAGSHIP // COMPLETE</span><h3>POWER COMMAND</h3><p>Six-sector global war machine. Missiles, Shield Burst, EMP, Rage and the Command Fortress.</p><div class="tags"><span>TACTICAL WAR</span><span>6 SECTORS</span><span>iPAD READY</span></div><span class="play">PLAY POWER COMMAND →</span></div></a>
-<a class="game-card" href="death-circuit.html?v=8"><img src="assets/death-circuit-concept.png" alt="Death Circuit" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">GENESIS FINISH</span><h3>DEATH CIRCUIT</h3><p>Six-district neon run through Titan City. Twenty road rivals, full sector changeovers and maximum nitro irresponsibility.</p><div class="tags"><span>16-BIT RACER</span><span>20 RIVALS</span><span>6 SECTORS</span></div><span class="play">ENTER DEATH CIRCUIT →</span></div></a>
+<article class="game-card game-card--disabled" aria-disabled="true"><img src="assets/death-circuit-concept.png" alt="Death Circuit — coming soon" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">GARAGE LOCKED</span><h3>DEATH CIRCUIT</h3><p>The obsolete browser cabinet has been withdrawn. A long-form Titan City circuit is now being rebuilt in Xogot.</p><div class="tags"><span>XOGOT BUILD</span><span>90 KM CIRCUIT</span><span>COMING SOON</span></div><span class="play">COMING SOON // REBUILD IN PROGRESS</span></div></article>
 <a class="game-card" href="reb-renal-failure-2.html?v=37"><img src="assets/images/reb-renal-failure-2/title-screen-v36-hq.webp" alt="REB Renal Revenge" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">8-STAGE CAMPAIGN</span><h3>REB: RENAL REVENGE</h3><p>Heavy minigun fire, Renal Rage, mutant bosses and medical advice ignored at industrial scale.</p><div class="tags"><span>RUN & GUN</span><span>8 STAGES</span><span>3 DIFFICULTIES</span></div><span class="play">DEPLOY REB →</span></div></a>
 <a class="game-card" href="titanball94.html"><img src="assets/images/titanball94/stadium-v2.PNG" alt="Titan Ball 94" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">MEGA DRIVE MUTATION</span><h3>TITAN BALL '94</h3><p>Mutant football with Dex, Nikki, Bruisers and enough illegal contact to require its own legal department.</p><div class="tags"><span>MUTANT FOOTBALL</span><span>MEGA DRIVE</span><span>ARCADE</span></div><span class="play">PLAY TITAN BALL '94 →</span></div></a>
 <a class="game-card" href="titanball92.html"><img src="assets/images/titanball92-arcade-art.png" alt="Titan Ball 92" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">ORIGINAL CABINET</span><h3>TITAN BALL '92</h3><p>Dex Volt runs the field while Bobby Bank Roll invents penalties and mutants attempt workplace violence.</p><div class="tags"><span>100 YARDS</span><span>SMASH</span><span>VOLTAGE MODE</span></div><span class="play">PLAY TITAN BALL '92 →</span></div></a>
 <a class="game-card" href="reb-renal-failure.html"><img src="assets/images/reb-renal-failure/cover.jpg" alt="REB Renal Failure" loading="lazy" decoding="async"><div class="game-copy"><span class="stamp">ORIGINAL DEPLOYMENT</span><h3>REB: RENAL FAILURE</h3><p>The first renal catastrophe. Ammo management, jungle fire and one extremely bad supplement protocol.</p><div class="tags"><span>CLASSIC REB</span><span>DRRRRRT</span><span>JUNGLE</span></div><span class="play">PLAY ORIGINAL →</span></div></a>
 </section>
-<div class="arc-footer">TTD ARCADE // SIX CABINETS // ZERO RESPONSIBLE ADULTS // TITAN CITY NETWORK</div>
+<div class="arc-footer">TTD ARCADE // FIVE LIVE CABINETS // DEATH CIRCUIT REBUILDING // TITAN CITY NETWORK</div>
 </main><nav class="bottom-nav" aria-label="TTD HQ navigation">
 <a href="index.html">HQ</a><a href="map.html">MAP</a><a href="comics.html">COMICS</a><a href="dossiers.html">CREW</a><a href="tbn.html">TBN</a>
 </nav><script src="app.js"></script></body></html>
