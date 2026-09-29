@@ -1,0 +1,13 @@
+TTD HQ // NEW FRONT DOOR
+
+Target repository: Hardcase87/ttd-hq
+Target branch: main
+
+Copy these package contents to the root of the existing repository, preserving the paths:
+- index.html (replaces only the home page)
+- home-v13.css (new, home page only)
+- assets/images/home/ (new optimized art, poster and six-second silent MP4)
+
+Then commit and push. Existing comics, games, store, dossiers, districts, and other pages are not included in this package and should remain in place.
+
+The video loads on wider screens only when in view. Phones, reduced-motion settings and data-saver connections see the static poster. No external JavaScript libraries are required.
