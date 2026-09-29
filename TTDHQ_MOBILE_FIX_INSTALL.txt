@@ -1,0 +1,7 @@
+TTD HQ MOBILE FRONT DOOR FIX
+
+Upload the three included site files to the root of Hardcase87/ttd-hq, preserving the assets/images/home/ path. Commit/deploy them together, then refresh the mobile page.
+
+Changes: dedicated 4:5 mobile hero keeps the full VHS banner and canonical cast visible; Earth invasion art now displays its complete 4:5 poster instead of a 300px crop; CSS URL bumped to v13.1 for fresh mobile loading. Desktop layout is unchanged.
+
+Built against GitHub commit 89c0b79. Local fix commit 056bf8a.

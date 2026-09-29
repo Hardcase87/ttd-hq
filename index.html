@@ -9,8 +9,9 @@
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="assets/images/ttd-logo-app.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="assets/images/home/ttd-vhs-takeover.webp">
-<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="commercial.css?v=12.2" data-ttd-commercial-css><link rel="stylesheet" href="home-v13.css">
+<link rel="preload" as="image" href="assets/images/home/ttd-vhs-takeover.webp" media="(min-width:701px)">
+<link rel="preload" as="image" href="assets/images/home/ttd-mobile-hero.webp" media="(max-width:700px)">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="commercial.css?v=12.2" data-ttd-commercial-css><link rel="stylesheet" href="home-v13.css?v=13.1">
 <title>TTD HQ // Tactical Terror Division</title>
 </head>
 <body class="front-page"><div class="bg-grid" aria-hidden="true"></div><div class="scanlines" aria-hidden="true"></div>
@@ -21,7 +22,7 @@
 </header>
 <main id="top" class="front-main">
   <section class="front-hero" aria-labelledby="front-title">
-    <picture class="front-hero-poster"><img src="assets/images/home/ttd-vhs-takeover.webp" width="1440" height="480" alt="The Deadlifter and Nikki Nitro take over the TTD VHS rental district" fetchpriority="high"></picture>
+    <picture class="front-hero-poster"><source media="(max-width:700px)" srcset="assets/images/home/ttd-mobile-hero.webp" width="900" height="1125"><img src="assets/images/home/ttd-vhs-takeover.webp" width="1440" height="480" alt="TTD VHS banner with the Deadlifter, Nikki Nitro and Hardcase '87" fetchpriority="high"></picture>
     <video class="front-hero-video" muted autoplay loop playsinline preload="none" poster="assets/images/home/ttd-vhs-takeover.webp" aria-hidden="true" data-front-video><source data-src="assets/images/home/ttd-vhs-takeover.mp4" type="video/mp4"></video>
     <div class="front-mobile-hero"><span>TTD // CHANNEL 87</span><h1 id="front-title">ANYTHING<br>CAN HAPPEN.</h1><p>TITAN CITY. MUTANT CITY. EARTH NEXT.</p></div>
     <div class="front-hero-controls"><span>PLAY ▶ &nbsp; SP &nbsp; / &nbsp; RENTAL COPY 001</span><a href="issue-1.html">READ ISSUE #1 FREE ↗</a></div>
