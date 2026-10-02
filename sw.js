@@ -1,4 +1,4 @@
-const CACHE = 'ttd-hq-v12.3-death-circuit-lock';
+const CACHE = 'ttd-hq-v12.4-beret-logo';
 const CORE = [
   './',
   './index.html',
@@ -25,7 +25,8 @@ const CORE = [
   './app.js',
   './manifest.json',
   './assets/images/ttd-banner-hq.webp',
-  './assets/images/ttd-logo-app-hq.webp',
+  './assets/images/ttd-beret-app.png',
+  './assets/images/home/ttd-neon-wordmark.webp',
   './assets/images/module-city-map-hq.webp',
   './assets/images/module-comics-hq.webp',
   './assets/images/module-dossiers-hq.webp',

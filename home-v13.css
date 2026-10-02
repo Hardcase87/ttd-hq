@@ -22,3 +22,9 @@
   .front-earth-art{height:auto;aspect-ratio:4/5}
   .front-earth-art img{position:static;display:block;width:100%;height:auto;object-fit:contain;object-position:center}
 }
+
+/* TTD beret and neon wordmark identity */
+.front-brand-icon{width:48px;height:48px;object-fit:cover;flex:none;border-radius:11px;box-shadow:0 0 16px #ff2d9560}
+.front-logo-deck{display:flex;align-items:center;justify-content:center;min-height:0;margin-top:20px;margin-bottom:0;background:radial-gradient(ellipse at center,#ff2d9517,transparent 67%);overflow:hidden}
+.front-logo-deck img{display:block;width:min(620px,94%);height:auto;object-fit:contain;filter:drop-shadow(0 8px 22px #000)}
+@media(max-width:700px){.front-brand-icon{width:42px;height:42px;border-radius:9px}.front-logo-deck{min-height:0;margin-top:12px}.front-logo-deck img{width:100%}}

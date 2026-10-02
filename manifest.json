@@ -9,8 +9,8 @@
   "description": "Enter Titan City through the TTD HQ command network.",
   "icons": [
     {
-      "src": "assets/images/ttd-logo-app.png",
-      "sizes": "1254x1254",
+      "src": "assets/images/ttd-beret-app.png?v=2",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }

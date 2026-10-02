@@ -154,14 +154,14 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
     'payments.html': {
       title: 'Payments // Tactical Terror Division',
       description: 'TTD HQ payment and support grid for Lightning, PayPal contact and future product drops.',
-      image: '/assets/images/ttd-logo-app.png'
+      image: '/assets/images/ttd-beret-app.png?v=2'
     }
   };
 
   const currentMeta = metadata[path] || {
     title: document.title || 'TTD HQ // Tactical Terror Division',
     description: 'Tactical Terror Division // Titan City Network.',
-    image: '/assets/images/ttd-logo-app.png'
+    image: '/assets/images/ttd-beret-app.png?v=2'
   };
 
   if (currentMeta.title) document.title = currentMeta.title;
@@ -312,7 +312,7 @@ document.querySelectorAll('[data-copy]').forEach(btn => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./sw.js?v=12.2', {
+      const registration = await navigator.serviceWorker.register('./sw.js?v=12.4', {
         updateViaCache: 'none'
       });
       await registration.update();
