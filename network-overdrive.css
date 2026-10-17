@@ -108,6 +108,53 @@ p{line-height:1.55}
 .front-district-grid a{border-radius:6px!important;padding:22px!important}
 .front-earth-signal{border-radius:8px!important;border:1px solid #ff2d9566!important}
 .front-end{border-top:2px solid var(--ov-pink)}
+
+/* The other broadcast departments now share the same premium industrial frame. */
+.c-shell,.map-shell,.d-shell,.tbn-shell,.store-shell{max-width:1520px!important}
+.c-hero,.d-hero{border-top:3px solid var(--ov-pink)!important;border-radius:6px!important}
+.c-hero h1,.d-hero h1{font-size:clamp(4.4rem,12vw,9.5rem)!important;line-height:.8!important}
+.timeline span,.clearance span,.status,.badge,.godtag,.price span,.launch span{border-radius:3px!important;letter-spacing:.1em}
+.books{gap:20px!important}
+.book{border-top:3px solid rgba(167,255,34,.62)!important}
+.book .cover img{transition:transform .45s ease,filter .45s ease;filter:contrast(1.08) saturate(1.1)}
+.book:hover .cover img{transform:scale(1.035);filter:contrast(1.12) saturate(1.2)}
+.book-copy{padding:21px!important}
+.book h3{font-size:clamp(1.9rem,3vw,3.1rem)!important}
+.special{border:2px solid rgba(255,45,149,.65)!important}
+.special .book-copy{padding:clamp(25px,5vw,70px)!important}
+.map-master{border-radius:6px!important;border:2px solid #ff2d9588!important;box-shadow:0 30px 75px #000b!important}
+.map-master img{filter:contrast(1.12) saturate(1.05)}
+.pin{transition:transform .25s,box-shadow .25s;outline:3px solid #000}
+.pin:hover{transform:translate(-50%,-50%) scale(1.35);box-shadow:0 0 0 9px #8aff2b20,0 0 35px #8aff2b}
+.statusline{gap:12px!important}
+.statusline div{border-radius:4px!important;border-top:2px solid var(--ov-green)!important;padding:17px!important}
+.districts{gap:16px!important}
+.d{border-left:3px solid var(--ov-pink)!important}
+.d:hover{background:linear-gradient(125deg,#211222,#080a12)!important}
+.files{gap:18px!important}
+.file{border-radius:6px!important;border:1px solid #ffffff2e!important;box-shadow:0 20px 45px #0007;transition:transform .2s,border-color .2s}
+.file:hover{border-color:var(--ov-green)!important;transform:translateY(-5px)!important}
+.portrait img{filter:contrast(1.12) saturate(1.08)}
+.data{padding:clamp(19px,3vw,34px)!important}
+.data h2{font-size:clamp(2.6rem,4.8vw,4.9rem)!important;line-height:.8!important}
+.meta span{border-radius:3px!important;background:#ffffff06}
+.tbn-topline{border-radius:4px!important;border-top:2px solid var(--ov-pink)!important}
+.tbn-hero{border-radius:6px!important;border:2px solid #ff2d9555!important;box-shadow:0 20px 80px #0009!important}
+.tbn-hero-main{filter:contrast(1.04)}
+.tbn-newswire{background:linear-gradient(165deg,#1a1023,#070911)!important}
+.wire-item{padding:17px 0!important;border-top-color:#ffffff30!important}
+.breaking{transform:none!important;letter-spacing:.15em!important;box-shadow:5px 5px 0 #07050d}
+.market-strip,.ticker{border-radius:4px!important;border-color:#ffffff33!important}
+.market-cell{min-height:118px!important}
+.store-hero,.store-section,.store-feature,.featured-drop,.commerce-card,.bundle-card,.product-card{
+ border-radius:6px!important;
+}
+.store-hero{border-top:3px solid var(--ov-pink)!important}
+.store-section-head,.store-kicker{letter-spacing:.12em}
+.product-card,.bundle-card,.commerce-card{border-color:#ffffff2d!important;box-shadow:0 18px 45px #0008}
+.product-card:hover,.bundle-card:hover,.commerce-card:hover{border-color:var(--ov-green)!important}
+.store-primary,.store-secondary,.buybtn{border-radius:4px!important;min-height:44px;transition:transform .2s,filter .2s}
+.store-primary:hover,.store-secondary:hover,.buybtn:hover{transform:translateY(-2px);filter:brightness(1.13)}
 @media(max-width:1180px){
  .front-worlds{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  .front-world{min-height:490px!important}
